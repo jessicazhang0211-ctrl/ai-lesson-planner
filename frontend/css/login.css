@@ -1,0 +1,248 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+
+
+/* 背景图 */
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  min-height: 100vh;
+  background: url("../assets/background.jpg") center/cover no-repeat fixed;
+}
+
+/* 背景暗化层（提升可读性） */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 20, 0.45);
+  z-index: 0;
+}
+
+/* 左上角学生端链接 */
+.student-link {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 5;
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.18);
+}
+.student-link:hover {
+  background: rgba(255, 255, 255, 0.20);
+}
+
+/* 右上角语言切换（不用 button，用 a） */
+.lang-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 5;
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.18);
+}
+.lang-toggle:hover {
+  background: rgba(255, 255, 255, 0.20);
+}
+
+/* 页面布局 */
+.page {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 70px 24px 24px; /* 让顶部固定按钮有空间 */
+}
+
+/* card 外壳：用于放置覆盖 logo */
+.card-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+}
+
+.logo-badge {
+  position: absolute;
+  top: -120px;
+
+  left: 0;
+  right: 0;
+  margin: 0 auto;     /* ← 让它在父容器中水平居中 */
+
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid rgba(255,255,255,0.90);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  background: #fff;
+  z-index: 3;
+}
+
+.logo-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* card 本体（玻璃拟态） */
+.card {
+  width: 100%;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(255,255,255,0.55);
+  border-radius: 18px;
+  padding: 100px 22px 18px;
+  box-shadow: 0 18px 60px rgba(0,0,0,0.22);
+  backdrop-filter: blur(8px);
+}
+
+/* 顶部栏：左系统名，右注册链接（替代原语言位置） */
+.topbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* 关键：让中间对齐成为布局基准 */
+  margin-bottom: 21px;
+  min-height: 28px;
+  padding-top: 6px; /* 可选：稍微呼吸感 */
+}
+
+.brand {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: 800;
+  font-size: 38px;
+  color: #111;
+  letter-spacing: 5.2px;
+  white-space: nowrap;
+}
+
+.auth-links {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #666;
+}
+
+.auth-link {
+  color: #2b6cb0;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.divider {
+  color: #999;
+  user-select: none;
+}
+
+
+
+.title {
+  margin: 4px 0 0;
+  font-size: 26px;
+  color: #111;
+  text-align: center;
+}
+
+.subtitle {
+  margin: 8px 0 16px;
+  color: #555;
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.form { display: grid; gap: 12px; }
+
+.label {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: #333;
+}
+
+.input {
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  padding: 0 12px;
+  outline: none;
+  background: rgba(255,255,255,0.95);
+}
+
+.input:focus {
+  border-color: #bbb;
+  box-shadow: 0 0 0 3px rgba(43,108,176,0.12);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.checkbox {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+  color: #444;
+}
+
+.link {
+  font-size: 13px;
+  color: #2b6cb0;
+  text-decoration: none;
+}
+.link:hover { text-decoration: underline; }
+
+.error {
+  margin: 0;
+  color: #c53030;
+  font-size: 13px;
+}
+
+.btn {
+  height: 46px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  background: #111;
+  color: #fff;
+  transition: transform 0.08s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0px); }
+
+.footer {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  font-size: 12px;
+  color: #666;
+}

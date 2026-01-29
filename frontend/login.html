@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Lesson Planner - Login</title>
+  <link rel="stylesheet" href="./css/login.css" />
+</head>
+
+<body>
+  <!-- 左上角：学生端跳转链接 -->
+  <a class="student-link" id="studentLink" href="./student.html">学生端</a>
+
+  <!-- 右上角：语言切换（不用 button，用 a） -->
+  <a class="lang-toggle" id="langToggle" href="#">EN</a>
+
+  <div class="page">
+    <div class="card-wrap">
+      <!-- 圆形 Logo 覆盖在 card 上边框处（偏右） -->
+      <div class="logo-badge" aria-hidden="true">
+        <img src="./assets/logo.png" alt="logo" />
+      </div>
+
+      <div class="card">
+        <!-- 顶部：系统名称 + 右侧改成注册链接（替代原语言按钮位置） -->
+        <div class="topbar">
+          <div class="brand" id="appName">AI 辅助备课系统</div>
+        </div>
+
+        <h1 class="title" id="title">登录界面</h1>
+        <p class="subtitle" id="subtitle">欢迎回来，请登录继续</p>
+
+        <form class="form" id="loginForm">
+          <label class="label" id="emailLabel">
+            邮箱
+            <input
+              class="input"
+              id="email"
+              type="email"
+              autocomplete="email"
+              placeholder="name@example.com"
+            />
+          </label>
+
+          <label class="label" id="passwordLabel">
+            密码
+            <input
+              class="input"
+              id="password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="••••••••"
+            />
+          </label>
+
+          <div class="row">
+            <label class="checkbox">
+              <input type="checkbox" id="remember" />
+              <span id="rememberText">记住我</span>
+            </label>
+
+            <a class="link" href="#" id="forgotLink">忘记密码？</a>
+          </div>
+
+          <p class="error" id="error" style="display:none;"></p>
+
+          <button class="btn" id="submitBtn" type="submit">登录</button>
+          <div class="auth-links">
+            <a class="auth-link" href="./register.html" id="registerLink">注册新账号</a>
+          </div>
+        </form>
+
+        <div class="footer">
+          <span id="hintText">使用测试账号：test@example.com / 123456</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/login.js"></script>
+</body>
+</html>

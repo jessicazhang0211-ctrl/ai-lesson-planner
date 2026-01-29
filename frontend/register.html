@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Lesson Planner - Register</title>
+  <link rel="stylesheet" href="./css/register.css" />
+</head>
+
+<body>
+  <!-- 左上角：学生端 -->
+  <a class="student-link" id="studentLink" href="./student.html">学生端</a>
+
+  <!-- 右上角：语言切换（a，不用 button） -->
+  <a class="lang-toggle" id="langToggle" href="#">EN</a>
+
+  <div class="page">
+    <div class="card-wrap">
+      <!-- 圆形 logo 覆盖在 card 上边框处 -->
+      <div class="logo-badge" aria-hidden="true">
+        <img src="./assets/logo.png" alt="logo" />
+      </div>
+
+      <div class="card">
+        <div class="topbar">
+          <div class="brand" id="appName">AI 辅助备课系统</div>
+        </div>
+
+        <h1 class="title" id="title">注册</h1>
+        <p class="subtitle" id="subtitle">创建账号后即可开始智能备课</p>
+
+        <form class="form" id="registerForm">
+          <label class="label" id="nameLabel">
+            姓名
+            <input class="input" id="name" type="text" placeholder="Jessica Zhang" />
+          </label>
+
+          <label class="label" id="emailLabel">
+            邮箱
+            <input class="input" id="email" type="email" placeholder="name@example.com" />
+          </label>
+
+          <label class="label" id="passwordLabel">
+            密码
+            <input class="input" id="password" type="password" placeholder="••••••••" />
+          </label>
+
+          <label class="label" id="confirmLabel">
+            确认密码
+            <input class="input" id="confirm" type="password" placeholder="••••••••" />
+          </label>
+
+          <p class="error" id="error" style="display:none;"></p>
+
+          <button class="btn" id="submitBtn" type="submit">注册</button>
+          <div class="auth-links">
+            <a class="auth-link" href="./login.html" id="goLoginLink">去登录</a>
+          </div>
+
+        </form>
+
+        <div class="footer">
+          <span id="hintText">注册后将跳转到登录页</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/register.js"></script>
+</body>
+</html>
