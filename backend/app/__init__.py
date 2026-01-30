@@ -1,0 +1,28 @@
+from flask import Flask, jsonify
+from flask_cors import CORS
+from app.config import Config
+from app.extensions import db
+from app.api import register_blueprints
+
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
+
+    # 允许跨域（前后端分离必备）
+    CORS(app)
+
+    # 初始化数据库
+    db.init_app(app)
+
+    # 注册路由
+    register_blueprints(app)
+
+    @app.get("/api/health")
+    def health():
+        return jsonify({"status": "ok"})
+
+    # ✅ 启动时建表（开发阶段最省事，后面可升级迁移）
+    with app.app_context():
+        db.create_all()
+
+    return app

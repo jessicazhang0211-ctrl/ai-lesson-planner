@@ -1,2 +1,6 @@
 flask
 flask-cors
+flask-sqlalchemy
+python-dotenv
+pymysql
+werkzeug
