@@ -1,0 +1,187 @@
+:root {
+  --font-small: 13px;
+  --font-medium: 14px;
+  --font-large: 16px;
+}
+
+/* 默认 */
+html {
+  font-size: var(--font-medium);
+}
+
+/* 设置页控制 */
+html[data-font="small"] {
+  font-size: var(--font-small);
+}
+
+html[data-font="medium"] {
+  font-size: var(--font-medium);
+}
+
+html[data-font="large"] {
+  font-size: var(--font-large);
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont,
+               "Segoe UI", Roboto, "Helvetica Neue",
+               Arial, "PingFang SC", "Microsoft YaHei",
+               sans-serif;
+}
+
+body {
+  background: #f6f7f9;
+  color: #1f2329;
+}
+
+
+/* 顶部栏 */
+.topbar {
+  height: 56px;
+  background: #ffffff;
+  color: #1f2329;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  border-bottom: 1px solid #e5e6eb;
+}
+
+.system-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.logo {
+  height: 32px;
+  margin-right: 10px;
+}
+
+.topbar-right {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #1f2329;
+}
+
+.username {
+  margin-right: 10px;
+  font-size: 14px;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+/* 用户下拉菜单 */
+.user-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 44px;
+  width: 160px;
+  background: #ffffff;
+  border: 1px solid #e5e6eb;
+  border-radius: 6px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.08);
+  z-index: 100;
+}
+
+.user-menu .menu-item {
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.user-menu .menu-item:hover {
+  background: #f6f7f9;
+}
+
+.user-menu .logout {
+  color: #d93026;
+}
+
+/* 主体布局 */
+.layout {
+  display: flex;
+  height: calc(100vh - 56px);
+}
+
+/* 侧边栏 */
+/* 侧边栏默认展开 */
+.sidebar {
+  width: 200px;
+  background: #ffffff;
+  border-right: 1px solid #e5e6eb;
+  transition: width 0.25s ease;
+  overflow: hidden;
+}
+
+/* 收起后：变窄 */
+.sidebar.collapsed {
+  width: 56px; /* 只留一个按钮区域 */
+}
+
+/* 收起后：菜单完全隐藏（不显示文字、不显示图标、不需要可点击） */
+.sidebar.collapsed .menu {
+  display: none;
+}
+
+/* toggle 按钮始终可见 */
+.toggle-btn {
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  color: #646464;
+  user-select: none;
+}
+
+.menu .menu-item {
+  padding: 12px 20px;
+  font-size: 14px;
+  color: #1f2329;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+}
+
+.menu .menu-item:hover {
+  background: #f6f7f9;
+}
+
+.menu .menu-item.active {
+  background: #eef4ff;
+  color: #056de8;
+  border-left: 3px solid #056de8;
+}
+
+/* 主内容 */
+.content {
+  flex: 1;
+  padding: 24px 32px;
+  background: #f6f7f9;
+}
+
+.content h1 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.content p {
+  font-size: 14px;
+  color: #646464;
+}
+

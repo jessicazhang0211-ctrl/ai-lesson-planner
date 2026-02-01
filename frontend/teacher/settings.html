@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>设置 · AI 辅助备课系统</title>
+  <link rel="stylesheet" href="./css/teacher.css" />
+</head>
+<body>
+
+<!-- 顶部导航栏（与主页一致） -->
+<header class="topbar">
+  <div class="topbar-left" onclick="goHome()">
+    <img src="../assets/logo.png" class="logo" alt="logo" />
+    <span class="system-name" id="appName">AI 辅助备课系统</span>
+  </div>
+
+  <div class="topbar-right" id="userArea">
+    <span class="username">User</span>
+    <img src="../assets/avatar.png" class="avatar" alt="avatar" />
+    <div class="user-menu" id="userMenu">
+      <div class="menu-item" onclick="goProfile()">个人信息</div>
+      <div class="menu-item" onclick="goClassInfo()">班级信息</div>
+      <div class="menu-item" onclick="goSettings()">设置</div>
+      <div class="menu-item logout" onclick="logout()">退出登录</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- 侧边栏（与主页一致） -->
+  <aside class="sidebar" id="sidebar">
+    <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
+    <nav class="menu">
+      <a class="menu-item" href="./index.html" data-i18n="dashboard">学情分析</a>
+      <a class="menu-item" href="./index.html#lesson" data-i18n="lesson">教案生成</a>
+      <a class="menu-item" href="./index.html#ppt" data-i18n="ppt">PPT 生成</a>
+      <a class="menu-item" href="./index.html#exercise" data-i18n="exercise">习题设计</a>
+      <a class="menu-item" href="./index.html#class" data-i18n="class">班级管理</a>
+      <a class="menu-item active" href="./settings.html" data-i18n="settings">设置</a>
+    </nav>
+  </aside>
+
+  <!-- 主内容区：设置 -->
+  <main class="content">
+    <h1 id="pageTitle">设置</h1>
+
+    <section class="card">
+      <div class="card-title" id="settingsTitle">偏好设置</div>
+
+      <div class="form-row">
+        <label id="langLabel">语言</label>
+        <select id="langSelect">
+          <option value="zh">中文</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label id="fontLabel">字体大小</label>
+        <select id="fontSelect">
+          <option value="small">小</option>
+          <option value="medium">中</option>
+          <option value="large">大</option>
+        </select>
+      </div>
+
+      <div class="actions">
+        <a href="#" id="saveBtn" class="primary-link">保存设置</a>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- 共享：主页的通用交互（侧边栏/用户菜单/登录校验/应用全局设置） -->
+<script src="./js/teacher.js"></script>
+<!-- 设置页专属逻辑 -->
+<script src="./js/settings.js"></script>
+</body>
+</html>

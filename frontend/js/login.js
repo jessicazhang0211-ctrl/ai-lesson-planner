@@ -121,11 +121,22 @@ async function loginSubmit(e) {
     const data = await res.json();
 
     if (data.code === 0) {
-      alert(lang === "zh" ? "登录成功！" : "Login success!");
-      // TODO: 未来跳转 dashboard
-      // location.href = "./dashboard.html";
+      // ✅ 1) 保存登录用户信息（供教师端校验/显示）
+      // 后端返回格式：data.data.user
+      const user = data.data && data.data.user ? data.data.user : { email };
+
+      localStorage.setItem("login_user", JSON.stringify(user));
+
+      // （可选）记住邮箱：下次打开登录页自动填
+      localStorage.setItem("prefill_email", user.email || email);
+
+      // ✅ 2) 跳转到教师端主界面
+      // 注意路径：如果 login.html 在 frontend 根目录，而教师端在 frontend/teacher/
+      window.location.href = "./teacher/index.html";
+
       return;
     }
+
 
     setError(dict[lang].errors.loginFailed);
   } catch {

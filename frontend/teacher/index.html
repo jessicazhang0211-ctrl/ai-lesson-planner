@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>教师端 · AI 辅助备课系统</title>
+  <link rel="stylesheet" href="./css/teacher.css" />
+</head>
+<body>
+
+<!-- 顶部导航栏 -->
+<header class="topbar">
+  <div class="topbar-left" onclick="goHome()">
+    <img src="../assets/logo.png" class="logo" />
+    <span class="system-name">AI 辅助备课系统</span>
+  </div>
+
+  <div class="topbar-right" onclick="toggleUserMenu()">
+    <span class="username">张老师</span>
+    <img src="../assets/avatar.png" class="avatar" />
+    <div class="user-menu" id="userMenu">
+      <div class="menu-item">个人信息</div>
+      <div class="menu-item">班级信息</div>
+      <div class="menu-item" onclick="location.href='./settings.html'">设置</div>
+      <div class="menu-item logout" onclick="logout()">退出登录</div>
+    </div>
+  </div>
+</header>
+
+<!-- 主体区域 -->
+<div class="layout">
+
+  <!-- 侧边栏 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
+
+    <nav class="menu">
+      <div class="menu-item active" data-i18n="dashboard">📊 学情分析</div>
+      <div class="menu-item" data-i18n="lesson">📝 教案生成</div>
+      <div class="menu-item" data-i18n="ppt">📽 PPT 生成</div>
+      <div class="menu-item" data-i18n="exercise">✏️ 习题设计</div>
+      <div class="menu-item" data-i18n="class">🏫 班级管理</div>
+      <div class="menu-item" data-i18n="settings">⚙️ 设置</div>
+    </nav>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main class="content">
+    <h1 data-i18n-page>学情分析</h1>
+
+    <p>这里将展示学生整体学习情况、薄弱点分析、能力分布等内容。</p>
+  </main>
+
+</div>
+
+<script src="./js/teacher.js"></script>
+</body>
+</html>
