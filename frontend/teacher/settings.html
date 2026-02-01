@@ -44,34 +44,49 @@
 
   <!-- 主内容区：设置 -->
   <main class="content">
-    <h1 id="pageTitle">设置</h1>
+  <h1 id="pageTitle">设置</h1>
 
-    <section class="card">
-      <div class="card-title" id="settingsTitle">偏好设置</div>
+  <div class="settings-layout">
+    <!-- 左侧分组列表 -->
+    <div class="settings-left">
+      <!-- 个人信息 -->
+      <section class="card settings-group">
+        <div class="settings-group-title" data-s-i18n="sectionPersonal">个人信息</div>
 
-      <div class="form-row">
-        <label id="langLabel">语言</label>
-        <select id="langSelect">
-          <option value="zh">中文</option>
-          <option value="en">English</option>
-        </select>
+        <a href="#" class="settings-item active" data-view="profile" data-s-i18n="itemProfile">
+          个人资料
+          <span class="chev">›</span>
+        </a>
+
+        <a href="#" class="settings-item" data-view="account" data-s-i18n="itemAccount">
+          账号设置
+          <span class="chev">›</span>
+        </a>
+      </section>
+
+      <!-- 通用 -->
+      <section class="card settings-group">
+        <div class="settings-group-title" data-s-i18n="sectionGeneral">通用</div>
+
+        <a href="#" class="settings-item" data-view="language" data-s-i18n="itemLanguage">
+          语言设置
+          <span class="chev">›</span>
+        </a>
+
+        <a href="#" class="settings-item" data-view="font" data-s-i18n="itemFont">
+          字体设置
+          <span class="chev">›</span>
+        </a>
+      </section>
+    </div>
+
+        <!-- 右侧详情区：点击左侧项后，这里会变化 -->
+        <div class="settings-right">
+          <section class="card" id="settingsPanel"></section>
+        </div>
       </div>
+    </main>
 
-      <div class="form-row">
-        <label id="fontLabel">字体大小</label>
-        <select id="fontSelect">
-          <option value="small">小</option>
-          <option value="medium">中</option>
-          <option value="large">大</option>
-
-        </select>
-      </div>
-
-      <div class="actions">
-        <a href="#" id="saveBtn" class="primary-link">保存设置save</a>
-      </div>
-    </section>
-  </main>
 </div>
 
 <!-- 共享：主页的通用交互（侧边栏/用户菜单/登录校验/应用全局设置） -->
