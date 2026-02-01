@@ -1,93 +1,135 @@
+// ========== i18n 字典 ==========
 const teacherDict = {
   zh: {
+    appName: "AI 辅助备课系统",
     dashboard: "学情分析",
     lesson: "教案生成",
     ppt: "PPT 生成",
     exercise: "习题设计",
     class: "班级管理",
-    settings: "设置"
+    settings: "设置",
+    loginFirst: "请先登录",
+    profile: "个人信息",
+    classInfo: "班级信息",
+    logout: "退出登录",
   },
   en: {
+    appName: "AI Lesson Planner",
     dashboard: "Learning Analytics",
     lesson: "Lesson Planner",
     ppt: "PPT Generator",
     exercise: "Exercise Builder",
     class: "Class Management",
-    settings: "Settings"
+    settings: "Settings",
+    loginFirst: "Please sign in first",
+    profile: "Profile",
+    classInfo: "Class Info",
+    logout: "Sign out",
   }
 };
-function applyTeacherLang() {
-  const lang = localStorage.getItem("locale") || "zh";
-  const t = teacherDict[lang];
 
-  // 侧边栏
-  document.querySelector("[data-i18n='dashboard']").textContent = t.dashboard;
-  document.querySelector("[data-i18n='lesson']").textContent = t.lesson;
-  document.querySelector("[data-i18n='ppt']").textContent = t.ppt;
-  document.querySelector("[data-i18n='exercise']").textContent = t.exercise;
-  document.querySelector("[data-i18n='class']").textContent = t.class;
-  document.querySelector("[data-i18n='settings']").textContent = t.settings;
-
-  // 页面标题（如果有）
-  const titleEl = document.querySelector("[data-i18n-page]");
-  if (titleEl) titleEl.textContent = t.dashboard;
+function getLocale() {
+  return localStorage.getItem("locale") || "zh";
 }
 
+// 安全赋值（避免元素不存在时报错）
+function setText(selector, text) {
+  const el = document.querySelector(selector);
+  if (el) el.textContent = text;
+}
 
-(function applySystemSettings() {
-  // 语言
-  const lang = localStorage.getItem("locale") || "zh";
-  document.documentElement.lang = lang;
+// ========== 应用系统设置：语言 + 字体 ==========
+function applySystemSettings() {
+  const lang = getLocale();
+  document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
 
-  // 字体大小
   const fontSize = localStorage.getItem("font_size") || "medium";
   document.documentElement.setAttribute("data-font", fontSize);
-})();
+}
 
+// ========== 应用教师端语言 ==========
+function applyTeacherLang() {
+  const lang = getLocale();
+  const t = teacherDict[lang];
 
-// 登录校验：未登录不能进入教师端
+  // 顶部系统名（如果 settings.html/index.html 都有 appName 元素）
+  setText("#appName", t.appName);
+
+  // 侧边栏（注意：settings.html 里用的是 <a>，textContent 也一样）
+  setText("[data-i18n='dashboard']", t.dashboard);
+  setText("[data-i18n='lesson']", t.lesson);
+  setText("[data-i18n='ppt']", t.ppt);
+  setText("[data-i18n='exercise']", t.exercise);
+  setText("[data-i18n='class']", t.class);
+  setText("[data-i18n='settings']", t.settings);
+  setText("[data-i18n='profile']", t.profile);
+  setText("[data-i18n='classInfo']", t.classInfo);
+  setText("[data-i18n='logout']", t.logout);
+
+  // 页面标题（不同页面可能不同）
+  const pageTitleEl = document.querySelector("[data-i18n-page]");
+  if (pageTitleEl) {
+    // 主页默认显示 dashboard；设置页自己会在 settings.js 里覆盖
+    pageTitleEl.textContent = t.dashboard;
+  }
+}
+
+// ========== 登录校验：未登录不能进入教师端 ==========
 (function checkLogin() {
   const user = localStorage.getItem("login_user");
   if (!user) {
-    alert("请先登录");
+    alert(teacherDict[getLocale()].loginFirst);
     window.location.href = "../login.html";
   }
 })();
 
-
+// ========== 侧边栏折叠 ==========
 function toggleSidebar() {
-  document.getElementById("sidebar").classList.toggle("collapsed");
+  const sidebar = document.getElementById("sidebar");
+  if (sidebar) sidebar.classList.toggle("collapsed");
 }
 
+// ========== 用户菜单 ==========
 function toggleUserMenu() {
   const menu = document.getElementById("userMenu");
+  if (!menu) return;
   menu.style.display = menu.style.display === "block" ? "none" : "block";
 }
 
-function goHome() {
-  location.reload();
-}
-
-// 点击空白处关闭用户菜单
+// 点击空白处关闭用户菜单（如果页面有 topbar-right）
 document.addEventListener("click", function (e) {
   const userMenu = document.getElementById("userMenu");
   const topbarRight = document.querySelector(".topbar-right");
+  if (!userMenu || !topbarRight) return;
 
   if (!topbarRight.contains(e.target)) {
     userMenu.style.display = "none";
   }
 });
-function loadUserInfo() {
-  const user = JSON.parse(localStorage.getItem("login_user"));
-  if (user && user.name) {
-    document.querySelector(".username").innerText = user.name;
-  }
+
+// ========== 点击 logo 回主页 ==========
+function goHome() {
+  // ✅ 不用 reload：无论在 settings.html 还是其它页都回主页
+  window.location.href = "./index.html";
 }
 
+// ========== 载入用户信息 ==========
+function loadUserInfo() {
+  const raw = localStorage.getItem("login_user");
+  if (!raw) return;
+  const user = JSON.parse(raw);
+
+  const nameEl = document.querySelector(".username");
+  if (nameEl) nameEl.textContent = user.name || user.email || "User";
+}
+
+// ========== 退出登录 ==========
 function logout() {
   localStorage.removeItem("login_user");
   window.location.href = "../login.html";
 }
 
+// ========== 初始化：两页通用 ==========
+applySystemSettings();
 loadUserInfo();
 applyTeacherLang();

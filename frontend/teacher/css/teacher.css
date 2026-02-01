@@ -149,18 +149,23 @@ body {
   user-select: none;
 }
 
+/* sidebar menu item（统一 a / div 的行为） */
 .menu .menu-item {
+  display: block;              /* 让 <a> 像块级元素，整行可点 */
   padding: 12px 20px;
   font-size: 14px;
   color: #1f2329;
   cursor: pointer;
+  text-decoration: none;       /* 去掉 <a> 默认下划线 */
   border-left: 3px solid transparent;
 }
 
+/* hover */
 .menu .menu-item:hover {
   background: #f6f7f9;
 }
 
+/* active */
 .menu .menu-item.active {
   background: #eef4ff;
   color: #056de8;
@@ -184,4 +189,53 @@ body {
   font-size: 14px;
   color: #646464;
 }
+
+
+/* setting 界面样式*/
+.card {
+  background: #fff;
+  border: 1px solid #e5e6eb;
+  border-radius: 10px;
+  padding: 16px 18px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.06);
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-top: 1px solid #f0f1f3;
+}
+
+.form-row:first-of-type { border-top: none; }
+
+select {
+  height: 36px;
+  border: 1px solid #e5e6eb;
+  border-radius: 8px;
+  padding: 0 10px;
+  background: #fff;
+  outline: none;
+}
+select:focus {
+  border-color: #056de8;
+  box-shadow: 0 0 0 3px rgba(5,109,232,.12);
+}
+
+.actions { margin-top: 14px; }
+
+.primary-link {
+  color: #056de8;
+  text-decoration: none;
+  font-weight: 600;
+}
+.primary-link:hover { color: #0b76ff; text-decoration: underline; }
 
