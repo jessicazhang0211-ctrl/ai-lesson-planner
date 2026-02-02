@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>教案生成 · AI 辅助备课系统</title>
+
+  <!-- 全局统一样式 -->
+  <link rel="stylesheet" href="./css/teacher.css" />
+  <!-- 教案页面专属样式 -->
+  <link rel="stylesheet" href="./css/lesson.css" />
+</head>
+<body>
+
+<!-- 顶部导航栏（与主页一致） -->
+<header class="topbar">
+  <div class="topbar-left" onclick="goHome()">
+    <img src="../assets/logo.png" class="logo" alt="logo" />
+    <span class="system-name" id="appName">AI 辅助备课系统</span>
+  </div>
+
+  <div class="topbar-right">
+    <span class="username">User</span>
+    <img src="../assets/avatar.png" class="avatar" alt="avatar" onclick="toggleUserMenu()" />
+
+    <div class="user-menu" id="userMenu">
+      <div class="menu-item" data-i18n="profile" onclick="goProfile()">个人信息</div>
+      <div class="menu-item" data-i18n="classInfo" onclick="goClassInfo()">班级信息</div>
+      <div class="menu-item" data-i18n="settings" onclick="goSettings()">设置</div>
+      <div class="menu-item logout" data-i18n="logout" onclick="logout()">退出登录</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- 侧边栏（与主页一致） -->
+  <aside class="sidebar" id="sidebar">
+    <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
+
+    <nav class="menu">
+      <a class="menu-item" href="./index.html" data-i18n="dashboard">学情分析</a>
+      <a class="menu-item active" href="./lesson.html" data-i18n="lesson">教案生成</a>
+      <a class="menu-item" href="./ppt.html" data-i18n="ppt">PPT 生成</a>
+      <a class="menu-item" href="./exercise.html" data-i18n="exercise">习题设计</a>
+      <a class="menu-item" href="./class.html" data-i18n="class">班级管理</a>
+      <a class="menu-item" href="./settings.html" data-i18n="settings">设置</a>
+    </nav>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main class="content">
+    <div class="page-head">
+      <h1 class="page-title" data-i18n-page="lessonTitle">教案生成</h1>
+      <div class="page-sub" data-i18n-page="lessonSub">
+        选择课程信息，填写目标与重点，生成结构化教案。
+      </div>
+    </div>
+
+    <div class="lesson-grid">
+      <!-- 左侧：输入配置 -->
+      <section class="card lesson-form">
+        <div class="card-title" data-i18n-page="basicInfo">基本信息</div>
+
+        <div class="form-row">
+          <label data-i18n-page="grade">年级</label>
+          <select id="grade">
+            <option value="小学三年级">小学三年级</option>
+            <option value="小学四年级">小学四年级</option>
+            <option value="初一">初一</option>
+            <option value="初二">初二</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label data-i18n-page="subject">学科</label>
+          <select id="subject">
+            <option value="语文">语文</option>
+            <option value="数学">数学</option>
+            <option value="英语">英语</option>
+            <option value="科学">科学</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label data-i18n-page="topic">课题</label>
+          <input id="topic" placeholder="例如：分数的初步认识" />
+        </div>
+
+        <div class="form-row">
+          <label data-i18n-page="duration">课时</label>
+          <select id="duration">
+            <option value="40">40 分钟</option>
+            <option value="45">45 分钟</option>
+            <option value="60">60 分钟</option>
+          </select>
+        </div>
+
+        <div class="card-title mt" data-i18n-page="teachingDesign">教学设计</div>
+
+        <div class="form-row">
+          <label data-i18n-page="objectives">教学目标</label>
+          <textarea id="objectives" placeholder="知识目标/能力目标/情感目标（可简写）"></textarea>
+        </div>
+
+        <div class="form-row">
+          <label data-i18n-page="keyPoints">重难点</label>
+          <textarea id="keyPoints" placeholder="重点、难点分别是什么？"></textarea>
+        </div>
+
+        <div class="form-row">
+          <label data-i18n-page="activities">教学活动</label>
+          <textarea id="activities" placeholder="例如：导入—新授—练习—总结—作业"></textarea>
+        </div>
+
+        <div class="actions">
+          <a href="#" id="genBtn" class="primary-link" data-i18n-page="generate">生成教案</a>
+          <a href="#" id="clearBtn" class="ghost-link" data-i18n-page="clear">清空</a>
+        </div>
+
+        <div class="hint" data-i18n-page="hint">
+          小提示：先用“模板生成”，后续接入后端 AI 接口即可一键产出。
+        </div>
+      </section>
+
+      <!-- 右侧：输出预览 -->
+      <section class="card lesson-preview">
+        <div class="preview-head">
+          <div class="card-title" data-i18n-page="preview">预览</div>
+          <div class="preview-actions">
+            <a href="#" id="copyBtn" class="link" data-i18n-page="copy">复制</a>
+            <a href="#" id="downloadBtn" class="link" data-i18n-page="download">下载 .txt</a>
+          </div>
+        </div>
+
+        <pre id="output" class="output"></pre>
+
+        <div class="empty" id="emptyState">
+          <div class="empty-title" data-i18n-page="emptyTitle">还没有内容</div>
+          <div class="empty-sub" data-i18n-page="emptySub">填写左侧信息并点击“生成教案”。</div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- 公共脚本（登录校验/顶栏侧栏/全局语言/用户信息） -->
+<script src="./js/teacher.js"></script>
+<!-- 教案页面专属脚本 -->
+<script src="./js/lesson.js"></script>
+</body>
+</html>
