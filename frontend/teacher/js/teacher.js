@@ -120,7 +120,7 @@ function loadUserInfo() {
   const user = JSON.parse(raw);
 
   const nameEl = document.querySelector(".username");
-  if (nameEl) nameEl.textContent = user.name || user.email || "User";
+  if (nameEl) nameEl.textContent = user.nickname || user.name || user.email || "User";
 }
 
 // ========== 退出登录 ==========

@@ -1,43 +1,93 @@
 # app/api/user/routes.py
-from flask import Blueprint, request, jsonify
-from app.db import get_db
+from flask import Blueprint, request
+from app.extensions import db
+from app.models.user import User
+from app.utils.response import ok, err
 
 bp = Blueprint("user", __name__, url_prefix="/api/user")
 
-@bp.route("/me", methods=["GET"])
+def get_uid() -> int | None:
+    uid = (request.headers.get("X-User-Id") or "").strip()
+    if not uid:
+        return None
+    try:
+        return int(uid)
+    except ValueError:
+        return None
+
+@bp.route("/me", methods=["GET", "OPTIONS"])
 def get_me():
-    user_id = request.headers.get("X-User-Id")
-    db = get_db()
-    cur = db.cursor(dictionary=True)
-    cur.execute("SELECT * FROM users WHERE id=%s", (user_id,))
-    user = cur.fetchone()
-    return jsonify({"code": 0, "data": user})
+    if request.method == "OPTIONS":
+        return "", 204
 
+    uid = get_uid()
+    if not uid:
+        return err("missing X-User-Id", http_status=401)
 
-@bp.route("/me", methods=["PATCH"])
+    user = User.query.get(uid)
+    if not user:
+        return err("user not found", http_status=404)
+
+    return ok({
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "nickname": user.nickname,
+        "gender": user.gender,
+        "bio": user.bio,
+        "phone": user.phone,
+        "school": user.school,
+        "major": user.major,
+        "job_title": user.job_title,
+        "avatar_url": user.avatar_url
+    })
+
+@bp.route("/me", methods=["PATCH", "OPTIONS"])
 def update_me():
-    user_id = request.headers.get("X-User-Id")
-    data = request.json or {}
+    if request.method == "OPTIONS":
+        return "", 204
+
+    uid = get_uid()
+    if not uid:
+        return err("missing X-User-Id", http_status=401)
+
+    user = User.query.get(uid)
+    if not user:
+        return err("user not found", http_status=404)
+
+    payload = request.get_json(silent=True) or {}
 
     allowed = {
-        "nickname", "gender", "bio",
-        "phone", "school", "major", "job_title"
+        "nickname", "gender", "bio", "phone",
+        "school", "major", "job_title", "avatar_url"
     }
-    fields = {k: v for k, v in data.items() if k in allowed}
 
-    if not fields:
-        return jsonify({"code": 1, "message": "no valid fields"}), 400
+    updates = {k: payload.get(k) for k in payload if k in allowed}
+    if not updates:
+        return err("no valid fields", http_status=400)
 
-    sets = ", ".join(f"{k}=%s" for k in fields)
-    values = list(fields.values()) + [user_id]
+    if "gender" in updates:
+        g = (updates["gender"] or "").strip()
+        if g and g not in ["male", "female", "男", "女"]:
+            return err("invalid gender", http_status=400)
 
-    db = get_db()
-    cur = db.cursor()
-    cur.execute(f"UPDATE users SET {sets} WHERE id=%s", values)
-    db.commit()
+    for k, v in updates.items():
+        setattr(user, k, v)
 
-    cur = db.cursor(dictionary=True)
-    cur.execute("SELECT * FROM users WHERE id=%s", (user_id,))
-    user = cur.fetchone()
+    db.session.commit()
 
-    return jsonify({"code": 0, "data": {"user": user}})
+    return ok({
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "nickname": user.nickname,
+            "gender": user.gender,
+            "bio": user.bio,
+            "phone": user.phone,
+            "school": user.school,
+            "major": user.major,
+            "job_title": user.job_title,
+            "avatar_url": user.avatar_url
+        }
+    }, "updated")

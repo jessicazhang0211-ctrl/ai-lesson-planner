@@ -234,6 +234,8 @@ function renderProfilePanel(panel) {
     ${rowBase("nickname", t("nickname"), escapeHtml(me?.nickname || "—"))}
     ${rowBase("id", t("userId"), escapeHtml(me?.id || "—"), false)}
     ${rowBase("gender", t("gender"), escapeHtml(me?.gender || t("unset")))}
+    ${rowBase("phone", t("phone"), escapeHtml(me?.phone || "—"))}
+    ${rowBase("email", t("email"), escapeHtml(me?.email || "—"))}
     ${rowBase("bio", t("bio"), escapeHtml(me?.bio || "—"))}
   `;
   bindRowEditors(panel);
