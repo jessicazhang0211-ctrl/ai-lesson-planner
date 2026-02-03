@@ -20,7 +20,6 @@ const settingsDict = {
     male: "男",
     female: "女",
     unset: "未选择",
-    phone: "手机号",
 
     school: "学校名称",
     major: "专业",
@@ -28,17 +27,15 @@ const settingsDict = {
 
     // panels titles
     panelProfileTitle: "个人资料",
-    panelProfileDesc: "头像 + 手机号遮罩 + 昵称（悬停可编辑）。",
+    panelProfileDesc: "头像 + 昵称（悬停可编辑）。",
     panelWorkTitle: "工作信息",
-    panelWorkDesc: "学校与岗位信息（悬停可编辑）。",
+    panelWorkDesc: "学校与岗位信息（选择填写）。",
 
     panelAccountTitle: "账号设置",
-    panelAccountDesc: "可修改密码、手机号、邮箱（后续接后端接口）。",
+    panelAccountDesc: "修改密码（需验证当前密码）。",
     currentPassword: "当前密码",
     newPassword: "新密码",
     confirmPassword: "确认新密码",
-    newEmail: "新邮箱",
-    newPhone: "新手机号",
 
     panelLanguageTitle: "语言设置",
     panelLanguageDesc: "修改后将同步整个系统界面语言。",
@@ -61,6 +58,7 @@ const settingsDict = {
     saveOk: "保存成功",
     saveFail: "保存失败，请重试",
     pwdMismatch: "两次输入的新密码不一致",
+    pwdWrong: "当前密码错误",
   },
 
   en: {
@@ -82,24 +80,21 @@ const settingsDict = {
     male: "Male",
     female: "Female",
     unset: "Not set",
-    phone: "Phone",
 
     school: "School",
     major: "Major",
     jobTitle: "Job Title",
 
     panelProfileTitle: "Profile",
-    panelProfileDesc: "Avatar + masked phone + nickname (hover to edit).",
+    panelProfileDesc: "Avatar + nickname (hover to edit).",
     panelWorkTitle: "Work Info",
-    panelWorkDesc: "School & job info (hover to edit).",
+    panelWorkDesc: "School & job info (select to fill).",
 
     panelAccountTitle: "Account",
-    panelAccountDesc: "Update password / phone / email (connect backend later).",
+    panelAccountDesc: "Change password (verify current password).",
     currentPassword: "Current password",
     newPassword: "New password",
     confirmPassword: "Confirm new password",
-    newEmail: "New email",
-    newPhone: "New phone",
 
     panelLanguageTitle: "Language",
     panelLanguageDesc: "Changes will apply to the whole system UI.",
@@ -122,6 +117,7 @@ const settingsDict = {
     saveOk: "Saved",
     saveFail: "Save failed. Please try again.",
     pwdMismatch: "New passwords do not match",
+    pwdWrong: "Current password is wrong",
   }
 };
 
@@ -214,6 +210,20 @@ function rowBase(key, label, valueHtml, editable = true) {
   `;
 }
 
+function rowSelect(key, label, valueHtml, options) {
+  return `
+    <div class="row-item" data-row="${key}">
+      <div class="row-left">
+        <div class="row-label">${label}</div>
+        <div class="row-value" data-value>${valueHtml}</div>
+      </div>
+      <div class="row-actions">
+        <a href="#" class="edit-link" data-action="edit">${t("edit")}</a>
+      </div>
+    </div>
+  `;
+}
+
 // ========== panels ==========
 function renderProfilePanel(panel) {
   const nickname = me?.nickname || me?.name || "—";
@@ -246,9 +256,15 @@ function renderWorkPanel(panel) {
     <div class="panel-title">${t("panelWorkTitle")}</div>
     <div class="panel-desc">${t("panelWorkDesc")}</div>
 
-    ${rowBase("school", t("school"), escapeHtml(me?.school || "—"))}
-    ${rowBase("major", t("major"), escapeHtml(me?.major || "—"))}
-    ${rowBase("job_title", t("jobTitle"), escapeHtml(me?.job_title || "—"))}
+    ${rowSelect("school", t("school"), escapeHtml(me?.school || "—"), [
+      "清华大学", "北京大学", "复旦大学", "上海交通大学", "浙江大学", "南京大学", "中国科学技术大学", "哈尔滨工业大学", "西安交通大学", "同济大学"
+    ])}
+    ${rowSelect("major", t("major"), escapeHtml(me?.major || "—"), [
+      "计算机科学", "教育学", "数学", "物理", "化学", "生物", "历史", "地理", "语文", "英语"
+    ])}
+    ${rowSelect("job_title", t("jobTitle"), escapeHtml(me?.job_title || "—"), [
+      "教师", "教授", "讲师", "助教", "班主任", "教研员", "校长", "副校长", "主任", "副主任"
+    ])}
   `;
   bindRowEditors(panel);
 }
@@ -271,28 +287,44 @@ function renderAccountPanel(panel) {
       <input id="confirmPwd" type="password" placeholder="••••••••" />
     </div>
 
-    <div class="field">
-      <label>${t("newEmail")}</label>
-      <input id="newEmail" type="email" placeholder="name@example.com" />
-    </div>
-    <div class="field">
-      <label>${t("newPhone")}</label>
-      <input id="newPhone" type="text" placeholder="+44..." />
-    </div>
-
     <div class="panel-actions">
       <a href="#" id="saveAccount" class="primary-link">${t("save")}</a>
     </div>
   `;
 
-  document.getElementById("saveAccount").addEventListener("click", (e) => {
+  document.getElementById("saveAccount").addEventListener("click", async (e) => {
     e.preventDefault();
-    const np = document.getElementById("newPwd").value.trim();
-    const cp = document.getElementById("confirmPwd").value.trim();
-    if ((np || cp) && np !== cp) return alert(t("pwdMismatch"));
+    const curPwd = document.getElementById("curPwd").value.trim();
+    const newPwd = document.getElementById("newPwd").value.trim();
+    const confirmPwd = document.getElementById("confirmPwd").value.trim();
 
-    // 这里你后续接真正后端接口
-    alert(t("saved"));
+    if (!curPwd || !newPwd || !confirmPwd) {
+      alert("请填写所有密码字段");
+      return;
+    }
+    if (newPwd !== confirmPwd) {
+      alert(t("pwdMismatch"));
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/user/change-password`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ current_password: curPwd, new_password: newPwd })
+      });
+      const data = await res.json();
+      if (!res.ok || data.code !== 0) throw new Error(data.message || "Change password failed");
+
+      alert(t("saveOk"));
+      // 清空输入
+      document.getElementById("curPwd").value = "";
+      document.getElementById("newPwd").value = "";
+      document.getElementById("confirmPwd").value = "";
+    } catch (err) {
+      console.error(err);
+      alert(t("saveFail"));
+    }
   });
 }
 
@@ -391,6 +423,54 @@ function enterEditMode(row) {
         <option value="${t("female")}">${t("female")}</option>
       </select>
     `;
+  } else if (key === "school") {
+    editorHtml = `
+      <select class="inline-select" data-editor>
+        <option value="">—</option>
+        <option value="清华大学">清华大学</option>
+        <option value="北京大学">北京大学</option>
+        <option value="复旦大学">复旦大学</option>
+        <option value="上海交通大学">上海交通大学</option>
+        <option value="浙江大学">浙江大学</option>
+        <option value="南京大学">南京大学</option>
+        <option value="中国科学技术大学">中国科学技术大学</option>
+        <option value="哈尔滨工业大学">哈尔滨工业大学</option>
+        <option value="西安交通大学">西安交通大学</option>
+        <option value="同济大学">同济大学</option>
+      </select>
+    `;
+  } else if (key === "major") {
+    editorHtml = `
+      <select class="inline-select" data-editor>
+        <option value="">—</option>
+        <option value="计算机科学">计算机科学</option>
+        <option value="教育学">教育学</option>
+        <option value="数学">数学</option>
+        <option value="物理">物理</option>
+        <option value="化学">化学</option>
+        <option value="生物">生物</option>
+        <option value="历史">历史</option>
+        <option value="地理">地理</option>
+        <option value="语文">语文</option>
+        <option value="英语">英语</option>
+      </select>
+    `;
+  } else if (key === "job_title") {
+    editorHtml = `
+      <select class="inline-select" data-editor>
+        <option value="">—</option>
+        <option value="教师">教师</option>
+        <option value="教授">教授</option>
+        <option value="讲师">讲师</option>
+        <option value="助教">助教</option>
+        <option value="班主任">班主任</option>
+        <option value="教研员">教研员</option>
+        <option value="校长">校长</option>
+        <option value="副校长">副校长</option>
+        <option value="主任">主任</option>
+        <option value="副主任">副主任</option>
+      </select>
+    `;
   } else if (key === "bio") {
     editorHtml = `<textarea class="inline-textarea" data-editor></textarea>`;
   } else {
@@ -475,7 +555,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch (e) {
     console.error("loadMe failed", e);
     alert("无法加载用户信息，请重新登录");
-    return;
+    me = {}; // 设置为空对象以显示默认内容
   }
 
   currentView = "profile";

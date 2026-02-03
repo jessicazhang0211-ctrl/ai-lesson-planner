@@ -91,3 +91,31 @@ def update_me():
             "avatar_url": user.avatar_url
         }
     }, "updated")
+
+@bp.route("/change-password", methods=["POST", "OPTIONS"])
+def change_password():
+    if request.method == "OPTIONS":
+        return "", 204
+
+    uid = get_uid()
+    if not uid:
+        return err("missing X-User-Id", http_status=401)
+
+    user = User.query.get(uid)
+    if not user:
+        return err("user not found", http_status=404)
+
+    data = request.get_json(silent=True) or {}
+    current_password = (data.get("current_password") or "").strip()
+    new_password = (data.get("new_password") or "").strip()
+
+    if not current_password or not new_password:
+        return err("missing fields", http_status=400)
+
+    if not user.check_password(current_password):
+        return err("current password incorrect", http_status=400)
+
+    user.set_password(new_password)
+    db.session.commit()
+
+    return ok("password changed")
