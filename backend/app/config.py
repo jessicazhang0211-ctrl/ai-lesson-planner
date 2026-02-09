@@ -18,3 +18,6 @@ class Config:
         "?charset=utf8mb4"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # Google Gemini API (免费额度：60 请求/分钟)
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")

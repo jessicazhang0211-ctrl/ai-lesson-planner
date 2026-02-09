@@ -13,7 +13,7 @@ const lessonDict = {
     activities: "教学活动",
     generate: "生成教案",
     clear: "清空",
-    hint: "小提示：先用“模板生成”，后续接入后端 AI 接口即可一键产出。",
+    hint: "提示：填写信息后点击“生成教案”，AI 将为您生成完整教案。",
     preview: "预览",
     copy: "复制",
     download: "下载 .txt",
@@ -36,7 +36,7 @@ const lessonDict = {
     activities: "Activities",
     generate: "Generate",
     clear: "Clear",
-    hint: "Tip: This is a template generator. You can connect your AI API later.",
+    hint: "Tip: Fill in the details and click 'Generate' to create an AI-powered lesson plan.",
     preview: "Preview",
     copy: "Copy",
     download: "Download .txt",
@@ -152,7 +152,7 @@ function downloadTxt(filename, text) {
 }
 
 function bindLessonEvents() {
-  document.getElementById("genBtn").addEventListener("click", (e) => {
+  document.getElementById("genBtn").addEventListener("click", async (e) => {
     e.preventDefault();
 
     const input = {
@@ -161,7 +161,7 @@ function bindLessonEvents() {
       topic: val("topic"),
       duration: val("duration"),
       objectives: val("objectives"),
-      keyPoints: val("keyPoints"),
+      key_points: val("keyPoints"),
       activities: val("activities")
     };
 
@@ -170,11 +170,25 @@ function bindLessonEvents() {
       return;
     }
 
-    const plan = templatePlan(input);
-    setOutput(plan);
-
-    // 可选：缓存到本地，刷新不丢
-    localStorage.setItem("last_lesson_plan", plan);
+    // 发送到后端 AI 生成
+    try {
+      const response = await fetch("http://127.0.0.1:5000/api/lesson/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(input)
+      });
+      const data = await response.json();
+      if (data.code === 0) {
+        setOutput(data.data.lesson_plan);
+        localStorage.setItem("last_lesson_plan", data.data.lesson_plan);
+      } else {
+        alert("生成失败: " + data.message);
+      }
+    } catch (error) {
+      alert("网络错误: " + error.message);
+    }
   });
 
   document.getElementById("clearBtn").addEventListener("click", (e) => {

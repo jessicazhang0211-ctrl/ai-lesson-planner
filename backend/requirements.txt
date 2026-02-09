@@ -4,3 +4,4 @@ flask-sqlalchemy
 python-dotenv
 pymysql
 werkzeug
+google-generativeai
