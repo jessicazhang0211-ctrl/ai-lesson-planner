@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>习题设计 · AI 辅助备课系统</title>
+
+  <link rel="stylesheet" href="./css/teacher.css" />
+  <link rel="stylesheet" href="./css/exercise.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left" onclick="goHome()">
+    <img src="../assets/logo.png" class="logo" alt="logo" />
+    <span class="system-name" id="appName">AI 辅助备课系统</span>
+  </div>
+
+  <div class="topbar-right">
+    <span class="username">User</span>
+    <img src="../assets/avatar.svg" class="avatar" alt="avatar" onclick="toggleUserMenu()" />
+    <div class="user-menu" id="userMenu">
+      <div class="menu-item" data-i18n="profile" onclick="goProfile()">个人信息</div>
+      <div class="menu-item" data-i18n="classInfo" onclick="goClassInfo()">班级信息</div>
+      <div class="menu-item" data-i18n="settings" onclick="goSettings()">设置</div>
+      <div class="menu-item logout" data-i18n="logout" onclick="logout()">退出登录</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
+    <nav class="menu">
+      <a class="menu-item" href="./index.html" data-i18n="dashboard">学情分析</a>
+      <a class="menu-item" href="./lesson.html" data-i18n="lesson">教案生成</a>
+      <a class="menu-item" href="./ppt.html" data-i18n="ppt">PPT 生成</a>
+      <a class="menu-item active" href="./exercise.html" data-i18n="exercise">习题设计</a>
+      <a class="menu-item" href="./class.html" data-i18n="class">班级管理</a>
+      <a class="menu-item" href="./settings.html" data-i18n="settings">设置</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <div class="page-head">
+      <h1 class="page-title" data-i18n-page="title">习题设计</h1>
+      <div class="page-sub" data-i18n-page="sub">
+        选择题型与难度，生成可直接发给学生的练习题。
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- 左：配置 -->
+      <section class="card form">
+        <div class="card-title" data-i18n-page="config">配置</div>
+
+        <div class="form-row">
+          <label data-i18n-page="grade">年级</label>
+          <select id="grade">
+            <option value="小学一年级">小学一年级</option>
+            <option value="小学二年级">小学二年级</option>
+            <option value="小学三年级">小学三年级</option>
+            <option value="初一">初一</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label data-i18n-page="subject">学科</label>
+          <select id="subject">
+            <option value="数学">数学</option>
+            <option value="语文">语文</option>
+            <option value="英语">英语</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label data-i18n-page="topic">知识点/主题</label>
+          <input id="topic" placeholder="例如：10以内加法 / 分数比较" />
+        </div>
+
+        <div class="form-row">
+          <label data-i18n-page="types">题型</label>
+          <div class="chips">
+            <label class="chip"><input type="checkbox" value="single" checked> <span data-i18n-page="tSingle">单选</span></label>
+            <label class="chip"><input type="checkbox" value="fill" checked> <span data-i18n-page="tFill">填空</span></label>
+            <label class="chip"><input type="checkbox" value="short"> <span data-i18n-page="tShort">简答</span></label>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label data-i18n-page="difficulty">难度</label>
+          <select id="difficulty">
+            <option value="easy" data-i18n-page="easy">简单</option>
+            <option value="medium" data-i18n-page="medium">中等</option>
+            <option value="hard" data-i18n-page="hard">较难</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label data-i18n-page="count">题量</label>
+          <select id="count">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="15">15</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label data-i18n-page="includeAnswer">包含答案解析</label>
+          <select id="includeAnswer">
+            <option value="yes" data-i18n-page="yes">是</option>
+            <option value="no" data-i18n-page="no">否</option>
+          </select>
+        </div>
+
+        <div class="actions">
+          <a href="#" id="genBtn" class="primary-link" data-i18n-page="generate">生成习题</a>
+          <a href="#" id="clearBtn" class="ghost-link" data-i18n-page="clear">清空</a>
+        </div>
+
+        <div class="hint" data-i18n-page="hint">
+          目前为模板生成 + 数据库存档，后续可接入 AI 模型提升题目质量。
+        </div>
+      </section>
+
+      <!-- 右：输出 + 历史 -->
+      <section class="card preview">
+        <div class="preview-head">
+          <div class="card-title" data-i18n-page="preview">预览</div>
+          <div class="preview-actions">
+            <a href="#" id="copyBtn" class="link" data-i18n-page="copy">复制</a>
+            <a href="#" id="downloadBtn" class="link" data-i18n-page="download">下载 .txt</a>
+          </div>
+        </div>
+
+        <pre id="output" class="output"></pre>
+
+        <div class="empty" id="emptyState">
+          <div class="empty-title" data-i18n-page="emptyTitle">还没有内容</div>
+          <div class="empty-sub" data-i18n-page="emptySub">填写左侧信息并点击“生成习题”。</div>
+        </div>
+
+        <div class="history">
+          <div class="history-head">
+            <div class="history-title" data-i18n-page="history">最近生成</div>
+            <a href="#" id="refreshHistory" class="link" data-i18n-page="refresh">刷新</a>
+          </div>
+          <div id="historyList" class="history-list"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script src="./js/teacher.js"></script>
+<script src="./js/exercise.js"></script>
+</body>
+</html>
