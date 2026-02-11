@@ -121,9 +121,18 @@
         <div class="hint" data-i18n-page="hint">
           目前为模板生成 + 数据库存档，后续可接入 AI 模型提升题目质量。
         </div>
+
+        <!-- 新增：最近生成教案列表 -->
+        <div class="history" style="margin-top:24px;">
+          <div class="history-head">
+            <div class="history-title" data-i18n-page="history">最近生成</div>
+            <a href="#" id="refreshHistory" class="link" data-i18n-page="refresh">刷新</a>
+          </div>
+          <div id="historyList" class="history-list"></div>
+        </div>
       </section>
 
-      <!-- 右：输出 + 历史 -->
+      <!-- 右：输出预览 -->
       <section class="card preview">
         <div class="preview-head">
           <div class="card-title" data-i18n-page="preview">预览</div>
@@ -138,14 +147,6 @@
         <div class="empty" id="emptyState">
           <div class="empty-title" data-i18n-page="emptyTitle">还没有内容</div>
           <div class="empty-sub" data-i18n-page="emptySub">填写左侧信息并点击“生成习题”。</div>
-        </div>
-
-        <div class="history">
-          <div class="history-head">
-            <div class="history-title" data-i18n-page="history">最近生成</div>
-            <a href="#" id="refreshHistory" class="link" data-i18n-page="refresh">刷新</a>
-          </div>
-          <div id="historyList" class="history-list"></div>
         </div>
       </section>
     </div>

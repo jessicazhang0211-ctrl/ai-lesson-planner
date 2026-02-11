@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>班级管理</title>
+  <link rel="stylesheet" href="./class_management.css" />
+</head>
+<body>
+  <div class="cm-layout">
+    <!-- Top Bar -->
+    <header class="cm-topbar">
+      <div class="cm-topbar__left">
+        <div class="cm-brand">
+          <div class="cm-brand__logo">AI</div>
+          <div class="cm-brand__text">
+            <div class="cm-brand__title">AI 辅助备课系统</div>
+            <div class="cm-brand__sub">Teacher Portal</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cm-topbar__right">
+        <div class="cm-search">
+          <input class="cm-search__input" placeholder="搜索班级 / 学生 / ID" />
+          <button class="cm-btn cm-btn--ghost">搜索</button>
+        </div>
+        <div class="cm-user">
+          <div class="cm-user__avatar">JZ</div>
+          <div class="cm-user__meta">
+            <div class="cm-user__name">Jessica</div>
+            <div class="cm-user__role">教师</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="cm-main">
+      <!-- Left: Class list -->
+      <aside class="cm-sidebar">
+        <div class="cm-sidebar__header">
+          <h2 class="cm-h2">班级列表</h2>
+          <button class="cm-btn cm-btn--primary">+ 新建班级</button>
+        </div>
+
+        <div class="cm-filter">
+          <button class="cm-chip cm-chip--active">全部</button>
+          <button class="cm-chip">进行中</button>
+          <button class="cm-chip">已归档</button>
+        </div>
+
+        <div class="cm-classlist">
+          <!-- item -->
+          <button class="cm-classitem cm-classitem--active">
+            <div class="cm-classitem__title">
+              <span>一年级（1）班</span>
+              <span class="cm-badge cm-badge--green">进行中</span>
+            </div>
+            <div class="cm-classitem__meta">
+              <span>班级码：A1B2C3</span>
+              <span>学生：32</span>
+            </div>
+          </button>
+
+          <button class="cm-classitem">
+            <div class="cm-classitem__title">
+              <span>一年级（2）班</span>
+              <span class="cm-badge cm-badge--green">进行中</span>
+            </div>
+            <div class="cm-classitem__meta">
+              <span>班级码：K9P1Q7</span>
+              <span>学生：30</span>
+            </div>
+          </button>
+
+          <button class="cm-classitem">
+            <div class="cm-classitem__title">
+              <span>二年级（3）班</span>
+              <span class="cm-badge">已归档</span>
+            </div>
+            <div class="cm-classitem__meta">
+              <span>班级码：Z3H8M2</span>
+              <span>学生：28</span>
+            </div>
+          </button>
+        </div>
+
+        <div class="cm-sidebar__footer">
+          <div class="cm-tip">
+            <div class="cm-tip__title">小提示</div>
+            <div class="cm-tip__text">复制班级码给学生即可加入，或使用“导入名单”。</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right: Class detail -->
+      <section class="cm-content">
+        <div class="cm-content__head">
+          <div>
+            <h1 class="cm-h1">一年级（1）班</h1>
+            <div class="cm-subtext">
+              班级码：<span class="cm-mono">A1B2C3</span>
+              <button class="cm-linkbtn">复制</button>
+              <span class="cm-dot">•</span>
+              创建于：2026-02-01
+            </div>
+          </div>
+
+          <div class="cm-actions">
+            <button class="cm-btn">导入名单</button>
+            <button class="cm-btn">导出</button>
+            <button class="cm-btn cm-btn--danger">归档班级</button>
+          </div>
+        </div>
+
+        <!-- Overview cards -->
+        <div class="cm-cards">
+          <div class="cm-card">
+            <div class="cm-card__label">学生人数</div>
+            <div class="cm-card__value">32</div>
+            <div class="cm-card__hint">本班当前在册</div>
+          </div>
+          <div class="cm-card">
+            <div class="cm-card__label">本周作业提交</div>
+            <div class="cm-card__value">26</div>
+            <div class="cm-card__hint">已提交 / 总人数</div>
+          </div>
+          <div class="cm-card">
+            <div class="cm-card__label">平均正确率</div>
+            <div class="cm-card__value">83%</div>
+            <div class="cm-card__hint">近 7 天</div>
+          </div>
+          <div class="cm-card">
+            <div class="cm-card__label">待处理</div>
+            <div class="cm-card__value">5</div>
+            <div class="cm-card__hint">请假 / 转班 / 异常</div>
+          </div>
+        </div>
+
+        <!-- Student table -->
+        <div class="cm-panel">
+          <div class="cm-panel__header">
+            <h2 class="cm-h2">学生名单</h2>
+
+            <div class="cm-panel__tools">
+              <div class="cm-inline">
+                <label class="cm-label">筛选</label>
+                <select class="cm-select">
+                  <option>全部</option>
+                  <option>已加入</option>
+                  <option>待审核</option>
+                  <option>已禁用</option>
+                </select>
+              </div>
+
+              <div class="cm-inline">
+                <label class="cm-label">排序</label>
+                <select class="cm-select">
+                  <option>按姓名</option>
+                  <option>按学号</option>
+                  <option>按正确率</option>
+                  <option>按提交率</option>
+                </select>
+              </div>
+
+              <button class="cm-btn cm-btn--primary">+ 添加学生</button>
+            </div>
+          </div>
+
+          <div class="cm-tablewrap">
+            <table class="cm-table">
+              <thead>
+                <tr>
+                  <th style="width:56px;">#</th>
+                  <th>姓名</th>
+                  <th>学号</th>
+                  <th>状态</th>
+                  <th>正确率</th>
+                  <th>提交率</th>
+                  <th style="width:220px;">操作</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td>01</td>
+                  <td>
+                    <div class="cm-stu">
+                      <div class="cm-stu__av">林</div>
+                      <div class="cm-stu__info">
+                        <div class="cm-stu__name">林小雨</div>
+                        <div class="cm-stu__sub">家长：138****8801</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="cm-mono">202601001</td>
+                  <td><span class="cm-pill cm-pill--ok">已加入</span></td>
+                  <td>86%</td>
+                  <td>92%</td>
+                  <td>
+                    <div class="cm-rowbtns">
+                      <button class="cm-btn cm-btn--sm">详情</button>
+                      <button class="cm-btn cm-btn--sm">重置密码</button>
+                      <button class="cm-btn cm-btn--sm cm-btn--ghost">移出</button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>02</td>
+                  <td>
+                    <div class="cm-stu">
+                      <div class="cm-stu__av">周</div>
+                      <div class="cm-stu__info">
+                        <div class="cm-stu__name">周子涵</div>
+                        <div class="cm-stu__sub">家长：137****2109</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="cm-mono">202601002</td>
+                  <td><span class="cm-pill cm-pill--warn">待审核</span></td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>
+                    <div class="cm-rowbtns">
+                      <button class="cm-btn cm-btn--sm cm-btn--primary">通过</button>
+                      <button class="cm-btn cm-btn--sm">拒绝</button>
+                      <button class="cm-btn cm-btn--sm cm-btn--ghost">查看申请</button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>03</td>
+                  <td>
+                    <div class="cm-stu">
+                      <div class="cm-stu__av">王</div>
+                      <div class="cm-stu__info">
+                        <div class="cm-stu__name">王一鸣</div>
+                        <div class="cm-stu__sub">家长：139****5510</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="cm-mono">202601003</td>
+                  <td><span class="cm-pill cm-pill--muted">已禁用</span></td>
+                  <td>71%</td>
+                  <td>44%</td>
+                  <td>
+                    <div class="cm-rowbtns">
+                      <button class="cm-btn cm-btn--sm">启用</button>
+                      <button class="cm-btn cm-btn--sm">详情</button>
+                      <button class="cm-btn cm-btn--sm cm-btn--ghost">移出</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="cm-panel__footer">
+            <div class="cm-subtext">共 32 名学生</div>
+            <div class="cm-pagination">
+              <button class="cm-btn cm-btn--sm cm-btn--ghost">上一页</button>
+              <span class="cm-page">1 / 4</span>
+              <button class="cm-btn cm-btn--sm cm-btn--ghost">下一页</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Optional: quick settings -->
+        <div class="cm-panel cm-panel--mini">
+          <div class="cm-panel__header">
+            <h2 class="cm-h2">班级设置</h2>
+          </div>
+          <div class="cm-grid2">
+            <div class="cm-field">
+              <div class="cm-label">班级名称</div>
+              <input class="cm-input" value="一年级（1）班" />
+            </div>
+            <div class="cm-field">
+              <div class="cm-label">学段</div>
+              <select class="cm-select">
+                <option>小学</option>
+                <option>初中</option>
+                <option>高中</option>
+              </select>
+            </div>
+            <div class="cm-field">
+              <div class="cm-label">允许学生自助加入</div>
+              <div class="cm-switch">
+                <input id="joinSwitch" type="checkbox" checked />
+                <label for="joinSwitch"></label>
+              </div>
+            </div>
+            <div class="cm-field">
+              <div class="cm-label">备注</div>
+              <input class="cm-input" placeholder="可选：如课程进度、注意事项…" />
+            </div>
+          </div>
+          <div class="cm-panel__footer">
+            <button class="cm-btn cm-btn--primary">保存设置</button>
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+</body>
+</html>

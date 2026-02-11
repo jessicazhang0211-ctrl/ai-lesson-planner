@@ -113,20 +113,32 @@ function renderHistory(list){
     box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">(empty)</div>`;
     return;
   }
-  box.innerHTML = list.map(item=>`
-    <div class="hitem" data-id="${item.id}">
+  box.innerHTML = list.map(item=>{
+    // 兼容老数据
+    const types = item.types ? (Array.isArray(item.types) ? item.types.join(',') : item.types) : '';
+    const difficulty = item.difficulty || '';
+    const count = item.count || '';
+    const includeAnswer = item.includeAnswer ? (item.includeAnswer==='yes'?'含解析':'无解析') : '';
+    const grade = item.grade || '';
+    const subject = item.subject || '';
+    const topic = item.topic || item.title || '-';
+    const sub = [grade, subject, types, difficulty, count?`题量${count}`:'', includeAnswer].filter(Boolean).join(' · ');
+    return `
+    <div class="hitem" data-id="${item.id}" data-content="${encodeURIComponent(item.content||item.description||'')}">
       <div class="hitem-top">
-        <div class="hitem-title">${item.topic || "-"}</div>
+        <div class="hitem-title">${topic}</div>
         <div class="hitem-meta">${(item.created_at||"").slice(0,19).replace("T"," ")}</div>
       </div>
-      <div class="hitem-sub">${item.grade || ""} · ${item.subject || ""}</div>
+      <div class="hitem-sub">${sub}</div>
     </div>
-  `).join("");
+    `;
+  }).join("");
 
-  // 点击加载详情（简化：直接提示你未来可做 /api/exercise/:id）
+  // 点击加载详情，预览区显示内容
   box.querySelectorAll(".hitem").forEach(el=>{
     el.addEventListener("click", ()=>{
-      alert("TODO: 可扩展 /api/exercise/" + el.getAttribute("data-id") + " 拉取详情并展示");
+      const content = decodeURIComponent(el.getAttribute("data-content") || "");
+      setOutput(content);
     });
   });
 }

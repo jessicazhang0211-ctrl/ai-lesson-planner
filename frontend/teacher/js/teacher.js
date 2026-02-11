@@ -1,3 +1,17 @@
+// ========== 跳转到个人信息 ========== 
+function goProfile() {
+  window.location.href = "./profile.html";
+}
+
+// ========== 跳转到班级信息 ========== 
+function goClassInfo() {
+  window.location.href = "./class.html";
+}
+
+// ========== 跳转到设置 ========== 
+function goSettings() {
+  window.location.href = "./settings.html";
+}
 // ========== i18n 字典 ==========
 const teacherDict = {
   zh: {
