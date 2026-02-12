@@ -273,6 +273,15 @@ function loadStore() {
   if (raw) {
     try { return JSON.parse(raw); } catch {}
   }
+  // If logged in, try to load from backend
+  const loginRaw = localStorage.getItem('login_user');
+  if (loginRaw) {
+    try {
+      const user = JSON.parse(loginRaw);
+      // fetch classes synchronously is not possible here; return empty shell and caller will populate
+      return { classes: [] };
+    } catch {}
+  }
   // default demo data
   const demo = {
     classes: [
@@ -469,9 +478,20 @@ function renderClassList() {
         <span>${getLocale()==="zh"?"学生":"Students"}：${(c.students||[]).length}</span>
       </div>
     `;
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
       state.selectedClassId = c.id;
       state.page = 1;
+      // If this class is server-backed (numeric id) and students not loaded, fetch detail
+      try {
+        if (typeof c.id === 'number' && (!c.students || c.students.length === 0)) {
+          const detail = await apiFetch(`/api/class/${c.id}`, { method: 'GET' });
+          // apiFetch returns the 'data' payload of class (with students)
+          // Merge into existing class object
+          Object.assign(c, detail);
+        }
+      } catch (e) {
+        console.warn('fetch class detail failed', e);
+      }
       renderAll();
     });
     list.appendChild(btn);
@@ -670,6 +690,13 @@ function onStudentActionClick(e) {
 
   if (action === "remove") {
     if (!confirm(t("confirm_delete_student"))) return;
+    // server-backed?
+    if (typeof s.id === 'number' && typeof cls.id === 'number') {
+      apiFetch(`/api/class/${cls.id}/students/${s.id}`, { method: 'DELETE' })
+        .then(() => { cls.students = (cls.students || []).filter(x => x.id !== s.id); saveStore(state.store); renderAll(); alert(t('toast_deleted')); })
+        .catch(() => { alert('删除学生失败'); });
+      return;
+    }
     cls.students = (cls.students || []).filter(x => x.id !== s.id);
     persistAndRender(t("toast_deleted"));
     return;
@@ -759,33 +786,60 @@ function saveClassModal() {
   const desc = ($("mClassDesc")?.value || "").trim();
   if (!name) return;
 
+  const user = getLoginUser();
   if (state.editingClassId) {
     const cls = state.store.classes.find(c => c.id === state.editingClassId);
-    if (cls) {
-      cls.name = name;
-      cls.desc = desc;
+    if (!cls) return;
+    // if class has numeric id -> server-backed
+    if (user && typeof cls.id === 'number') {
+      // PATCH
+      apiFetch(`/api/class/${cls.id}`, { method: 'PATCH', body: JSON.stringify({ name, desc }) })
+        .then((d) => { Object.assign(cls, d); saveStore(state.store); renderAll(); alert(t('toast_saved')); closeClassModal(); })
+        .catch(() => { alert('保存失败'); });
+      return;
     }
-    persistAndRender(t("toast_saved"));
+    // local fallback
+    cls.name = name;
+    cls.desc = desc;
+    persistAndRender(t('toast_saved'));
     closeClassModal();
     return;
   }
 
+  // create
+  if (user && user.id) {
+    apiFetch('/api/class/', { method: 'POST', body: JSON.stringify({ name, desc }) })
+      .then(d => {
+        // server returns class object
+        state.store.classes.unshift(d);
+        state.selectedClassId = d.id;
+        state.page = 1;
+        saveStore(state.store);
+        renderAll();
+        alert(t('toast_saved'));
+        closeClassModal();
+      })
+      .catch(e => { console.warn(e); alert('创建班级失败'); });
+    return;
+  }
+
+  // local fallback if not logged in
   const newClass = {
     id: uuid(),
     name,
     desc,
-    status: "active",
+    status: 'active',
     code: randomCode(),
     created_at: nowDate(),
-    stage: "primary",
+    stage: 'primary',
     allow_join: true,
-    note: "",
+    note: '',
     students: []
   };
   state.store.classes.unshift(newClass);
   state.selectedClassId = newClass.id;
   state.page = 1;
-  persistAndRender(t("toast_saved"));
+  persistAndRender(t('toast_saved'));
   closeClassModal();
 }
 
@@ -856,12 +910,35 @@ function saveStuModal() {
       s.accuracy = accuracy;
       s.submit = submit;
     }
-    persistAndRender(t("toast_saved"));
+    // if student has numeric id -> update on server
+    if (typeof s.id === 'number') {
+      apiFetch(`/api/class/${cls.id}/students/${s.id}`, { method: 'PATCH', body: JSON.stringify({ name, stu_id, status, parent_phone, accuracy, submit }) })
+        .then(d => { Object.assign(s, d); saveStore(state.store); renderAll(); alert(t('toast_saved')); closeStuModal(); })
+        .catch(() => { alert('更新学生失败'); });
+      return;
+    }
+
+    persistAndRender(t('toast_saved'));
     closeStuModal();
     return;
   }
 
   cls.students = cls.students || [];
+  // if class is server-backed -> POST to server
+  if (typeof cls.id === 'number') {
+    apiFetch(`/api/class/${cls.id}/students`, { method: 'POST', body: JSON.stringify({ name, stu_id, status, parent_phone, accuracy, submit }) })
+      .then(d => {
+        cls.students.unshift(d);
+        state.page = 1;
+        saveStore(state.store);
+        renderAll();
+        alert(t('toast_saved'));
+        closeStuModal();
+      })
+      .catch(() => { alert('添加学生失败'); });
+    return;
+  }
+
   cls.students.unshift({
     id: uuid(),
     name,
@@ -873,7 +950,7 @@ function saveStuModal() {
   });
 
   state.page = 1;
-  persistAndRender(t("toast_saved"));
+  persistAndRender(t('toast_saved'));
   closeStuModal();
 }
 
@@ -895,6 +972,12 @@ function archiveSelected() {
   const cls = state.store.classes.find(c => c.id === state.selectedClassId);
   if (!cls) return;
   if (!confirm(t("confirm_archive_class"))) return;
+  if (typeof cls.id === 'number') {
+    apiFetch(`/api/class/${cls.id}/archive`, { method: 'POST', body: JSON.stringify({ action: 'archive' }) })
+      .then(d => { cls.status = d.status; saveStore(state.store); renderAll(); alert(t('toast_archived')); })
+      .catch(() => { alert('操作失败'); });
+    return;
+  }
   cls.status = "archived";
   persistAndRender(t("toast_archived"));
 }
@@ -903,9 +986,15 @@ function deleteSelected() {
   const cls = state.store.classes.find(c => c.id === state.selectedClassId);
   if (!cls) return;
   if (!confirm(t("confirm_delete_class"))) return;
+  if (typeof cls.id === 'number') {
+    apiFetch(`/api/class/${cls.id}`, { method: 'DELETE' })
+      .then(() => { state.store.classes = state.store.classes.filter(c => c.id !== cls.id); state.selectedClassId = null; saveStore(state.store); renderAll(); alert(t('toast_deleted')); })
+      .catch(() => { alert('删除班级失败'); });
+    return;
+  }
   state.store.classes = state.store.classes.filter(c => c.id !== cls.id);
   state.selectedClassId = null;
-  persistAndRender(t("toast_deleted"));
+  persistAndRender(t('toast_deleted'));
 }
 
 function editSelectedClass() {
@@ -924,6 +1013,12 @@ async function copySelectedCode() {
 function resetSelectedCode() {
   const cls = state.store.classes.find(c => c.id === state.selectedClassId);
   if (!cls) return;
+  if (typeof cls.id === 'number') {
+    apiFetch(`/api/class/${cls.id}/reset-code`, { method: 'POST' })
+      .then(d => { cls.code = d.code; saveStore(state.store); renderAll(); alert(t('toast_code_reset')); })
+      .catch(() => { alert('重置班级码失败'); });
+    return;
+  }
   cls.code = randomCode();
   persistAndRender(t("toast_code_reset"));
 }
@@ -1158,9 +1253,15 @@ function bindEvents() {
     const s = (cls.students || []).find(x => x.id === state.drawerStudentId);
     if (!s) return;
     if (!confirm(t("confirm_delete_student"))) return;
+    if (typeof s.id === 'number' && typeof cls.id === 'number') {
+      apiFetch(`/api/class/${cls.id}/students/${s.id}`, { method: 'DELETE' })
+        .then(() => { cls.students = (cls.students || []).filter(x => x.id !== s.id); closeDrawer(); saveStore(state.store); renderAll(); alert(t('toast_deleted')); })
+        .catch(() => { alert('删除学生失败'); });
+      return;
+    }
     cls.students = (cls.students || []).filter(x => x.id !== s.id);
     closeDrawer();
-    persistAndRender(t("toast_deleted"));
+    persistAndRender(t('toast_deleted'));
   });
 
   // close modals when click backdrop
@@ -1187,6 +1288,39 @@ function escapeHtml(s) {
 }
 
 /** ---------- Init ---------- */
+function getLoginUser() {
+  try { return JSON.parse(localStorage.getItem('login_user') || 'null'); } catch { return null; }
+}
+
+async function apiFetch(path, opts = {}) {
+  const API_BASE = 'http://127.0.0.1:5000';
+  const user = getLoginUser();
+  const headers = (opts.headers || {});
+  headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+  if (user && user.id) headers['X-User-Id'] = String(user.id);
+  const url = path.startsWith('http') ? path : (API_BASE + path);
+  const res = await fetch(url, Object.assign({}, opts, { headers }));
+  const data = await res.json();
+  if (!res.ok || data.code !== 0) throw new Error(data.message || 'api error');
+  return data.data;
+}
+
+async function fetchAndLoadClasses() {
+  const user = getLoginUser();
+  if (!user || !user.id) return;
+  try {
+    const data = await apiFetch('/api/class/?status=all', { method: 'GET' });
+    // data is an array
+    state.store.classes = data.map(c => Object.assign({}, c));
+    // ensure selected class stays valid
+    const prefer = state.store.classes.find(c => c.status === 'active');
+    state.selectedClassId = prefer ? prefer.id : (state.store.classes[0]?.id || null);
+    saveStore(state.store);
+    renderAll();
+  } catch (e) {
+    console.warn('fetch classes failed', e);
+  }
+}
 function init() {
   // If teacher.js does login check, fine. We won't duplicate.
   // Choose first active class by default
@@ -1200,6 +1334,9 @@ function init() {
 
   bindEvents();
   renderAll();
+  // if logged in, fetch classes from backend
+  const user = getLoginUser();
+  if (user && user.id) fetchAndLoadClasses();
 }
 
 document.addEventListener("DOMContentLoaded", init);
