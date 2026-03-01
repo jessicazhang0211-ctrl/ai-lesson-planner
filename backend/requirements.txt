@@ -5,3 +5,5 @@ python-dotenv
 pymysql
 werkzeug
 google-generativeai
+openpyxl
+xlrd

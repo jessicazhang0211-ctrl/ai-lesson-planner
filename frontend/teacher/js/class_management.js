@@ -25,7 +25,6 @@ async function copyText(text) {
     await navigator.clipboard.writeText(text);
     return true;
   } catch {
-    // fallback
     const ta = document.createElement("textarea");
     ta.value = text;
     document.body.appendChild(ta);
@@ -673,50 +672,88 @@ function renderStudentActions(s) {
 function onStudentActionClick(e) {
   const btn = e.target.closest("button");
   if (!btn) return;
-
-  const row = btn.closest("[data-stu-id]");
-  if (!row) return;
-
-  const action = btn.getAttribute("data-action");
-  const stuId = row.getAttribute("data-stu-id");
-  const cls = state.store.classes.find(c => c.id === state.selectedClassId);
-  if (!cls) return;
-
-  const s = (cls.students || []).find(x => x.id === stuId);
-  if (!s) return;
-
-  if (action === "detail") return openDrawer(s.id);
-  if (action === "edit") return openStuModal("edit", s.id);
-
-  if (action === "remove") {
-    if (!confirm(t("confirm_delete_student"))) return;
-    // server-backed?
-    if (typeof s.id === 'number' && typeof cls.id === 'number') {
-      apiFetch(`/api/class/${cls.id}/students/${s.id}`, { method: 'DELETE' })
-        .then(() => { cls.students = (cls.students || []).filter(x => x.id !== s.id); saveStore(state.store); renderAll(); alert(t('toast_deleted')); })
-        .catch(() => { alert('删除学生失败'); });
-      return;
-    }
-    cls.students = (cls.students || []).filter(x => x.id !== s.id);
-    persistAndRender(t("toast_deleted"));
+  // If class persisted, upload file to backend (supports csv/xlsx)
+  if (typeof cls.id === 'number') {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    apiFetchRaw(`/api/class/${cls.id}/import`, { method: 'POST', body: form })
+      .then(d => {
+        // backend returns updated class
+        if (d && d.class) {
+          // replace local class
+          const idx = state.store.classes.findIndex(x => x.id === d.class.id);
+          if (idx !== -1) state.store.classes[idx] = d.class;
+          else state.store.classes.push(d.class);
+          saveStore(state.store);
+          renderAll();
+          alert(t('toast_saved'));
+        } else {
+          alert(t('toast_saved'));
+          fetchAndLoadClasses();
+        }
+      })
+      .catch(() => { alert('导入失败'); });
     return;
   }
 
+  // fallback handled by local demo logic (no-op here)
+
   if (action === "resetpwd") {
+    if (typeof s.id === 'number' && typeof cls.id === 'number') {
+      apiFetch(`/api/class/${cls.id}/students/${s.id}/reset-password`, { method: 'POST', body: JSON.stringify({}) })
+        .then(d => { alert(`${t('toast_pwd_reset')}: ${d.new_password}`); })
+        .catch(() => { alert('重置密码失败'); });
+      return;
+    }
     alert(t("toast_pwd_reset"));
     return;
   }
 
-  if (action === "approve") { s.status = "joined"; persistAndRender(t("toast_saved")); return; }
+  if (action === "approve") {
+    if (typeof s.id === 'number' && typeof cls.id === 'number') {
+      apiFetch(`/api/class/${cls.id}/students/${s.id}/status`, { method: 'POST', body: JSON.stringify({ action: 'enable' }) })
+        .then(d => { s.status = d.status; saveStore(state.store); renderAll(); alert(t('toast_saved')); })
+        .catch(() => { alert('操作失败'); });
+
+
+
+      return;
+    }
+    s.status = "joined"; persistAndRender(t("toast_saved")); return;
+  }
+
   if (action === "reject") {
-    // reject removes it (demo). You could mark as disabled.
+    if (typeof s.id === 'number' && typeof cls.id === 'number') {
+      apiFetch(`/api/class/${cls.id}/students/${s.id}`, { method: 'DELETE' })
+        .then(() => { cls.students = (cls.students || []).filter(x => x.id !== s.id); saveStore(state.store); renderAll(); alert(t('toast_deleted')); })
+        .catch(() => { alert('操作失败'); });
+      return;
+    }
+    // reject removes it (demo).
     cls.students = (cls.students || []).filter(x => x.id !== s.id);
     persistAndRender(t("toast_deleted"));
     return;
   }
 
-  if (action === "enable") { s.status = "joined"; persistAndRender(t("toast_saved")); return; }
-  if (action === "disable") { s.status = "disabled"; persistAndRender(t("toast_saved")); return; }
+  if (action === "enable") {
+    if (typeof s.id === 'number' && typeof cls.id === 'number') {
+      apiFetch(`/api/class/${cls.id}/students/${s.id}/status`, { method: 'POST', body: JSON.stringify({ action: 'enable' }) })
+        .then(d => { s.status = d.status; saveStore(state.store); renderAll(); alert(t('toast_saved')); })
+        .catch(() => { alert('操作失败'); });
+      return;
+    }
+    s.status = "joined"; persistAndRender(t("toast_saved")); return;
+  }
+
+  if (action === "disable") {
+    if (typeof s.id === 'number' && typeof cls.id === 'number') {
+      apiFetch(`/api/class/${cls.id}/students/${s.id}/status`, { method: 'POST', body: JSON.stringify({ action: 'disable' }) })
+        .then(d => { s.status = d.status; saveStore(state.store); renderAll(); alert(t('toast_saved')); })
+        .catch(() => { alert('操作失败'); });
+      return;
+    }
+    s.status = "disabled"; persistAndRender(t("toast_saved")); return;
+  }
 }
 
 /** ---------- Drawer ---------- */
@@ -727,11 +764,26 @@ function openDrawer(studentId) {
 
   const cls = state.store.classes.find(c => c.id === state.selectedClassId);
   if (!cls) return;
-  const s = (cls.students || []).find(x => x.id === studentId);
-  if (!s) return;
+  const local = (cls.students || []).find(x => String(x.id) === String(studentId));
+  if (local && typeof local.id === 'number' && typeof cls.id === 'number') {
+    // fetch latest from server
+    apiFetch(`/api/class/${cls.id}/students/${local.id}`, { method: 'GET' })
+      .then(d => { renderDrawerStudent(d); drawer.classList.remove('hidden'); state.drawerStudentId = local.id; })
+      .catch(() => { alert('获取学生详情失败'); });
+    return;
+  }
 
+  if (!local) return;
   state.drawerStudentId = studentId;
+  renderDrawerStudent(local);
+  drawer.classList.remove("hidden");
+}
 
+
+function renderDrawerStudent(s) {
+  const drawer = $("drawer");
+  const body = $("drawerBody");
+  if (!drawer || !body) return;
   const pill = studentStatusPill(s.status);
   body.innerHTML = `
     <div class="cm-kv">
@@ -743,8 +795,6 @@ function openDrawer(studentId) {
       <div class="cm-kv__row"><div class="cm-kv__k">${t("thSubmit")}</div><div class="cm-kv__v">${typeof s.submit==="number" ? s.submit+"%" : "—"}</div></div>
     </div>
   `;
-
-  drawer.classList.remove("hidden");
 }
 
 function closeDrawer() {
@@ -1039,6 +1089,33 @@ function saveClassSettings() {
 function exportClass() {
   const cls = state.store.classes.find(c => c.id === state.selectedClassId);
   if (!cls) return;
+  // If this is a persisted class (numeric id), request server Excel export
+  if (typeof cls.id === 'number') {
+    const API_BASE = 'http://127.0.0.1:5000';
+    const user = getLoginUser();
+    const headers = { 'X-User-Id': user && user.id ? String(user.id) : '' };
+    const url = `${API_BASE}/api/class/${cls.id}/export?format=xlsx`;
+    fetch(url, { method: 'GET', headers })
+      .then(async (res) => {
+        if (!res.ok) throw new Error('export failed');
+        const blob = await res.blob();
+        const disp = res.headers.get('Content-Disposition') || '';
+        let filename = `class_${(cls.name || 'class').replace(/[\\/:*?"<>|]/g,'_')}.xlsx`;
+        const m = disp.match(/filename\*=UTF-8''(.+)$|filename="?([^";]+)"?/i);
+        if (m) filename = decodeURIComponent(m[1] || m[2] || filename);
+        const u = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = u;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(u);
+      })
+      .catch(() => { alert('导出失败'); });
+    return;
+  }
+
   const file = `class_${(cls.name || "class").replace(/[\\/:*?"<>|]/g,"_")}.json`;
   downloadFile(file, JSON.stringify(cls, null, 2));
 }
@@ -1126,6 +1203,34 @@ function importCSVFile(file) {
     persistAndRender(t("toast_saved"));
   };
   reader.readAsText(file, "utf-8");
+}
+
+// helper to call backend endpoints with raw body (no JSON header)
+async function apiFetchRaw(path, opts = {}) {
+  const API_BASE = 'http://127.0.0.1:5000';
+  const user = getLoginUser();
+  const headers = (opts.headers || {});
+  if (user && user.id) headers['X-User-Id'] = String(user.id);
+  const url = path.startsWith('http') ? path : (API_BASE + path);
+  const res = await fetch(url, Object.assign({}, opts, { headers }));
+  let data = null;
+  try {
+    data = await res.json();
+  } catch (e) {
+    const txt = await res.text();
+    // throw clearer error when server returned non-JSON (e.g., HTML)
+    const err = new Error('Non-JSON response from server: ' + (txt ? txt.slice(0,200) : '[empty]'));
+    err.rawText = txt;
+    throw err;
+  }
+  if (!res.ok || data.code !== 0) {
+    const msg = (data && data.message) ? data.message : ('HTTP ' + res.status);
+    const err = new Error(msg || 'api error');
+    // attach parsed_header when backend provided it for debugging
+    if (data && data.data && data.data.parsed_header) err.parsed_header = data.data.parsed_header;
+    throw err;
+  }
+  return data.data;
 }
 
 /** ---------- Persist & Render ---------- */
