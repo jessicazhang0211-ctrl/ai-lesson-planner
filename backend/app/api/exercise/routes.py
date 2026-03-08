@@ -79,3 +79,21 @@ def exercise_history():
         return ok(result)
     except Exception as e:
         return err(f"历史获取失败: {str(e)}", http_status=500)
+
+
+@bp.route('/<int:exercise_id>', methods=['DELETE'])
+@token_required
+def delete_exercise(exercise_id: int):
+    try:
+        user_id = getattr(g, 'current_user_id', None)
+        if not user_id:
+            return err("缺少用户ID", http_status=400)
+        exercise = Exercise.query.get(exercise_id)
+        if not exercise or exercise.created_by != int(user_id):
+            return err("exercise not found", http_status=404)
+        from app.extensions import db
+        db.session.delete(exercise)
+        db.session.commit()
+        return ok({"deleted": True})
+    except Exception as e:
+        return err(f"删除失败: {str(e)}", http_status=500)

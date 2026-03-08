@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>资源管理 · AI 辅助备课系统</title>
+
+	<link rel="stylesheet" href="./css/teacher.css" />
+	<link rel="stylesheet" href="./css/resource.css" />
+</head>
+<body>
+
+<header class="topbar">
+	<div class="topbar-left" onclick="goHome()">
+		<img src="../assets/logo.png" class="logo" alt="logo" />
+		<span class="system-name" id="appName">AI 辅助备课系统</span>
+	</div>
+
+	<div class="topbar-right" onclick="toggleUserMenu()">
+		<span class="username">User</span>
+		<img src="../assets/avatar.png" class="avatar" alt="avatar" />
+		<div class="user-menu" id="userMenu">
+			<div class="menu-item" data-i18n="settings" onclick="goSettings()">设置</div>
+			<div class="menu-item logout" data-i18n="logout" onclick="logout()">退出登录</div>
+		</div>
+	</div>
+</header>
+
+<div class="layout">
+	<aside class="sidebar" id="sidebar">
+		<div class="toggle-btn" onclick="toggleSidebar()">☰</div>
+		<nav class="menu">
+			<a class="menu-item" href="./index.html" data-i18n="dashboard">学情分析</a>
+			<a class="menu-item" href="./lesson.html" data-i18n="lesson">教案生成</a>
+			<a class="menu-item" href="./ppt.html" data-i18n="ppt">PPT 生成</a>
+			<a class="menu-item" href="./exercise.html" data-i18n="exercise">习题设计</a>
+			<a class="menu-item active" href="./resource.html" data-i18n="resource">资源管理</a>
+			<a class="menu-item" href="./class_management.html" data-i18n="class">班级管理</a>
+			<a class="menu-item" href="./settings.html" data-i18n="settings">设置</a>
+		</nav>
+	</aside>
+
+	<main class="content">
+		<div class="res-head">
+			<div>
+				<h1 class="res-title" data-i18n-page="title">资源管理</h1>
+				<div class="res-sub" data-i18n-page="sub">集中查看教案与习题，可发布给班级或按正确率筛选发布。</div>
+			</div>
+			<div class="res-actions">
+				<button class="btn ghost" id="btnRefresh" data-i18n-page="refresh">刷新</button>
+			</div>
+		</div>
+
+		<section class="card res-filters">
+			<div class="res-filter">
+				<label data-i18n-page="type">类型</label>
+				<select id="filterType">
+					<option value="all" data-i18n-page="typeAll">全部</option>
+					<option value="lesson" data-i18n-page="typeLesson">教案</option>
+					<option value="exercise" data-i18n-page="typeExercise">习题</option>
+				</select>
+			</div>
+			<div class="res-filter">
+				<label data-i18n-page="keyword">关键词</label>
+				<input id="filterKeyword" placeholder="输入标题/主题" />
+			</div>
+			<div class="res-filter">
+				<label data-i18n-page="sort">排序</label>
+				<select id="filterSort">
+					<option value="new" data-i18n-page="sortNew">最新优先</option>
+					<option value="old" data-i18n-page="sortOld">最早优先</option>
+				</select>
+			</div>
+			<div class="res-filter">
+				<button class="btn primary" id="btnApply" data-i18n-page="apply">应用</button>
+			</div>
+		</section>
+
+		<div class="res-layout">
+			<section class="card res-list">
+				<div class="res-list-head">
+					<div class="res-list-title" data-i18n-page="listTitle">历史记录</div>
+					<div class="res-list-meta" id="resultCount">0</div>
+				</div>
+				<div class="res-table" id="resourceTable"></div>
+			</section>
+
+			<section class="card res-preview">
+				<div class="res-preview-head">
+					<div>
+						<div class="res-preview-title" id="previewTitle">—</div>
+						<div class="res-preview-meta" id="previewMeta">—</div>
+					</div>
+					<div class="res-preview-actions">
+						<button class="btn" id="btnDelete" data-i18n-page="delete">删除</button>
+						<button class="btn primary" id="btnPublish" data-i18n-page="publish">发布</button>
+					</div>
+				</div>
+				<pre class="res-preview-body" id="previewBody"></pre>
+				<div class="res-empty" id="previewEmpty" data-i18n-page="empty">选择左侧资源查看详情</div>
+			</section>
+		</div>
+	</main>
+</div>
+
+<div class="modal" id="publishModal" aria-hidden="true">
+	<div class="modal-backdrop" id="publishClose"></div>
+	<div class="modal-panel">
+		<div class="modal-head">
+			<div class="modal-title" data-i18n-page="publishTitle">发布资源</div>
+			<button class="modal-close" id="publishCloseBtn">×</button>
+		</div>
+
+		<div class="modal-body">
+			<div class="modal-row">
+				<label data-i18n-page="class">班级</label>
+				<select id="publishClass"></select>
+			</div>
+
+			<div class="modal-row">
+				<label data-i18n-page="mode">发布方式</label>
+				<select id="publishMode">
+					<option value="all" data-i18n-page="modeAll">全班</option>
+					<option value="accuracy" data-i18n-page="modeAcc">按正确率筛选</option>
+					<option value="manual" data-i18n-page="modeManual">手动选择</option>
+					<option value="mixed" data-i18n-page="modeMixed">正确率筛选 + 手动调整</option>
+				</select>
+			</div>
+
+			<div class="modal-row" id="accuracyRow">
+				<label data-i18n-page="accuracy">正确率</label>
+				<div class="inline">
+					<select id="accuracyOp">
+						<option value="lte">≤</option>
+						<option value="gte">≥</option>
+					</select>
+					<input id="accuracyValue" type="number" min="0" max="100" value="60" />
+					<button class="btn" id="applyAccuracy" data-i18n-page="applyAcc">筛选</button>
+				</div>
+			</div>
+
+			<div class="modal-row" id="studentRow">
+				<label data-i18n-page="students">学生</label>
+				<div class="student-list" id="studentList"></div>
+			</div>
+		</div>
+
+		<div class="modal-foot">
+			<button class="btn" id="publishCancel" data-i18n-page="cancel">取消</button>
+			<button class="btn primary" id="publishConfirm" data-i18n-page="confirm">确认发布</button>
+		</div>
+	</div>
+</div>
+
+<script src="./js/teacher.js"></script>
+<script src="./js/resource.js"></script>
+</body>
+</html>

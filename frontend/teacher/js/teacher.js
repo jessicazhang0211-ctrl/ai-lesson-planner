@@ -20,6 +20,7 @@ const teacherDict = {
     lesson: "教案生成",
     ppt: "PPT 生成",
     exercise: "习题设计",
+    resource: "资源管理",
     class: "班级管理",
     settings: "设置",
     loginFirst: "请先登录",
@@ -33,6 +34,7 @@ const teacherDict = {
     lesson: "Lesson Planner",
     ppt: "PPT Generator",
     exercise: "Exercise Builder",
+    resource: "Resource Manager",
     class: "Class Management",
     settings: "Settings",
     loginFirst: "Please sign in first",
@@ -74,6 +76,7 @@ function applyTeacherLang() {
   setText("[data-i18n='lesson']", t.lesson);
   setText("[data-i18n='ppt']", t.ppt);
   setText("[data-i18n='exercise']", t.exercise);
+  setText("[data-i18n='resource']", t.resource);
   setText("[data-i18n='class']", t.class);
   setText("[data-i18n='settings']", t.settings);
   setText("[data-i18n='profile']", t.profile);
