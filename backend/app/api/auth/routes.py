@@ -3,6 +3,7 @@ from flask import Blueprint, request
 from app.extensions import db
 from app.models.user import User
 from app.utils.response import ok, err
+from app.utils.auth import generate_token
 
 bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
@@ -40,4 +41,5 @@ def login():
     if not user or not user.check_password(password):
         return err("invalid credentials", http_status=401)
 
-    return ok({"user": {"id": user.id, "name": user.name, "email": user.email}}, "login success")
+    token = generate_token(user.id)
+    return ok({"user": {"id": user.id, "name": user.name, "email": user.email}, "token": token}, "login success")

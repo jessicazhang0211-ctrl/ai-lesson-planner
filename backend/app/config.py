@@ -21,3 +21,7 @@ class Config:
 
     # Google Gemini API (免费额度：60 请求/分钟)
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+    # JWT 设置
+    JWT_SECRET = os.getenv("JWT_SECRET", None) or SECRET_KEY
+    JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+    JWT_EXP_SECONDS = int(os.getenv("JWT_EXP_SECONDS", "3600"))

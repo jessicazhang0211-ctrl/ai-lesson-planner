@@ -90,8 +90,8 @@ function applyTeacherLang() {
 
 // ========== 登录校验：未登录不能进入教师端 ==========
 (function checkLogin() {
-  const user = localStorage.getItem("login_user");
-  if (!user) {
+  const token = localStorage.getItem("auth_token");
+  if (!token) {
     alert(teacherDict[getLocale()].loginFirst);
     window.location.href = "../login.html";
   }
@@ -140,6 +140,7 @@ function loadUserInfo() {
 // ========== 退出登录 ==========
 function logout() {
   localStorage.removeItem("login_user");
+  localStorage.removeItem("auth_token");
   window.location.href = "../login.html";
 }
 

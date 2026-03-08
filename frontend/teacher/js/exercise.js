@@ -29,6 +29,10 @@ const exerciseDict = {
 
 const API_BASE = "http://127.0.0.1:5000";
 
+function getToken(){
+  return localStorage.getItem('auth_token') || '';
+}
+
 function getLocale(){ return localStorage.getItem("locale") || "zh"; }
 function t(k){ return exerciseDict[getLocale()][k] || k; }
 
@@ -76,14 +80,14 @@ function downloadTxt(filename, text){
 }
 
 async function apiGenerate(payload){
-  const userId = getUserId();
-  if (!userId) throw new Error("missing user id");
+  const token = getToken();
+  if (!token) throw new Error("missing token");
 
   const res = await fetch(`${API_BASE}/api/exercise/generate`,{
     method:"POST",
     headers:{
       "Content-Type":"application/json",
-      "X-User-Id": userId
+      "Authorization": `Bearer ${token}`
     },
     body: JSON.stringify(payload)
   });
@@ -93,12 +97,12 @@ async function apiGenerate(payload){
 }
 
 async function apiHistory(){
-  const userId = getUserId();
-  if (!userId) throw new Error("missing user id");
+  const token = getToken();
+  if (!token) throw new Error("missing token");
 
   const res = await fetch(`${API_BASE}/api/exercise/history`,{
     headers:{
-      "X-User-Id": userId
+      "Authorization": `Bearer ${token}`
     }
   });
   const data = await res.json().catch(()=> ({}));

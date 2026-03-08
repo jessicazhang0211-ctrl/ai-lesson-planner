@@ -1,10 +1,10 @@
 # app/api/exercise/routes.py
-from flask import Blueprint, request
+from flask import Blueprint, request, g
 from app.utils.response import ok, err
-from app.models import user as user_model
 from app.models import Exercise
 from app import Config
 import google.generativeai as genai
+from app.utils.auth import token_required
 
 genai.configure(api_key=Config.GEMINI_API_KEY)
 
@@ -12,12 +12,13 @@ bp = Blueprint("exercise", __name__, url_prefix="/api/exercise")
 
 
 @bp.route("/generate", methods=["POST", "OPTIONS"])
+@token_required
 def generate_exercise():
     if request.method == "OPTIONS":
         return ok({"msg": "CORS preflight ok"})
     try:
         data = request.get_json()
-        user_id = request.headers.get("X-User-Id")
+        user_id = getattr(g, 'current_user_id', None)
         if not user_id:
             return err("缺少用户ID", http_status=400)
         # 构建AI prompt
@@ -50,10 +51,12 @@ def generate_exercise():
     except Exception as e:
         return err(f"AI 生成失败: {str(e)}", http_status=500)
 
+
 @bp.route("/history", methods=["GET"])
+@token_required
 def exercise_history():
     try:
-        user_id = request.headers.get("X-User-Id")
+        user_id = getattr(g, 'current_user_id', None)
         if not user_id:
             return err("缺少用户ID", http_status=400)
         # 查询最近生成的习题（按时间倒序，最多20条）

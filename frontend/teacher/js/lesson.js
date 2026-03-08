@@ -139,6 +139,19 @@ function setOutput(text) {
   empty.style.display = text ? "none" : "flex";
 }
 
+const API_BASE = "http://127.0.0.1:5000";
+
+function getToken(){
+  return localStorage.getItem('auth_token') || '';
+}
+
+function showLoading(){
+  const out = document.getElementById('output');
+  const empty = document.getElementById('emptyState');
+  empty.style.display = 'none';
+  out.innerHTML = '<div class="spinner"></div><div style="margin-top:8px;color:#9aa3ad">生成中，请稍候...</div>';
+}
+
 function downloadTxt(filename, text) {
   const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -172,23 +185,35 @@ function bindLessonEvents() {
 
     // 发送到后端 AI 生成
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/lesson/generate", {
-        method: "POST",
+      showLoading();
+      const token = getToken();
+      if(!token) throw new Error('missing token');
+      const res = await fetch(`${API_BASE}/api/lesson/generate`,{
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json"
+          'Content-Type':'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(input)
       });
-      const data = await response.json();
-      if (data.code === 0) {
+      const data = await res.json().catch(()=> ({}));
+      if(res.ok && data.code===0){
         setOutput(data.data.lesson_plan);
-        localStorage.setItem("last_lesson_plan", data.data.lesson_plan);
-      } else {
-        alert("生成失败: " + data.message);
+        localStorage.setItem('last_lesson_plan', data.data.lesson_plan);
+        await refreshHistory();
+      }else{
+        alert('生成失败: ' + (data.message||'未知错误'));
+        setOutput('');
       }
-    } catch (error) {
-      alert("网络错误: " + error.message);
+    }catch(err){
+      alert('网络错误: ' + err.message);
+      setOutput('');
     }
+  });
+
+  document.getElementById('refreshHistory')?.addEventListener('click', async (e)=>{
+    e.preventDefault();
+    await refreshHistory();
   });
 
   document.getElementById("clearBtn").addEventListener("click", (e) => {
@@ -225,6 +250,47 @@ function initLesson() {
   const cache = localStorage.getItem("last_lesson_plan");
   if (cache) setOutput(cache);
   else setOutput("");
+}
+
+function renderHistory(list){
+  const box = document.getElementById('historyList');
+  if(!box) return;
+  if(!list || list.length===0){ box.innerHTML='<div style="color:#8a8f98;font-size:12px;">(empty)</div>'; return }
+  box.innerHTML = list.map(item=>{
+    const topic = item.topic || item.title || '-';
+    const meta = [item.grade||'', item.subject||'', item.duration?`${item.duration}分钟`:''].filter(Boolean).join(' · ');
+    return `
+      <div class="hitem" data-id="${item.id}" data-content="${encodeURIComponent(item.content||'')}">
+        <div class="hitem-top">
+          <div class="hitem-title">${topic}</div>
+          <div class="hitem-meta">${(item.created_at||'').slice(0,19).replace('T',' ')}</div>
+        </div>
+        <div class="hitem-sub">${meta}</div>
+      </div>
+    `;
+  }).join('');
+  box.querySelectorAll('.hitem').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const c = decodeURIComponent(el.getAttribute('data-content')||'');
+      setOutput(c);
+    });
+  });
+}
+
+async function apiHistory(){
+  try{
+    const token = getToken();
+    if(!token) return [];
+    const res = await fetch(`${API_BASE}/api/lesson/history`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const data = await res.json().catch(()=>({}));
+    if(!res.ok || data.code!==0) return [];
+    return data.data;
+  }catch{ return [] }
+}
+
+async function refreshHistory(){
+  const list = await apiHistory();
+  renderHistory(list);
 }
 
 document.addEventListener("DOMContentLoaded", () => {

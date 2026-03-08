@@ -7,3 +7,4 @@ werkzeug
 google-generativeai
 openpyxl
 xlrd
+PyJWT

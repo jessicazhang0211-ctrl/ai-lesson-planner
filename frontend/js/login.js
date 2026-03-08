@@ -126,6 +126,10 @@ async function loginSubmit(e) {
       const user = data.data && data.data.user ? data.data.user : { email };
 
       localStorage.setItem("login_user", JSON.stringify(user));
+      // 保存后端返回的 token（若有）
+      if (data.data && data.data.token) {
+        localStorage.setItem("auth_token", data.data.token);
+      }
 
       // （可选）记住邮箱：下次打开登录页自动填
       localStorage.setItem("prefill_email", user.email || email);
