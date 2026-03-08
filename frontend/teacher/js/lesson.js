@@ -250,6 +250,9 @@ function initLesson() {
   const cache = localStorage.getItem("last_lesson_plan");
   if (cache) setOutput(cache);
   else setOutput("");
+
+  // 初始自动拉取最近生成列表（若已登录且有 token）
+  refreshHistory();
 }
 
 function renderHistory(list){
