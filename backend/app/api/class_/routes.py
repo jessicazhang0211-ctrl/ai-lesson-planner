@@ -33,6 +33,17 @@ def _normalize_header(h):
     return s.lstrip('\ufeff').strip().lower()
 
 
+def _find_header_row(rows):
+    """Find the first row that contains required header columns (name/stu_id or 姓名/学号)."""
+    max_scan = min(len(rows), 8)
+    for i in range(max_scan):
+        norm = [_normalize_header(h) for h in rows[i]]
+        hk = set(norm)
+        if (('name' in hk or '姓名' in hk) and ('stu_id' in hk or '学号' in hk)):
+            return norm, i
+    return None, None
+
+
 def _debug_headers_allowed():
     # allow when app is in debug or when request explicitly asks for header debug
     try:
@@ -416,12 +427,13 @@ def import_students(cid: int):
                 rows_iter = list(ws.iter_rows(values_only=True))
                 if not rows_iter:
                     return err('empty xlsx', http_status=400)
-                header = [_normalize_header(h) for h in rows_iter[0]]
-                # validate header contains name and stu_id (or Chinese equivalents)
-                hk = set(header)
-                if not (('name' in hk or '姓名' in hk) and ('stu_id' in hk or '学号' in hk)):
-                    data = {'parsed_header': header} if _debug_headers_allowed() else None
+                header, header_idx = _find_header_row(rows_iter)
+                if header is None:
+                    data = {'parsed_header': rows_iter[0]} if _debug_headers_allowed() else None
                     return err('invalid header: expected name and stu_id (or 姓名 and 学号)', http_status=400, data=data)
+                # trim leading non-header rows
+                if header_idx and header_idx > 0:
+                    rows_iter = rows_iter[header_idx:]
                 # map indexes
                 def find_idx(keys):
                     for k in keys:
@@ -454,11 +466,12 @@ def import_students(cid: int):
                     rows_iter = None
 
                 if rows_iter:
-                    header = [_normalize_header(h) for h in rows_iter[0]]
-                    hk = set(header)
-                    if not (('name' in hk or '姓名' in hk) and ('stu_id' in hk or '学号' in hk)):
-                        data = {'parsed_header': header} if _debug_headers_allowed() else None
+                    header, header_idx = _find_header_row(rows_iter)
+                    if header is None:
+                        data = {'parsed_header': rows_iter[0]} if _debug_headers_allowed() else None
                         return err('invalid header: expected name and stu_id (or 姓名 and 学号)', http_status=400, data=data)
+                    if header_idx and header_idx > 0:
+                        rows_iter = rows_iter[header_idx:]
                     def find_idx(keys):
                         for k in keys:
                             if k in header:
@@ -489,11 +502,12 @@ def import_students(cid: int):
                         lines = [r for r in reader if any(cell.strip() for cell in r)]
                         if not lines:
                             return err('invalid xls file', http_status=400)
-                        header = [_normalize_header(h) for h in lines[0]]
-                        hk = set(header)
-                        if not (('name' in hk or '姓名' in hk) and ('stu_id' in hk or '学号' in hk)):
-                            data = {'parsed_header': header} if _debug_headers_allowed() else None
+                        header, header_idx = _find_header_row(lines)
+                        if header is None:
+                            data = {'parsed_header': lines[0]} if _debug_headers_allowed() else None
                             return err('invalid header: expected name and stu_id (or 姓名 and 学号)', http_status=400, data=data)
+                        if header_idx and header_idx > 0:
+                            lines = lines[header_idx:]
                         try:
                             idx_name = header.index('name') if 'name' in header else (header.index('姓名') if '姓名' in header else None)
                         except ValueError:
@@ -528,11 +542,12 @@ def import_students(cid: int):
                 lines = [r for r in reader if any(cell.strip() for cell in r)]
                 if not lines:
                     return err('empty csv', http_status=400)
-                header = [_normalize_header(h) for h in lines[0]]
-                hk = set(header)
-                if not (('name' in hk or '姓名' in hk) and ('stu_id' in hk or '学号' in hk)):
-                    data = {'parsed_header': header} if _debug_headers_allowed() else None
+                header, header_idx = _find_header_row(lines)
+                if header is None:
+                    data = {'parsed_header': lines[0]} if _debug_headers_allowed() else None
                     return err('invalid header: expected name and stu_id (or 姓名 and 学号)', http_status=400, data=data)
+                if header_idx and header_idx > 0:
+                    lines = lines[header_idx:]
                 try:
                     idx_name = header.index('name') if 'name' in header else (header.index('姓名') if '姓名' in header else None)
                 except ValueError:

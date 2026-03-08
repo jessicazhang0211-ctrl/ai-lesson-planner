@@ -1200,6 +1200,33 @@ function importCSVFile(file) {
   const cls = state.store.classes.find(c => c.id === state.selectedClassId);
   if (!cls) return;
 
+   // If Excel file, directly send to backend to avoid text parsing errors
+   const lower = (file?.name || '').toLowerCase();
+   const isExcel = lower.endsWith('.xls') || lower.endsWith('.xlsx');
+   if (isExcel && typeof cls.id === 'number') {
+     const form = new FormData();
+     form.append('file', file, file.name);
+     apiFetchRaw(`/api/class/${cls.id}/import`, { method: 'POST', body: form })
+       .then(d => {
+         if (d && d.class) {
+           const idx = state.store.classes.findIndex(x => x.id === d.class.id);
+           if (idx !== -1) state.store.classes[idx] = d.class;
+           else state.store.classes.push(d.class);
+           saveStore(state.store);
+           renderAll();
+           alert(t('toast_saved'));
+         } else {
+           alert(t('toast_saved'));
+           fetchAndLoadClasses();
+         }
+       })
+       .catch((err) => {
+         const detail = err?.parsed_header ? `\n解析到的表头: ${JSON.stringify(err.parsed_header)}` : '';
+         alert(`导入失败: ${err.message || err}${detail}`);
+       });
+     return;
+   }
+
   const reader = new FileReader();
   reader.onload = () => {
     const text = String(reader.result || "");
