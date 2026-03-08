@@ -76,6 +76,16 @@ const cmDict = {
     kpiTodo: "待处理",
     kpiTodoHint: "请假 / 转班 / 异常",
 
+    pubTitle: "已发布作业",
+    pubRefresh: "刷新",
+    pubEmptyTitle: "暂无发布记录",
+    pubEmptySub: "发布后会显示在此处。",
+    pubTypeLesson: "教案",
+    pubTypeExercise: "习题",
+    pubStudents: "学生数",
+    pubMode: "发布方式",
+    pubAt: "发布时间",
+
     studentListTitle: "学生名单",
     filterLabel: "筛选",
     sortLabel: "排序",
@@ -182,6 +192,16 @@ const cmDict = {
     kpiAccHint: "Last 7 days",
     kpiTodo: "Pending",
     kpiTodoHint: "Requests / issues",
+
+    pubTitle: "Published Assignments",
+    pubRefresh: "Refresh",
+    pubEmptyTitle: "No published items",
+    pubEmptySub: "Published resources will appear here.",
+    pubTypeLesson: "Lesson",
+    pubTypeExercise: "Exercise",
+    pubStudents: "Students",
+    pubMode: "Mode",
+    pubAt: "Published at",
 
     studentListTitle: "Students",
     filterLabel: "Filter",
@@ -325,7 +345,9 @@ const state = {
   pageSize: 8,
   editingClassId: null,
   editingStudentId: null,
-  drawerStudentId: null
+  drawerStudentId: null,
+  published: [],
+  publishedClassId: null
 };
 
 /** ---------- UI Apply Text ---------- */
@@ -360,6 +382,11 @@ function applyText() {
   if ($("kpiAccHint")) $("kpiAccHint").textContent = t("kpiAccHint");
   if ($("kpiTodo")) $("kpiTodo").textContent = t("kpiTodo");
   if ($("kpiTodoHint")) $("kpiTodoHint").textContent = t("kpiTodoHint");
+
+  if ($("pubTitle")) $("pubTitle").textContent = t("pubTitle");
+  if ($("pubRefreshBtn")) $("pubRefreshBtn").textContent = t("pubRefresh");
+  if ($("pubEmptyTitle")) $("pubEmptyTitle").textContent = t("pubEmptyTitle");
+  if ($("pubEmptySub")) $("pubEmptySub").textContent = t("pubEmptySub");
 
   if ($("studentListTitle")) $("studentListTitle").textContent = t("studentListTitle");
   if ($("filterLabel")) $("filterLabel").textContent = t("filterLabel");
@@ -546,7 +573,62 @@ function renderRightPanel() {
   if ($("joinSwitch")) $("joinSwitch").checked = !!cls.allow_join;
   if ($("setNote")) $("setNote").value = cls.note || "";
 
+  if (state.publishedClassId !== cls.id && typeof cls.id === "number") {
+    loadPublishedForClass(cls.id);
+  } else {
+    renderPublishedList();
+  }
+
   renderStudentTable();
+}
+
+function renderPublishedList() {
+  const list = $("pubList");
+  const emptyBox = $("pubEmpty");
+  if (!list || !emptyBox) return;
+
+  if (!state.published.length) {
+    list.innerHTML = "";
+    emptyBox.classList.remove("hidden");
+    return;
+  }
+
+  emptyBox.classList.add("hidden");
+  list.innerHTML = state.published.map(item => {
+    const typeLabel = item.resource_type === "exercise" ? t("pubTypeExercise") : t("pubTypeLesson");
+    const students = Array.isArray(item.student_ids) ? item.student_ids.length : 0;
+    const mode = item.mode || "";
+    const createdAt = item.created_at || "";
+    return `
+      <div class="cm-pub-item">
+        <div class="cm-pub-top">
+          <div class="cm-pub-title">${escapeHtml(item.title || "-")}</div>
+          <div class="cm-pub-meta">${escapeHtml(createdAt)}</div>
+        </div>
+        <div class="cm-pub-tags">
+          <span class="cm-tag cm-tag--blue">${typeLabel}</span>
+          <span class="cm-tag">${t("pubStudents")}：${students}</span>
+          <span class="cm-tag">${t("pubMode")}：${escapeHtml(mode || "-")}</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+async function loadPublishedForClass(classId) {
+  state.publishedClassId = classId;
+  if (typeof classId !== "number") {
+    state.published = [];
+    renderPublishedList();
+    return;
+  }
+  try {
+    const data = await apiFetch(`/api/resource/publish?class_id=${classId}`, { method: "GET" });
+    state.published = Array.isArray(data) ? data : [];
+  } catch (e) {
+    state.published = [];
+  }
+  renderPublishedList();
 }
 
 function getStudentsView(cls) {
@@ -1342,6 +1424,12 @@ function syncSelects() {
 
 /** ---------- Bind Events ---------- */
 function bindEvents() {
+  safeOn($("pubRefreshBtn"), "click", () => {
+    const cls = state.store.classes.find(c => c.id === state.selectedClassId);
+    if (!cls) return;
+    if (typeof cls.id === "number") loadPublishedForClass(cls.id);
+  });
+
   // filter chips
   const filter = $("classStatusFilter");
   safeOn(filter, "click", (e) => {
@@ -1475,6 +1563,8 @@ async function apiFetch(path, opts = {}) {
   const headers = (opts.headers || {});
   headers['Content-Type'] = headers['Content-Type'] || 'application/json';
   if (user && user.id) headers['X-User-Id'] = String(user.id);
+  const token = localStorage.getItem('auth_token');
+  if (token) headers['Authorization'] = `Bearer ${token}`;
   const url = path.startsWith('http') ? path : (API_BASE + path);
   const res = await fetch(url, Object.assign({}, opts, { headers }));
   const data = await res.json();
