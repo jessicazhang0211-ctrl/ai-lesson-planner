@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>教师端 · AI 辅助备课系统</title>
   <link rel="stylesheet" href="./css/teacher.css" />
+  <link rel="stylesheet" href="./css/dashboard.css" />
 </head>
 <body>
 
@@ -43,13 +44,79 @@
 
   <!-- 主内容区 -->
   <main class="content">
-    <h1 data-i18n-page>学情分析</h1>
+    <div class="dash-head">
+      <div>
+        <h1 class="dash-title" data-i18n-page>学情分析</h1>
+        <div class="dash-sub">班级整体表现、作业完成度与风险提醒一览。</div>
+      </div>
+      <div class="dash-actions">
+        <button class="btn ghost" id="btnRefresh">刷新</button>
+        <button class="btn primary" id="btnExport">导出概览</button>
+      </div>
+    </div>
 
-    <p>这里将展示学生整体学习情况、薄弱点分析、能力分布等内容。</p>
+    <section class="dash-grid stats">
+      <div class="card kpi">
+        <div class="kpi-label">在册学生</div>
+        <div class="kpi-value" id="kpiStudents">--</div>
+        <div class="kpi-hint" id="kpiActiveHint">活跃/总数</div>
+      </div>
+      <div class="card kpi">
+        <div class="kpi-label">本周提交</div>
+        <div class="kpi-value" id="kpiSubmit">--</div>
+        <div class="kpi-hint">作业提交率</div>
+      </div>
+      <div class="card kpi">
+        <div class="kpi-label">平均正确率</div>
+        <div class="kpi-value" id="kpiAccuracy">--</div>
+        <div class="kpi-hint">近 7 天</div>
+      </div>
+      <div class="card kpi">
+        <div class="kpi-label">待处理</div>
+        <div class="kpi-value" id="kpiRisk">--</div>
+        <div class="kpi-hint">预警 / 异常</div>
+      </div>
+    </section>
+
+    <section class="dash-grid two-cols">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">周趋势</div>
+          <div class="card-sub">提交率 & 正确率</div>
+        </div>
+        <div class="chart" id="trendChart"></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">预警名单</div>
+          <div class="card-sub">提交或正确率偏低</div>
+        </div>
+        <div class="list" id="riskList"></div>
+      </div>
+    </section>
+
+    <section class="card table-card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">班级概览</div>
+          <div class="card-sub">各班提交率与正确率</div>
+        </div>
+        <div class="seg" id="classTabs"></div>
+      </div>
+      <div class="table-wrap">
+        <table class="table" id="classTable">
+          <thead>
+            <tr><th>班级</th><th>学生数</th><th>提交率</th><th>正确率</th><th>待处理</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
   </main>
 
 </div>
 
 <script src="./js/teacher.js"></script>
+<script src="./js/dashboard.js"></script>
 </body>
 </html>
