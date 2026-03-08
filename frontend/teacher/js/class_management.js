@@ -60,6 +60,7 @@ const cmDict = {
     createdLabel: "创建于：",
     copy: "复制",
     reset: "重置",
+    import_tpl: "下载模板",
     import: "导入名单",
     export: "导出",
     archive: "归档班级",
@@ -166,6 +167,7 @@ const cmDict = {
     createdLabel: "Created: ",
     copy: "Copy",
     reset: "Reset",
+    import_tpl: "Download template",
     import: "Import roster",
     export: "Export",
     archive: "Archive",
@@ -342,6 +344,7 @@ function applyText() {
 
   if ($("copyCodeBtn")) $("copyCodeBtn").textContent = t("copy");
   if ($("resetCodeBtn")) $("resetCodeBtn").textContent = t("reset");
+  if ($("downloadTemplateBtn")) $("downloadTemplateBtn").textContent = t("import_tpl");
 
   if ($("importBtnText")) $("importBtnText").textContent = t("import");
   if ($("exportBtn")) $("exportBtn").textContent = t("export");
@@ -601,7 +604,7 @@ function renderStudentTable() {
     const pill = studentStatusPill(s.status);
     const acc = (typeof s.accuracy === "number") ? `${s.accuracy}%` : "—";
     const sub = (typeof s.submit === "number") ? `${s.submit}%` : "—";
-    const parent = s.parent_phone || "—";
+    const parent = maskPhone(s.parent_phone || "");
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -672,31 +675,21 @@ function renderStudentActions(s) {
 function onStudentActionClick(e) {
   const btn = e.target.closest("button");
   if (!btn) return;
-  // If class persisted, upload file to backend (supports csv/xlsx)
-  if (typeof cls.id === 'number') {
-    const form = new FormData();
-    form.append('file', file, file.name);
-    apiFetchRaw(`/api/class/${cls.id}/import`, { method: 'POST', body: form })
-      .then(d => {
-        // backend returns updated class
-        if (d && d.class) {
-          // replace local class
-          const idx = state.store.classes.findIndex(x => x.id === d.class.id);
-          if (idx !== -1) state.store.classes[idx] = d.class;
-          else state.store.classes.push(d.class);
-          saveStore(state.store);
-          renderAll();
-          alert(t('toast_saved'));
-        } else {
-          alert(t('toast_saved'));
-          fetchAndLoadClasses();
-        }
-      })
-      .catch(() => { alert('导入失败'); });
-    return;
-  }
 
-  // fallback handled by local demo logic (no-op here)
+  const row = e.target.closest(".cm-rowbtns");
+  const stuId = row?.getAttribute("data-stu-id");
+  const cls = state.store.classes.find(c => c.id === state.selectedClassId);
+  if (!cls || !stuId) return;
+  const s = (cls.students || []).find(x => String(x.id) === String(stuId));
+  if (!s) return;
+
+  const action = btn.getAttribute("data-action") || "";
+
+  // detail
+  if (action === "detail") { openDrawer(s.id); return; }
+
+  // edit
+  if (action === "edit") { openStuModal("edit", s.id); return; }
 
   if (action === "resetpwd") {
     if (typeof s.id === 'number' && typeof cls.id === 'number') {
@@ -714,9 +707,6 @@ function onStudentActionClick(e) {
       apiFetch(`/api/class/${cls.id}/students/${s.id}/status`, { method: 'POST', body: JSON.stringify({ action: 'enable' }) })
         .then(d => { s.status = d.status; saveStore(state.store); renderAll(); alert(t('toast_saved')); })
         .catch(() => { alert('操作失败'); });
-
-
-
       return;
     }
     s.status = "joined"; persistAndRender(t("toast_saved")); return;
@@ -729,7 +719,6 @@ function onStudentActionClick(e) {
         .catch(() => { alert('操作失败'); });
       return;
     }
-    // reject removes it (demo).
     cls.students = (cls.students || []).filter(x => x.id !== s.id);
     persistAndRender(t("toast_deleted"));
     return;
@@ -753,6 +742,19 @@ function onStudentActionClick(e) {
       return;
     }
     s.status = "disabled"; persistAndRender(t("toast_saved")); return;
+  }
+
+  if (action === "remove") {
+    if (!confirm(t("confirm_delete_student"))) return;
+    if (typeof s.id === 'number' && typeof cls.id === 'number') {
+      apiFetch(`/api/class/${cls.id}/students/${s.id}`, { method: 'DELETE' })
+        .then(() => { cls.students = (cls.students || []).filter(x => x.id !== s.id); saveStore(state.store); renderAll(); alert(t('toast_deleted')); })
+        .catch(() => { alert('操作失败'); });
+      return;
+    }
+    cls.students = (cls.students || []).filter(x => x.id !== s.id);
+    persistAndRender(t("toast_deleted"));
+    return;
   }
 }
 
@@ -948,7 +950,7 @@ function saveStuModal() {
 
   const accuracy = accuracy_raw === "" ? null : clamp(parseInt(accuracy_raw, 10) || 0, 0, 100);
   const submit = submit_raw === "" ? null : clamp(parseInt(submit_raw, 10) || 0, 0, 100);
-  const parent_phone = maskPhone(parent_phone_raw);
+  const parent_phone = parent_phone_raw;
 
   if (state.editingStudentId) {
     const s = (cls.students || []).find(x => x.id === state.editingStudentId);
@@ -1013,7 +1015,7 @@ function randomCode() {
 }
 function maskPhone(phone) {
   if (!phone) return "—";
-  const digits = phone.replace(/[^\d]/g,"");
+  const digits = String(phone).replace(/[^\d]/g,"");
   if (digits.length < 7) return phone;
   return digits.slice(0,3) + "****" + digits.slice(-4);
 }
@@ -1121,10 +1123,21 @@ function exportClass() {
 }
 
 function parseCSV(text) {
-  // Very simple CSV parser: split lines, split by comma (no quoted commas)
+  // 支持逗号或制表符分隔（兼容我们提供的 .xls 模板）
   const lines = text.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
   if (!lines.length) return [];
-  const header = lines[0].split(",").map(h => h.trim().toLowerCase());
+
+  const detectDelimiter = (firstLine) => {
+    const commaCnt = (firstLine.match(/,/g) || []).length;
+    const tabCnt = (firstLine.match(/\t/g) || []).length;
+    if (tabCnt > commaCnt) return "\t";
+    return ",";
+  };
+
+  const delimiter = detectDelimiter(lines[0]);
+  const splitLine = (line) => line.split(delimiter).map(h => h.trim());
+
+  const header = splitLine(lines[0]).map(h => h.toLowerCase());
 
   // allow chinese headers
   const idxName = header.indexOf("name") !== -1 ? header.indexOf("name") : header.indexOf("姓名");
@@ -1138,7 +1151,7 @@ function parseCSV(text) {
 
   const rows = [];
   for (let i = 1; i < lines.length; i++) {
-    const cols = lines[i].split(",").map(c => c.trim());
+    const cols = splitLine(lines[i]);
     const name = cols[idxName] || "";
     const sid = cols[idxId] || "";
     if (!name || !sid) continue;
@@ -1155,7 +1168,7 @@ function parseCSV(text) {
       name,
       stu_id: sid,
       status,
-      parent_phone: maskPhone(phone),
+      parent_phone: phone,
       accuracy: acc === "" ? null : clamp(parseInt(acc, 10) || 0, 0, 100),
       submit: sub === "" ? null : clamp(parseInt(sub, 10) || 0, 0, 100)
     });
@@ -1169,6 +1182,18 @@ function normalizeStuStatus(v) {
   if (["disabled","禁用","停用","ban"].some(x => s.includes(String(x).toLowerCase()))) return "disabled";
   if (["joined","已加入","在册","ok","active"].some(x => s.includes(String(x).toLowerCase()))) return "joined";
   return "joined";
+}
+
+function downloadRosterTemplate() {
+  // XLS (兼容 Excel)：制表符分隔，保存为 .xls 方便直接打开
+  const header = ["name", "stu_id", "parent_phone", "status", "accuracy", "submit"].join("\t");
+  const rows = [
+    ["李雷", "202601001", "13800000000", "已加入", "90", "95"].join("\t"),
+    ["韩梅梅", "202601002", "13700000000", "待审核", "", ""].join("\t"),
+    ["王一博", "202601003", "13600000000", "已禁用", "70", "60"].join("\t")
+  ];
+  const content = [header, ...rows].join("\n");
+  downloadFile("class_roster_template.xls", content, "application/vnd.ms-excel;charset=utf-8");
 }
 
 function importCSVFile(file) {
@@ -1185,18 +1210,37 @@ function importCSVFile(file) {
     }
     cls.students = cls.students || [];
 
-    // merge: if same stu_id exists -> update, else add
+    // merge: 仅追加，不覆盖已有学生（按 stu_id 去重）
+    // If class persisted, upload file to backend (supports csv/xlsx)
+    if (typeof cls.id === 'number') {
+      const form = new FormData();
+      form.append('file', file, file.name);
+      apiFetchRaw(`/api/class/${cls.id}/import`, { method: 'POST', body: form })
+        .then(d => {
+          if (d && d.class) {
+            const idx = state.store.classes.findIndex(x => x.id === d.class.id);
+            if (idx !== -1) state.store.classes[idx] = d.class;
+            else state.store.classes.push(d.class);
+            saveStore(state.store);
+            renderAll();
+            alert(t('toast_saved'));
+          } else {
+            alert(t('toast_saved'));
+            fetchAndLoadClasses();
+          }
+        })
+        .catch((err) => {
+          const detail = err?.parsed_header ? `\n解析到的表头: ${JSON.stringify(err.parsed_header)}` : '';
+          alert(`导入失败: ${err.message || err}${detail}`);
+        });
+      return;
+    }
+
+    // local demo: append new students only
     rows.forEach(r => {
-      const exist = cls.students.find(x => x.stu_id === r.stu_id);
-      if (exist) {
-        exist.name = r.name;
-        exist.status = r.status;
-        exist.parent_phone = r.parent_phone;
-        exist.accuracy = r.accuracy;
-        exist.submit = r.submit;
-      } else {
-        cls.students.push(r);
-      }
+      const exist = cls.students.find(x => String(x.stu_id) === String(r.stu_id));
+      if (exist) return;
+      cls.students.push(r);
     });
 
     state.page = 1;
@@ -1295,6 +1339,7 @@ function bindEvents() {
   // right actions
   safeOn($("copyCodeBtn"), "click", (e) => { e.preventDefault(); copySelectedCode(); });
   safeOn($("resetCodeBtn"), "click", (e) => { e.preventDefault(); resetSelectedCode(); });
+  safeOn($("downloadTemplateBtn"), "click", (e) => { e.preventDefault(); downloadRosterTemplate(); });
   safeOn($("exportBtn"), "click", (e) => { e.preventDefault(); exportClass(); });
   safeOn($("archiveBtn"), "click", (e) => { e.preventDefault(); archiveSelected(); });
   safeOn($("editClassBtn"), "click", (e) => { e.preventDefault(); editSelectedClass(); });

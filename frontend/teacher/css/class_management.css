@@ -200,6 +200,9 @@
 }
 
 .cm-actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.cm-actions .cm-btn{ display:inline-flex; align-items:center; gap:6px; }
+.cm-actions label.cm-btn{ cursor:pointer; }
+.cm-btn{ font-family: inherit; }
 
 .cm-mono{ font-family: var(--mono); }
 .cm-dot{ color:#c9cdd4; }

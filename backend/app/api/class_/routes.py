@@ -442,40 +442,85 @@ def import_students(cid: int):
                         continue
                     rows.append({'name': name, 'stu_id': sid, 'parent_phone': phone, 'status': status})
             elif filename.endswith('.xls') or (xlrd and not filename.endswith('.xlsx')):
-                # old Excel .xls
+                # old Excel .xls；若是文本伪装成 .xls 也尝试降级为 CSV/TSV 解析
                 if not xlrd:
                     return err('.xls import requires xlrd', http_status=500)
+                rows_iter = None
                 try:
                     book = xlrd.open_workbook(file_contents=content)
                     sheet = book.sheet_by_index(0)
                     rows_iter = [sheet.row_values(i) for i in range(sheet.nrows)]
                 except Exception:
-                    return err('invalid xls file', http_status=400)
-                if not rows_iter:
-                    return err('empty xls', http_status=400)
-                header = [_normalize_header(h) for h in rows_iter[0]]
-                hk = set(header)
-                if not (('name' in hk or '姓名' in hk) and ('stu_id' in hk or '学号' in hk)):
-                    data = {'parsed_header': header} if _debug_headers_allowed() else None
-                    return err('invalid header: expected name and stu_id (or 姓名 and 学号)', http_status=400, data=data)
-                def find_idx(keys):
-                    for k in keys:
-                        if k in header:
-                            return header.index(k)
-                    return None
-                idx_name = find_idx(['name','姓名'])
-                idx_sid = find_idx(['stu_id','学号'])
-                idx_phone = find_idx(['parent_phone','家长电话'])
-                idx_status = find_idx(['status','状态'])
-                rows = []
-                for row in rows_iter[1:]:
-                    name = str(row[idx_name]).strip() if (idx_name is not None and idx_name < len(row) and row[idx_name] is not None) else ''
-                    sid = str(row[idx_sid]).strip() if (idx_sid is not None and idx_sid < len(row) and row[idx_sid] is not None) else ''
-                    phone = str(row[idx_phone]).strip() if (idx_phone is not None and idx_phone < len(row) and row[idx_phone] is not None) else ''
-                    status = str(row[idx_status]).strip() if (idx_status is not None and idx_status < len(row) and row[idx_status] is not None) else 'joined'
-                    if not name:
-                        continue
-                    rows.append({'name': name, 'stu_id': sid, 'parent_phone': phone, 'status': status})
+                    rows_iter = None
+
+                if rows_iter:
+                    header = [_normalize_header(h) for h in rows_iter[0]]
+                    hk = set(header)
+                    if not (('name' in hk or '姓名' in hk) and ('stu_id' in hk or '学号' in hk)):
+                        data = {'parsed_header': header} if _debug_headers_allowed() else None
+                        return err('invalid header: expected name and stu_id (or 姓名 and 学号)', http_status=400, data=data)
+                    def find_idx(keys):
+                        for k in keys:
+                            if k in header:
+                                return header.index(k)
+                        return None
+                    idx_name = find_idx(['name','姓名'])
+                    idx_sid = find_idx(['stu_id','学号'])
+                    idx_phone = find_idx(['parent_phone','家长电话'])
+                    idx_status = find_idx(['status','状态'])
+                    rows = []
+                    for row in rows_iter[1:]:
+                        name = str(row[idx_name]).strip() if (idx_name is not None and idx_name < len(row) and row[idx_name] is not None) else ''
+                        sid = str(row[idx_sid]).strip() if (idx_sid is not None and idx_sid < len(row) and row[idx_sid] is not None) else ''
+                        phone = str(row[idx_phone]).strip() if (idx_phone is not None and idx_phone < len(row) and row[idx_phone] is not None) else ''
+                        status = str(row[idx_status]).strip() if (idx_status is not None and idx_status < len(row) and row[idx_status] is not None) else 'joined'
+                        if not name:
+                            continue
+                        rows.append({'name': name, 'stu_id': sid, 'parent_phone': phone, 'status': status})
+                else:
+                    # fallback: treat as text (csv/tsv) misnamed as .xls
+                    try:
+                        txt = content.decode('utf-8', errors='ignore')
+                        if not txt.strip():
+                            return err('invalid xls file', http_status=400)
+                        first_line = txt.splitlines()[0] if txt.splitlines() else ''
+                        delimiter = '\t' if '\t' in first_line else ','
+                        reader = csv.reader(io.StringIO(txt), delimiter=delimiter)
+                        lines = [r for r in reader if any(cell.strip() for cell in r)]
+                        if not lines:
+                            return err('invalid xls file', http_status=400)
+                        header = [_normalize_header(h) for h in lines[0]]
+                        hk = set(header)
+                        if not (('name' in hk or '姓名' in hk) and ('stu_id' in hk or '学号' in hk)):
+                            data = {'parsed_header': header} if _debug_headers_allowed() else None
+                            return err('invalid header: expected name and stu_id (or 姓名 and 学号)', http_status=400, data=data)
+                        try:
+                            idx_name = header.index('name') if 'name' in header else (header.index('姓名') if '姓名' in header else None)
+                        except ValueError:
+                            idx_name = None
+                        try:
+                            idx_sid = header.index('stu_id') if 'stu_id' in header else (header.index('学号') if '学号' in header else None)
+                        except ValueError:
+                            idx_sid = None
+                        try:
+                            idx_phone = header.index('parent_phone') if 'parent_phone' in header else (header.index('家长电话') if '家长电话' in header else None)
+                        except ValueError:
+                            idx_phone = None
+                        try:
+                            idx_status = header.index('status') if 'status' in header else (header.index('状态') if '状态' in header else None)
+                        except ValueError:
+                            idx_status = None
+                        rows = []
+                        for r in lines[1:]:
+                            name = r[idx_name].strip() if (idx_name is not None and idx_name < len(r)) else ''
+                            sid = r[idx_sid].strip() if (idx_sid is not None and idx_sid < len(r)) else ''
+                            phone = r[idx_phone].strip() if (idx_phone is not None and idx_phone < len(r)) else ''
+                            status = r[idx_status].strip() if (idx_status is not None and idx_status < len(r)) else 'joined'
+                            if not name:
+                                continue
+                            rows.append({'name': name, 'stu_id': sid, 'parent_phone': phone, 'status': status})
+                    except Exception:
+                        return err('invalid xls file', http_status=400)
             else:
                 # assume CSV
                 txt = content.decode('utf-8', errors='ignore')
