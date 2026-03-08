@@ -16,6 +16,20 @@ const resourceDict = {
 		delete: "删除",
 		publish: "发布",
 		empty: "选择左侧资源查看详情",
+		pubTitle: "已发布作业",
+		pubEmpty: "暂无发布记录",
+		pubClass: "班级",
+		pubDetail: "详情",
+		pubRevoke: "撤销",
+		pubTypeLesson: "教案",
+		pubTypeExercise: "习题",
+		pubStudents: "学生数",
+		pubMode: "发布方式",
+		pubAt: "发布时间",
+		statsOverall: "完成率",
+		statsAssigned: "已发布",
+		statsCompleted: "已完成",
+		statsRate: "完成率",
 		publishTitle: "发布资源",
 		class: "班级",
 		mode: "发布方式",
@@ -53,6 +67,20 @@ const resourceDict = {
 		delete: "Delete",
 		publish: "Publish",
 		empty: "Select a resource to preview",
+		pubTitle: "Published Assignments",
+		pubEmpty: "No published items",
+		pubClass: "Class",
+		pubDetail: "Details",
+		pubRevoke: "Revoke",
+		pubTypeLesson: "Lesson",
+		pubTypeExercise: "Exercise",
+		pubStudents: "Students",
+		pubMode: "Mode",
+		pubAt: "Published at",
+		statsOverall: "Completion",
+		statsAssigned: "Assigned",
+		statsCompleted: "Completed",
+		statsRate: "Rate",
 		publishTitle: "Publish Resource",
 		class: "Class",
 		mode: "Publish mode",
@@ -83,7 +111,8 @@ const state = {
 	selected: null,
 	classes: [],
 	students: [],
-	selectedStudentIds: new Set()
+	selectedStudentIds: new Set(),
+	published: []
 };
 
 function getLocale() {
@@ -166,6 +195,39 @@ async function apiFetchHistory() {
 	return lessons.concat(exercises);
 }
 
+async function apiFetchPublished() {
+	const token = getToken();
+	if (!token) return [];
+	const res = await fetch(`${API_BASE}/api/resource/publish`, {
+		headers: { "Authorization": `Bearer ${token}` }
+	});
+	const data = await res.json().catch(() => ({}));
+	if (!res.ok || data.code !== 0) return [];
+	return data.data || [];
+}
+
+async function apiRevokePublish(pubId) {
+	const token = getToken();
+	if (!token) return false;
+	const res = await fetch(`${API_BASE}/api/resource/publish/${pubId}/revoke`, {
+		method: "POST",
+		headers: { "Authorization": `Bearer ${token}` }
+	});
+	const data = await res.json().catch(() => ({}));
+	return res.ok && data.code === 0;
+}
+
+async function apiFetchStats(item) {
+	const token = getToken();
+	if (!token) return null;
+	const res = await fetch(`${API_BASE}/api/resource/resource/${item.resource_type}/${item.resource_id}/stats`, {
+		headers: { "Authorization": `Bearer ${token}` }
+	});
+	const data = await res.json().catch(() => ({}));
+	if (!res.ok || data.code !== 0) return null;
+	return data.data;
+}
+
 function applyFilters() {
 	const type = document.getElementById("filterType").value;
 	const keyword = (document.getElementById("filterKeyword").value || "").trim().toLowerCase();
@@ -220,6 +282,74 @@ function renderList() {
 			if (item) selectItem(item);
 		});
 	});
+}
+
+function renderPublishedList() {
+	const list = document.getElementById("publishedList");
+	const empty = document.getElementById("publishedEmpty");
+	if (!list || !empty) return;
+
+	if (!state.published.length) {
+		list.innerHTML = "";
+		empty.style.display = "flex";
+		return;
+	}
+
+	empty.style.display = "none";
+	list.innerHTML = state.published.map(item => {
+		const title = item.title || "-";
+		const typeLabel = item.resource_type === "exercise" ? t("pubTypeExercise") : t("pubTypeLesson");
+		const className = item.class_name || "-";
+		const studentCount = Array.isArray(item.student_ids) ? item.student_ids.length : 0;
+		const createdAt = item.created_at || "";
+		return `
+			<div class="res-pub-item" data-id="${item.id}">
+				<div class="res-pub-top">
+					<div class="res-pub-title">${title}</div>
+					<div class="res-pub-meta">${createdAt}</div>
+				</div>
+				<div class="res-pub-tags">
+					<span class="tag blue">${typeLabel}</span>
+					<span class="tag">${t("pubClass")}：${className}</span>
+					<span class="tag">${t("pubStudents")}：${studentCount}</span>
+					<span class="tag">${t("pubMode")}：${item.mode || "-"}</span>
+				</div>
+				<div class="res-pub-actions">
+					<button class="btn" data-action="detail">${t("pubDetail")}</button>
+					<button class="btn" data-action="revoke">${t("pubRevoke")}</button>
+				</div>
+			</div>
+		`;
+	}).join("");
+
+	list.querySelectorAll(".res-pub-item").forEach(row => {
+		row.addEventListener("click", async (e) => {
+			const action = e.target?.getAttribute("data-action");
+			if (!action) return;
+			const id = Number(row.getAttribute("data-id"));
+			const item = state.published.find(x => x.id === id);
+			if (!item) return;
+			if (action === "revoke") {
+				const ok = await apiRevokePublish(item.id);
+				if (ok) {
+					await refreshPublished();
+				}
+				return;
+			}
+			if (action === "detail") {
+				openStatsModal(item);
+			}
+		});
+	});
+}
+
+async function refreshPublished() {
+	try {
+		state.published = await apiFetchPublished();
+		renderPublishedList();
+	} catch {
+		renderPublishedList();
+	}
 }
 
 function selectItem(item) {
@@ -303,6 +433,50 @@ function openPublishModal() {
 	if (!modal) return;
 	modal.classList.add("open");
 	modal.setAttribute("aria-hidden", "false");
+}
+
+function openStatsModal(item) {
+	const modal = document.getElementById("statsModal");
+	if (!modal) return;
+	const title = document.getElementById("statsTitle");
+	const summary = document.getElementById("statsSummary");
+	const list = document.getElementById("statsList");
+
+	if (title) title.textContent = item.title || "—";
+	if (summary) summary.textContent = "";
+	if (list) list.innerHTML = "";
+
+	modal.classList.add("open");
+	modal.setAttribute("aria-hidden", "false");
+
+	apiFetchStats(item).then(stats => {
+		if (!stats) return;
+		const overall = stats.overall || { assigned: 0, completed: 0, rate: 0 };
+		if (summary) {
+			summary.textContent = `${t("statsOverall")}：${overall.rate}%  ·  ${t("statsAssigned")}${overall.assigned}  ·  ${t("statsCompleted")}${overall.completed}`;
+		}
+		if (list) {
+			const classes = stats.classes || [];
+			list.innerHTML = classes.map(c => {
+				return `
+					<div class="stats-item">
+						<div>
+							<div class="name">${c.class_name || "-"}</div>
+							<div class="meta">${t("statsAssigned")}${c.assigned} · ${t("statsCompleted")}${c.completed}</div>
+						</div>
+						<div class="meta">${t("statsRate")} ${c.rate}%</div>
+					</div>
+				`;
+			}).join("");
+		}
+	});
+}
+
+function closeStatsModal() {
+	const modal = document.getElementById("statsModal");
+	if (!modal) return;
+	modal.classList.remove("open");
+	modal.setAttribute("aria-hidden", "true");
 }
 
 function closePublishModal() {
@@ -462,6 +636,7 @@ async function refresh() {
 function bindEvents() {
 	document.getElementById("btnApply").addEventListener("click", applyFilters);
 	document.getElementById("btnRefresh").addEventListener("click", refresh);
+	document.getElementById("btnPubRefresh").addEventListener("click", refreshPublished);
 	document.getElementById("btnDelete").addEventListener("click", deleteSelected);
 	document.getElementById("btnPublish").addEventListener("click", () => {
 		openPublishModal();
@@ -481,12 +656,16 @@ function bindEvents() {
 	});
 
 	document.getElementById("applyAccuracy").addEventListener("click", applyAccuracySelection);
+
+	document.getElementById("statsClose").addEventListener("click", closeStatsModal);
+	document.getElementById("statsCloseBtn").addEventListener("click", closeStatsModal);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
 	applyResourceLang();
 	bindEvents();
 	await refresh();
+	await refreshPublished();
 	await loadClasses();
 	setModeUI(document.getElementById("publishMode").value);
 });

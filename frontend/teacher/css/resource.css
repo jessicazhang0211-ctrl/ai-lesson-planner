@@ -207,6 +207,115 @@
 	border-radius: 10px;
 }
 
+.res-pub{
+	margin-top: 16px;
+}
+
+.res-pub-head{
+	display:flex;
+	align-items:center;
+	justify-content:space-between;
+	margin-bottom: 10px;
+}
+
+.res-pub-list{
+	display:grid;
+	gap:10px;
+}
+
+.res-pub-empty{
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	color:#9aa3ad;
+	font-size:13px;
+	padding: 18px 0;
+}
+
+.res-pub-item{
+	border:1px solid #eef0f4;
+	border-radius: 10px;
+	padding: 12px 14px;
+	background:#fff;
+	display:grid;
+	gap:8px;
+}
+
+.res-pub-top{
+	display:flex;
+	align-items:center;
+	justify-content:space-between;
+	gap:10px;
+}
+
+.res-pub-title{
+	font-weight:600;
+}
+
+.res-pub-meta{
+	font-size:12px;
+	color:#6b7280;
+}
+
+.res-pub-tags{
+	display:flex;
+	flex-wrap:wrap;
+	gap:8px;
+}
+
+.tag{
+	border:1px solid #e5e6eb;
+	padding:2px 8px;
+	border-radius:999px;
+	font-size:12px;
+	color:#6b7280;
+	background:#f8fafc;
+}
+
+.tag.blue{
+	border-color: rgba(5,109,232,.35);
+	color:#056de8;
+	background: rgba(5,109,232,.08);
+}
+
+.res-pub-actions{
+	display:flex;
+	gap:8px;
+}
+
+.stats-summary{
+	padding:10px 12px;
+	border:1px solid #eef0f4;
+	border-radius: 10px;
+	background:#f8fafc;
+	font-size:13px;
+	margin-bottom: 10px;
+}
+
+.stats-list{
+	display:grid;
+	gap:8px;
+}
+
+.stats-item{
+	border:1px solid #eef0f4;
+	border-radius: 10px;
+	padding: 10px 12px;
+	display:flex;
+	align-items:center;
+	justify-content:space-between;
+	gap:12px;
+}
+
+.stats-item .name{
+	font-weight:600;
+}
+
+.stats-item .meta{
+	font-size:12px;
+	color:#6b7280;
+}
+
 /* Modal */
 .modal {
 	display: none;

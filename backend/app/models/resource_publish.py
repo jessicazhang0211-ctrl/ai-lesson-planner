@@ -13,6 +13,8 @@ class ResourcePublish(db.Model):
     student_ids = db.Column(db.Text, nullable=True)
     accuracy_rule = db.Column(db.Text, nullable=True)
     mode = db.Column(db.String(32), nullable=True)
+    revoked = db.Column(db.Boolean, default=False)
+    revoked_at = db.Column(db.DateTime, nullable=True)
     created_by = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
@@ -31,6 +33,8 @@ class ResourcePublish(db.Model):
             "student_ids": _load(self.student_ids),
             "accuracy_rule": _load(self.accuracy_rule),
             "mode": self.mode,
+            "revoked": bool(self.revoked),
+            "revoked_at": self.revoked_at.strftime("%Y-%m-%d %H:%M:%S") if self.revoked_at else "",
             "created_by": self.created_by,
             "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S") if self.created_at else ""
         }

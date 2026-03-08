@@ -100,6 +100,17 @@
 				<div class="res-empty" id="previewEmpty" data-i18n-page="empty">选择左侧资源查看详情</div>
 			</section>
 		</div>
+
+		<section class="card res-pub">
+			<div class="res-pub-head">
+				<div class="res-list-title" data-i18n-page="pubTitle">已发布作业</div>
+				<div class="res-actions">
+					<button class="btn ghost" id="btnPubRefresh" data-i18n-page="refresh">刷新</button>
+				</div>
+			</div>
+			<div class="res-pub-list" id="publishedList"></div>
+			<div class="res-pub-empty" id="publishedEmpty" data-i18n-page="pubEmpty">暂无发布记录</div>
+		</section>
 	</main>
 </div>
 
@@ -148,6 +159,20 @@
 		<div class="modal-foot">
 			<button class="btn" id="publishCancel" data-i18n-page="cancel">取消</button>
 			<button class="btn primary" id="publishConfirm" data-i18n-page="confirm">确认发布</button>
+		</div>
+	</div>
+</div>
+
+<div class="modal" id="statsModal" aria-hidden="true">
+	<div class="modal-backdrop" id="statsClose"></div>
+	<div class="modal-panel">
+		<div class="modal-head">
+			<div class="modal-title" id="statsTitle">—</div>
+			<button class="modal-close" id="statsCloseBtn">×</button>
+		</div>
+		<div class="modal-body">
+			<div class="stats-summary" id="statsSummary"></div>
+			<div class="stats-list" id="statsList"></div>
 		</div>
 	</div>
 </div>
