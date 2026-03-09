@@ -77,6 +77,12 @@ def list_classes():
     return ok([c.to_dict() for c in classes])
 
 
+@bp.route("/public", methods=["GET"])
+def list_public_classes():
+    classes = Classroom.query.filter_by(status="active").order_by(Classroom.created_at.desc()).all()
+    return ok([{"id": c.id, "name": c.name} for c in classes])
+
+
 @bp.route("/", methods=["POST"])
 def create_class():
     uid = _get_uid()

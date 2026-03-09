@@ -3,31 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI Lesson Planner - Login</title>
-  <link rel="stylesheet" href="./css/login.css" />
+  <title>AI Lesson Planner - Student Login</title>
+  <link rel="stylesheet" href="../css/login.css" />
 </head>
 
 <body>
-  <!-- 左上角：学生端跳转链接 -->
-  <a class="student-link" id="studentLink" href="./student/login.html">学生端</a>
-
-  <!-- 右上角：语言切换（不用 button，用 a） -->
+  <a class="student-link" id="teacherLink" href="../login.html">教师端</a>
   <a class="lang-toggle" id="langToggle" href="#">EN</a>
 
   <div class="page">
     <div class="card-wrap">
-      <!-- 圆形 Logo 覆盖在 card 上边框处（偏右） -->
       <div class="logo-badge" aria-hidden="true">
-        <img src="./assets/logo.png" alt="logo" />
+        <img src="../assets/logo.png" alt="logo" />
       </div>
 
       <div class="card">
-        <!-- 顶部：系统名称 + 右侧改成注册链接（替代原语言按钮位置） -->
         <div class="topbar">
           <div class="brand" id="appName">AI 辅助备课系统</div>
         </div>
 
-        <h1 class="title" id="title">登录界面</h1>
+        <h1 class="title" id="title">学生登录</h1>
         <p class="subtitle" id="subtitle">欢迎回来，请登录继续</p>
 
         <form class="form" id="loginForm">
@@ -58,7 +53,6 @@
               <input type="checkbox" id="remember" />
               <span id="rememberText">记住我</span>
             </label>
-
             <a class="link" href="#" id="forgotLink">忘记密码？</a>
           </div>
 

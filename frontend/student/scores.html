@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>成绩与学情 · 学生端</title>
+  <link rel="stylesheet" href="./css/student.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left" onclick="goHome()">
+    <img src="../assets/logo.png" class="logo" alt="logo" />
+    <span class="system-name" id="appName">AI 辅助备课系统</span>
+  </div>
+
+  <div class="topbar-right" onclick="toggleUserMenu()">
+    <span class="username" id="studentName">Student</span>
+    <img src="../assets/avatar.png" class="avatar" alt="avatar" id="studentAvatar" />
+    <div class="user-menu" id="userMenu">
+      <div class="menu-item" onclick="goSettings()">设置</div>
+      <div class="menu-item logout" onclick="logout()">退出登录</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
+    <nav class="menu">
+      <a class="menu-item" href="./index.html">学习概览</a>
+      <a class="menu-item" href="./practice.html">练习</a>
+      <a class="menu-item" href="./exam.html">考试</a>
+      <a class="menu-item" href="./lessons.html">教案资源</a>
+      <a class="menu-item active" href="./scores.html">成绩与学情</a>
+      <a class="menu-item" href="./settings.html">设置</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <section class="hero">
+      <div>
+        <h1 class="hero-title">成绩与学情</h1>
+        <p class="hero-sub">查看近期成绩与个人学习分析。</p>
+      </div>
+    </section>
+
+    <section class="grid two-cols">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">最近成绩</div>
+            <div class="card-sub">近期练习与考试表现</div>
+          </div>
+        </div>
+        <div class="score-list" id="scoreList"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">个人学情分析</div>
+            <div class="card-sub">学习趋势与薄弱点提醒</div>
+          </div>
+        </div>
+        <div class="analysis" id="analysisPanel">
+          <div class="analysis-item">
+            <div class="analysis-label">薄弱知识点</div>
+            <div class="analysis-value" id="weakSpot">--</div>
+          </div>
+          <div class="analysis-item">
+            <div class="analysis-label">学习状态</div>
+            <div class="analysis-value" id="studyState">--</div>
+          </div>
+          <div class="analysis-item">
+            <div class="analysis-label">建议</div>
+            <div class="analysis-value" id="studyTip">--</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="./js/student_common.js"></script>
+<script src="./js/student_scores.js"></script>
+</body>
+</html>
