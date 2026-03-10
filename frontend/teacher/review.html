@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>作业批改 · AI 辅助备课系统</title>
+  <link rel="stylesheet" href="./css/teacher.css" />
+  <link rel="stylesheet" href="./css/review.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left" onclick="goHome()">
+    <img src="../assets/logo.png" class="logo" alt="logo" />
+    <span class="system-name" id="appName">AI 辅助备课系统</span>
+  </div>
+
+  <div class="topbar-right" onclick="toggleUserMenu()">
+    <span class="username">User</span>
+    <img src="../assets/avatar.png" class="avatar" alt="avatar" />
+    <div class="user-menu" id="userMenu">
+      <div class="menu-item" data-i18n="settings" onclick="goSettings()">设置</div>
+      <div class="menu-item logout" data-i18n="logout" onclick="logout()">退出登录</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
+    <nav class="menu">
+      <a class="menu-item" href="./index.html" data-i18n="dashboard">学情分析</a>
+      <a class="menu-item" href="./lesson.html" data-i18n="lesson">教案生成</a>
+      <a class="menu-item" href="./ppt.html" data-i18n="ppt">PPT 生成</a>
+      <a class="menu-item" href="./exercise.html" data-i18n="exercise">习题设计</a>
+      <a class="menu-item" href="./resource.html" data-i18n="resource">资源管理</a>
+      <a class="menu-item active" href="./review.html" data-i18n="review">作业批改</a>
+      <a class="menu-item" href="./class_management.html" data-i18n="class">班级管理</a>
+      <a class="menu-item" href="./settings.html" data-i18n="settings">设置</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <div class="review-head">
+      <div>
+        <h1 class="review-title">作业批改</h1>
+        <div class="review-sub">主观题人工批改，客观题已自动判分。</div>
+      </div>
+      <div class="review-actions">
+        <button class="btn ghost" id="btnRefresh">刷新</button>
+      </div>
+    </div>
+
+    <div class="review-layout">
+      <section class="card review-list">
+        <div class="review-list-head">
+          <div class="review-list-title">待批改列表</div>
+          <div class="review-list-meta" id="reviewCount">0</div>
+        </div>
+        <div id="reviewItems" class="review-items"></div>
+      </section>
+
+      <section class="card review-detail">
+        <div class="review-detail-head">
+          <div>
+            <div class="review-detail-title" id="detailTitle">—</div>
+            <div class="review-detail-meta" id="detailMeta">—</div>
+          </div>
+        </div>
+        <div class="review-body" id="reviewBody"></div>
+        <div class="review-grade">
+          <label>主观题评分</label>
+          <input type="number" id="teacherScore" min="0" value="0" />
+          <label>评语</label>
+          <textarea id="teacherComment" placeholder="写下点评或建议"></textarea>
+          <button class="btn primary" id="btnSubmitScore">提交评分</button>
+        </div>
+        <div class="review-empty" id="detailEmpty">选择左侧作业查看详情</div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script src="./js/teacher.js"></script>
+<script src="./js/review.js"></script>
+</body>
+</html>

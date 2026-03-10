@@ -5,6 +5,7 @@ from app.models import Exercise
 from app import Config
 import google.generativeai as genai
 from app.utils.auth import token_required
+import json
 
 genai.configure(api_key=Config.GEMINI_API_KEY)
 
@@ -22,10 +23,62 @@ def generate_exercise():
         if not user_id:
             return err("缺少用户ID", http_status=400)
         # 构建AI prompt
-        prompt = f"请根据以下信息生成{data.get('count', 10)}道{data.get('difficulty', '中等')}难度的{data.get('subject', '数学')}习题，题型包括{','.join(data.get('types', []))}，知识点/主题为：{data.get('topic', '')}，并{'包含答案解析' if data.get('includeAnswer', 'yes') == 'yes' else '不包含答案解析'}。"
+        prompt = f"""
+请根据以下信息生成{data.get('count', 10)}道{data.get('difficulty', '中等')}难度的{data.get('subject', '数学')}习题，题型包括{','.join(data.get('types', []))}，知识点/主题为：{data.get('topic', '')}。
+
+请输出 JSON，结构如下：
+{{
+    "title": "...",
+    "subject": "...",
+    "grade": "...",
+    "topic": "...",
+    "questions": [
+        {{
+            "id": "q1",
+            "type": "single|multi|true_false|fill|short",
+            "stem": "题干",
+            "options": ["A...","B..."],
+            "answer": "A" 或 ["A","C"] 或 "true" 或 ["填空1","填空2"],
+            "analysis": "解析",
+            "score": 5
+        }}
+    ]
+}}
+
+仅输出 JSON，不要包含代码块或额外解释。
+"""
         model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         content = response.text.strip()
+
+        def _extract_json(text):
+            if not text:
+                return None
+            cleaned = text.strip()
+            if cleaned.startswith("```"):
+                cleaned = cleaned.replace("```json", "").replace("```", "").strip()
+            try:
+                return json.loads(cleaned)
+            except Exception:
+                pass
+            # try to extract first JSON object/array in the response
+            start = cleaned.find("{")
+            end = cleaned.rfind("}")
+            if start != -1 and end != -1 and end > start:
+                try:
+                    return json.loads(cleaned[start:end + 1])
+                except Exception:
+                    return None
+            start = cleaned.find("[")
+            end = cleaned.rfind("]")
+            if start != -1 and end != -1 and end > start:
+                try:
+                    return json.loads(cleaned[start:end + 1])
+                except Exception:
+                    return None
+            return None
+
+        structured = _extract_json(content)
         # 存档到数据库，前端参数信息一并序列化进description前缀
         from app.extensions import db
         import datetime, json
@@ -39,9 +92,17 @@ def generate_exercise():
             'includeAnswer': data.get('includeAnswer', '')
         }
         description = f"__META__{json.dumps(meta, ensure_ascii=False)}__\n" + content
+        raw_json = None
+        if structured is None:
+            cleaned = content.strip()
+            if cleaned.startswith("```"):
+                cleaned = cleaned.replace("```json", "").replace("```", "").strip()
+            if cleaned.startswith("{") and cleaned.endswith("}"):
+                raw_json = cleaned
         exercise = Exercise(
             title=data.get('topic', '') or '习题',
             description=description,
+            content_json=json.dumps(structured, ensure_ascii=False) if structured else raw_json,
             created_by=int(user_id),
             created_at=datetime.datetime.now()
         )

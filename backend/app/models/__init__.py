@@ -5,3 +5,4 @@ from .lesson import Lesson
 from .resource_publish import ResourcePublish
 from .resource_assignment import ResourceAssignment
 from .student_profile import StudentProfile
+from .exercise_submission import ExerciseSubmission

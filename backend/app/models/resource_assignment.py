@@ -8,7 +8,7 @@ class ResourceAssignment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     publish_id = db.Column(db.Integer, db.ForeignKey("resource_publications.id"), nullable=False)
     student_id = db.Column(db.Integer, db.ForeignKey("class_students.id"), nullable=False)
-    status = db.Column(db.String(32), default="assigned")  # assigned | completed
+    status = db.Column(db.String(32), default="assigned")  # assigned | saved | completed
     score = db.Column(db.Integer, nullable=True)
     completed_at = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)

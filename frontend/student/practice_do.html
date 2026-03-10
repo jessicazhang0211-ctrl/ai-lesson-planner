@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>教案资源 · 学生端</title>
+  <title>练习作业 · 学生端</title>
   <link rel="stylesheet" href="./css/student.css" />
 </head>
 <body>
@@ -29,51 +29,36 @@
     <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
     <nav class="menu">
       <a class="menu-item" href="./index.html">学习概览</a>
-      <a class="menu-item" href="./practice.html">练习</a>
+      <a class="menu-item active" href="./practice.html">练习</a>
       <a class="menu-item" href="./exam.html">考试</a>
-      <a class="menu-item active" href="./lessons.html">教案资源</a>
+      <a class="menu-item" href="./lessons.html">教案资源</a>
       <a class="menu-item" href="./scores.html">成绩与学情</a>
       <a class="menu-item" href="./settings.html">设置</a>
     </nav>
   </aside>
 
   <main class="content">
-    <section class="hero">
-      <div>
-        <h1 class="hero-title">老师教案资源</h1>
-        <p class="hero-sub">查看老师发布的教案与学习资料。</p>
-      </div>
-      <div class="hero-actions">
-        <button class="btn" id="btnRefreshLessons">刷新</button>
-      </div>
-    </section>
-
-    <section class="card">
+    <section class="card exercise-card">
       <div class="card-head">
         <div>
-          <div class="card-title">教案列表</div>
-          <div class="card-sub">点击查看详情</div>
+          <div class="card-title" id="exerciseTitle">作业</div>
+          <div class="card-sub" id="exerciseMeta">—</div>
+        </div>
+        <div class="hero-actions">
+          <button class="btn" id="btnBack">返回</button>
         </div>
       </div>
-      <div class="lesson-list" id="lessonList"></div>
+      <div class="exercise-body" id="exerciseBody"></div>
+      <div class="exercise-actions">
+        <button class="btn" id="exerciseSave">保存</button>
+        <button class="btn primary" id="exerciseSubmit">提交</button>
+      </div>
+      <div class="exercise-tip" id="exerciseTip"></div>
     </section>
   </main>
 </div>
 
-<div class="modal" id="lessonModal" aria-hidden="true">
-  <div class="modal-backdrop" id="lessonClose"></div>
-  <div class="modal-panel">
-    <div class="modal-head">
-      <div class="modal-title" id="lessonTitle">教案</div>
-      <button class="modal-close" id="lessonCloseBtn">×</button>
-    </div>
-    <div class="modal-body">
-      <pre id="lessonContent" style="white-space:pre-wrap;line-height:1.6;"></pre>
-    </div>
-  </div>
-</div>
-
 <script src="./js/student_common.js"></script>
-<script src="./js/student_lessons.js"></script>
+<script src="./js/student_practice_do.js"></script>
 </body>
 </html>

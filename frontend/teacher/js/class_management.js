@@ -347,7 +347,8 @@ const state = {
   editingStudentId: null,
   drawerStudentId: null,
   published: [],
-  publishedClassId: null
+  publishedClassId: null,
+  classStats: {}
 };
 
 /** ---------- UI Apply Text ---------- */
@@ -557,12 +558,18 @@ function renderRightPanel() {
   const stuCount = (cls.students || []).length;
   if ($("kpiStuVal")) $("kpiStuVal").textContent = String(stuCount);
 
-  const submitted = Math.max(0, Math.min(stuCount, Math.round(stuCount * 0.8)));
-  if ($("kpiHwVal")) $("kpiHwVal").textContent = `${submitted}`;
+  const stats = state.classStats[cls.id];
+  if (stats) {
+    if ($("kpiHwVal")) $("kpiHwVal").textContent = `${stats.completed} / ${stats.total}`;
+    if ($("kpiAccVal")) $("kpiAccVal").textContent = stats.avg_score == null ? "—" : String(stats.avg_score);
+  } else {
+    const submitted = Math.max(0, Math.min(stuCount, Math.round(stuCount * 0.8)));
+    if ($("kpiHwVal")) $("kpiHwVal").textContent = `${submitted}`;
 
-  const accList = (cls.students || []).map(s => (typeof s.accuracy === "number" ? s.accuracy : null)).filter(v => v !== null);
-  const avgAcc = accList.length ? Math.round(accList.reduce((a,b)=>a+b,0)/accList.length) : null;
-  if ($("kpiAccVal")) $("kpiAccVal").textContent = avgAcc === null ? "—" : `${avgAcc}%`;
+    const accList = (cls.students || []).map(s => (typeof s.accuracy === "number" ? s.accuracy : null)).filter(v => v !== null);
+    const avgAcc = accList.length ? Math.round(accList.reduce((a,b)=>a+b,0)/accList.length) : null;
+    if ($("kpiAccVal")) $("kpiAccVal").textContent = avgAcc === null ? "—" : `${avgAcc}%`;
+  }
 
   const pendingCount = (cls.students || []).filter(s => s.status === "pending").length;
   if ($("kpiTodoVal")) $("kpiTodoVal").textContent = String(pendingCount);
@@ -579,7 +586,23 @@ function renderRightPanel() {
     renderPublishedList();
   }
 
+  if (typeof cls.id === "number") {
+    loadClassStats(cls.id);
+  }
+
   renderStudentTable();
+}
+
+async function loadClassStats(classId) {
+  if (typeof classId !== "number") return;
+  if (state.classStats[classId]) return;
+  try {
+    const data = await apiFetch(`/api/class/${classId}/stats`, { method: "GET" });
+    state.classStats[classId] = data || {};
+    renderRightPanel();
+  } catch (e) {
+    state.classStats[classId] = null;
+  }
 }
 
 function renderPublishedList() {

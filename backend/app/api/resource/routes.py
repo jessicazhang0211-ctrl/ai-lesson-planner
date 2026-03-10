@@ -4,6 +4,7 @@ from app.utils.auth import token_required
 from app.extensions import db
 from app.models.resource_publish import ResourcePublish
 from app.models.resource_assignment import ResourceAssignment
+from app.models.exercise_submission import ExerciseSubmission
 from app.models.lesson import Lesson
 from app.models.exercise import Exercise
 from app.models.classroom import Classroom
@@ -103,6 +104,143 @@ def list_published():
         result.append(data)
 
     return ok(result)
+
+
+@bp.route("/review", methods=["GET"])
+@token_required
+def list_review():
+    user_id = int(getattr(g, "current_user_id", 0) or 0)
+    if not user_id:
+        return err("missing user", http_status=401)
+
+    class_id = request.args.get("class_id")
+    status = (request.args.get("status") or "pending_review").strip()
+
+    pubs_q = ResourcePublish.query.filter_by(created_by=user_id, revoked=False)
+    if class_id:
+        try:
+            class_id = int(class_id)
+            pubs_q = pubs_q.filter_by(class_id=class_id)
+        except ValueError:
+            return err("invalid class_id", http_status=400)
+
+    pubs = pubs_q.all()
+    pub_ids = [p.id for p in pubs]
+    if not pub_ids:
+        return ok([])
+
+    submissions = ExerciseSubmission.query.filter(ExerciseSubmission.publish_id.in_(pub_ids), ExerciseSubmission.status == status).all()
+
+    class_ids = list({p.class_id for p in pubs})
+    classes = {c.id: c for c in Classroom.query.filter(Classroom.id.in_(class_ids)).all()} if class_ids else {}
+    exercises = {e.id: e for e in Exercise.query.filter(Exercise.id.in_([p.resource_id for p in pubs if p.resource_type == "exercise"])) .all()} if pubs else {}
+
+    pub_map = {p.id: p for p in pubs}
+    result = []
+    for s in submissions:
+        pub = pub_map.get(s.publish_id)
+        if not pub:
+            continue
+        ex = exercises.get(pub.resource_id)
+        result.append({
+            "submission_id": s.id,
+            "publish_id": s.publish_id,
+            "class_id": pub.class_id,
+            "class_name": classes.get(pub.class_id).name if classes.get(pub.class_id) else "",
+            "title": ex.title if ex else "",
+            "auto_score": s.auto_score,
+            "status": s.status,
+            "created_at": s.created_at.strftime("%Y-%m-%d %H:%M:%S") if s.created_at else ""
+        })
+
+    return ok(result)
+
+
+@bp.route("/review/<int:submission_id>", methods=["GET"])
+@token_required
+def review_detail(submission_id: int):
+    user_id = int(getattr(g, "current_user_id", 0) or 0)
+    if not user_id:
+        return err("missing user", http_status=401)
+
+    submission = ExerciseSubmission.query.get(submission_id)
+    if not submission:
+        return err("submission not found", http_status=404)
+
+    pub = ResourcePublish.query.get(submission.publish_id)
+    if not pub or pub.created_by != user_id:
+        return err("not allowed", http_status=403)
+
+    exercise = Exercise.query.get(pub.resource_id)
+    if not exercise or not exercise.content_json:
+        return err("exercise format not supported", http_status=400)
+
+    try:
+        structured = json.loads(exercise.content_json)
+    except Exception:
+        return err("invalid exercise format", http_status=400)
+
+    answers = {}
+    try:
+        answers = json.loads(submission.answers or "{}")
+    except Exception:
+        answers = {}
+
+    questions = []
+    for q in structured.get("questions", []):
+        q2 = dict(q)
+        q2["student_answer"] = answers.get(q.get("id"))
+        questions.append(q2)
+
+    return ok({
+        "submission_id": submission.id,
+        "publish_id": pub.id,
+        "title": exercise.title,
+        "auto_score": submission.auto_score,
+        "teacher_score": submission.teacher_score,
+        "total_score": submission.total_score,
+        "status": submission.status,
+        "questions": questions
+    })
+
+
+@bp.route("/review/<int:submission_id>/score", methods=["POST"])
+@token_required
+def review_score(submission_id: int):
+    user_id = int(getattr(g, "current_user_id", 0) or 0)
+    if not user_id:
+        return err("missing user", http_status=401)
+
+    submission = ExerciseSubmission.query.get(submission_id)
+    if not submission:
+        return err("submission not found", http_status=404)
+
+    pub = ResourcePublish.query.get(submission.publish_id)
+    if not pub or pub.created_by != user_id:
+        return err("not allowed", http_status=403)
+
+    data = request.get_json(silent=True) or {}
+    teacher_score = data.get("teacher_score")
+    teacher_comment = data.get("teacher_comment") or ""
+
+    try:
+        teacher_score = int(teacher_score)
+    except Exception:
+        return err("invalid teacher_score", http_status=400)
+
+    submission.teacher_score = teacher_score
+    submission.teacher_comment = teacher_comment
+    submission.total_score = (submission.auto_score or 0) + teacher_score
+    submission.status = "graded"
+    db.session.commit()
+
+    assignment = ResourceAssignment.query.filter_by(publish_id=submission.publish_id, student_id=submission.student_id).first()
+    if assignment:
+        assignment.score = submission.total_score
+        assignment.status = "completed"
+        db.session.commit()
+
+    return ok(submission.to_dict())
 
 
 @bp.route("/publish/<int:pub_id>/revoke", methods=["POST"])

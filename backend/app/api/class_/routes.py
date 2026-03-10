@@ -3,6 +3,8 @@ from flask import current_app
 from app.utils.response import ok, err
 from app.extensions import db
 from app.models.classroom import Classroom, Student
+from app.models.resource_publish import ResourcePublish
+from app.models.resource_assignment import ResourceAssignment
 import datetime, random, string
 import io, csv
 try:
@@ -119,6 +121,35 @@ def get_class(cid: int):
     if not c or c.created_by != uid:
         return err('class not found', http_status=404)
     return ok(c.to_dict(include_students=True))
+
+
+@bp.route('/<int:cid>/stats', methods=['GET'])
+def class_stats(cid: int):
+    uid = _get_uid()
+    if not uid:
+        return err('missing X-User-Id', http_status=401)
+    c = Classroom.query.get(cid)
+    if not c or c.created_by != uid:
+        return err('class not found', http_status=404)
+
+    pubs = ResourcePublish.query.filter_by(class_id=cid, revoked=False, resource_type='exercise').all()
+    pub_ids = [p.id for p in pubs]
+    assignments = ResourceAssignment.query.filter(ResourceAssignment.publish_id.in_(pub_ids)).all() if pub_ids else []
+
+    total = len(assignments)
+    completed = len([a for a in assignments if a.status == 'completed'])
+    submission_rate = int(round((completed / total) * 100)) if total else 0
+
+    scores = [a.score for a in assignments if a.score is not None]
+    avg_score = int(round(sum(scores) / len(scores))) if scores else None
+
+    return ok({
+        'class_id': cid,
+        'submission_rate': submission_rate,
+        'completed': completed,
+        'total': total,
+        'avg_score': avg_score
+    })
 
 
 @bp.route('/<int:cid>', methods=['PATCH'])

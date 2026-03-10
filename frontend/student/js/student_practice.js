@@ -1,3 +1,6 @@
+let currentPublishId = null;
+let currentQuestions = [];
+
 async function renderTasks() {
   const box = document.getElementById("taskList");
   if (!box) return;
@@ -9,19 +12,49 @@ async function renderTasks() {
       return;
     }
     box.innerHTML = tasks.map(item => {
-      const meta = `${item.status === "completed" ? "已完成" : "待完成"} · ${item.created_at || ""}`;
+      const done = item.status === "completed";
+      const saved = item.status === "saved";
+      const meta = `${done ? "已完成" : (saved ? "已保存" : "待完成")} · ${item.created_at || ""}`;
+      const btnText = done ? "查看" : (saved ? "继续" : "开始");
       return `
-        <div class="task-item">
+        <div class="task-item" data-publish-id="${item.publish_id}">
           <div>
             <div class="task-title">${item.title || "练习"}</div>
             <div class="task-meta">${meta}</div>
           </div>
-          <button class="btn">开始</button>
+          <button class="btn">${btnText}</button>
         </div>
       `;
     }).join("");
+
+    box.querySelectorAll(".task-item .btn").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        const row = e.target.closest(".task-item");
+        const publishId = row?.getAttribute("data-publish-id");
+        if (publishId) openExercisePage(Number(publishId));
+      });
+    });
   } catch {
     box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">(empty)</div>`;
+  }
+}
+
+function openExercisePage(publishId) {
+  window.location.href = `./practice_do.html?publish_id=${publishId}`;
+}
+
+async function startQuickPractice() {
+  try {
+    const assignments = await apiGet("/api/student/assignments");
+    const tasks = (assignments || []).filter(a => a.resource_type === "exercise");
+    if (!tasks.length) {
+      alert("暂无可练习的作业");
+      return;
+    }
+    const pending = tasks.find(t => t.status !== "completed") || tasks[0];
+    openExercisePage(Number(pending.publish_id));
+  } catch {
+    alert("无法开始练习");
   }
 }
 
@@ -47,8 +80,9 @@ function bindPracticeEvents() {
   document.getElementById("practiceCancel")?.addEventListener("click", closePracticeModal);
   document.getElementById("practiceStart")?.addEventListener("click", () => {
     closePracticeModal();
-    alert("已开始练习");
+    startQuickPractice();
   });
+
 }
 
 document.addEventListener("DOMContentLoaded", () => {

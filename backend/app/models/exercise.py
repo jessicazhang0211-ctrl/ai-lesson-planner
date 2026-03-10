@@ -6,6 +6,7 @@ class Exercise(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=True)
+    content_json = db.Column(db.Text, nullable=True)
     created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, nullable=True)
 
@@ -14,6 +15,7 @@ class Exercise(db.Model):
             'id': self.id,
             'title': self.title,
             'content': self.description,
+            'content_json': self.content_json,
             'created_by': self.created_by,
             'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else ''
         }
