@@ -165,6 +165,10 @@ async function loadClasses() {
     const res = await fetch("http://127.0.0.1:5000/api/class/public");
     const data = await res.json();
     const list = (data && data.code === 0) ? (data.data || []) : [];
+    if (!list.length) {
+      select.innerHTML = "";
+      return;
+    }
     select.innerHTML = list.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
   } catch {
     select.innerHTML = "";

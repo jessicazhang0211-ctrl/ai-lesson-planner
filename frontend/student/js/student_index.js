@@ -26,22 +26,33 @@ function setText(id, value) {
   if (el) el.textContent = value;
 }
 
-function seedHome() {
-  const tasks = [
-    { title: "分数比较练习", meta: "数学 · 10 题 · 截止本周五" },
-    { title: "英语单词填空", meta: "英语 · 15 题 · 截止周三" }
-  ];
+async function loadHome() {
+  try {
+    const [assignments, overview] = await Promise.all([
+      apiGet("/api/student/assignments"),
+      apiGet("/api/student/overview")
+    ]);
 
-  renderList("taskList", tasks, "task");
+    const tasks = (assignments || [])
+      .filter(a => a.resource_type === "exercise")
+      .map(a => ({
+        title: a.title || "练习",
+        meta: `${a.status === "completed" ? "已完成" : "待完成"} · ${a.created_at || ""}`
+      }));
 
-  setText("kpiTodo", String(tasks.length));
-  setText("kpiPractice", "120");
-  setText("kpiAccuracy", "86%");
-  setText("kpiExam", "92");
+    renderList("taskList", tasks, "task");
 
-  setText("weakSpot", "分数比较 / 应用题");
-  setText("studyState", "保持稳定，继续巩固");
-  setText("studyTip", "建议每天完成 10 题基础练习");
+    setText("kpiTodo", String(overview.todo ?? 0));
+    setText("kpiPractice", String(overview.completed ?? 0));
+    setText("kpiAccuracy", overview.avg_score != null ? `${overview.avg_score}%` : "--");
+    setText("kpiExam", overview.latest_score != null ? String(overview.latest_score) : "--");
+
+    setText("weakSpot", overview.analysis?.weak_spot || "--");
+    setText("studyState", overview.analysis?.study_state || "--");
+    setText("studyTip", overview.analysis?.study_tip || "--");
+  } catch {
+    renderList("taskList", [], "task");
+  }
 }
 
 function bindHomeEvents() {
@@ -51,13 +62,13 @@ function bindHomeEvents() {
   document.getElementById("btnQuickExam")?.addEventListener("click", () => {
     window.location.href = "./exam.html";
   });
-  document.getElementById("btnRefreshTasks")?.addEventListener("click", seedHome);
+  document.getElementById("btnRefreshTasks")?.addEventListener("click", loadHome);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   requireLogin();
   applySystemSettings();
   loadStudentProfile();
-  seedHome();
+  loadHome();
   bindHomeEvents();
 });

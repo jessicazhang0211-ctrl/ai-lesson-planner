@@ -1,21 +1,28 @@
-function renderTasks() {
-  const tasks = [
-    { title: "分数比较练习", meta: "数学 · 10 题 · 截止本周五" },
-    { title: "英语单词填空", meta: "英语 · 15 题 · 截止周三" }
-  ];
+async function renderTasks() {
   const box = document.getElementById("taskList");
   if (!box) return;
-  box.innerHTML = tasks.map(item => {
-    return `
-      <div class="task-item">
-        <div>
-          <div class="task-title">${item.title}</div>
-          <div class="task-meta">${item.meta}</div>
+  try {
+    const assignments = await apiGet("/api/student/assignments");
+    const tasks = (assignments || []).filter(a => a.resource_type === "exercise");
+    if (!tasks.length) {
+      box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">(empty)</div>`;
+      return;
+    }
+    box.innerHTML = tasks.map(item => {
+      const meta = `${item.status === "completed" ? "已完成" : "待完成"} · ${item.created_at || ""}`;
+      return `
+        <div class="task-item">
+          <div>
+            <div class="task-title">${item.title || "练习"}</div>
+            <div class="task-meta">${meta}</div>
+          </div>
+          <button class="btn">开始</button>
         </div>
-        <button class="btn">开始</button>
-      </div>
-    `;
-  }).join("");
+      `;
+    }).join("");
+  } catch {
+    box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">(empty)</div>`;
+  }
 }
 
 function openPracticeModal() {

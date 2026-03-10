@@ -21,6 +21,11 @@ def create_app():
     def health():
         return jsonify({"status": "ok"})
 
+    @app.get("/api/diag/routes")
+    def diag_routes():
+        routes = sorted({rule.rule for rule in app.url_map.iter_rules()})
+        return jsonify({"routes": routes})
+
     # ✅ 启动时建表（开发阶段最省事，后面可升级迁移）
     with app.app_context():
         db.create_all()

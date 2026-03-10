@@ -24,12 +24,6 @@ def register():
     if User.query.filter_by(email=email).first():
         return err("email already exists", http_status=409)
 
-    user = User(name=name, email=email)
-    user.set_password(password)
-
-    db.session.add(user)
-    db.session.commit()
-
     if role == "student":
         if not class_id:
             return err("class_id required", http_status=400)
@@ -37,6 +31,13 @@ def register():
         if not cls or cls.status != "active":
             return err("class not found", http_status=404)
 
+    user = User(name=name, email=email)
+    user.set_password(password)
+
+    db.session.add(user)
+    db.session.commit()
+
+    if role == "student":
         student = Student(
             name=name,
             stu_id=data.get("stu_id") or "",
