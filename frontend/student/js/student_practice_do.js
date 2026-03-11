@@ -5,6 +5,7 @@ let submissionStatus = "";
 let currentAutoResult = {};
 let currentAutoScore = null;
 let currentTotalScore = null;
+let reviewMode = false;
 
 function getPublishId() {
   const params = new URLSearchParams(window.location.search);
@@ -35,8 +36,8 @@ function renderExercise(questions, draftAnswers) {
   body.innerHTML = questions.map((q, idx) => {
     const qid = q.id || `q${idx + 1}`;
     const type = (q.type || "").toLowerCase();
-    const result = currentAutoResult && currentAutoResult[qid] ? currentAutoResult[qid] : "";
-    const statusTag = result ? `<span class="q-status ${result}">${result === "correct" ? "正确" : (result === "wrong" ? "错误" : "待批改")}</span>` : "";
+    const result = getDisplayResult(q, qid);
+    const statusTag = result ? `<span class="q-status ${result}">${result === "correct" ? "正确" : (result === "wrong" ? "错误" : (result === "partial" ? "不全对" : "待批改"))}</span>` : "";
     let inputHtml = "";
     if (type === "single" && Array.isArray(q.options)) {
       inputHtml = q.options.map((op, i) => {
@@ -76,13 +77,35 @@ function renderExercise(questions, draftAnswers) {
       const v = typeof draft[qid] === "string" ? draft[qid] : "";
       inputHtml = `<textarea name="${qid}" class="answer-text" ${locked ? "readonly" : ""}>${v}</textarea>`;
     }
+    const analysisHtml = (reviewMode && result !== "correct" && q.analysis) ? `<div class="review-analysis">解析：${q.analysis}</div>` : "";
+    const answerHtml = (reviewMode && result !== "correct" && q.answer != null) ? `<div class="review-meta">正确答案：${q.answer}</div>` : "";
+    const teacherScoreHtml = (reviewMode && q.teacher_score != null) ? `<div class="review-meta">老师评分：${q.teacher_score}</div>` : "";
     return `
       <div class="question-item">
         <div class="question-title">${idx + 1}. ${q.stem || ""} ${statusTag}</div>
+        ${reviewMode ? `<div class="review-meta">你的答案：${draft[qid] ?? "--"}</div>` : ""}
         ${inputHtml}
+        ${reviewMode ? answerHtml : ""}
+        ${reviewMode ? teacherScoreHtml : ""}
+        ${reviewMode ? analysisHtml : ""}
       </div>
     `;
   }).join("");
+}
+
+function getDisplayResult(q, qid) {
+  const type = (q.type || "").toLowerCase();
+  if (type === "short" || type === "essay") {
+    const maxScore = Number(q.score || 0);
+    if (q.teacher_score == null || Number.isNaN(Number(q.teacher_score))) {
+      return currentAutoResult && currentAutoResult[qid] ? currentAutoResult[qid] : "pending";
+    }
+    const ts = Number(q.teacher_score || 0);
+    if (ts <= 0) return "wrong";
+    if (maxScore > 0 && ts < maxScore) return "partial";
+    return "correct";
+  }
+  return currentAutoResult && currentAutoResult[qid] ? currentAutoResult[qid] : "pending";
 }
 
 function collectAnswers() {
@@ -152,11 +175,41 @@ async function loadExercise() {
       meta.textContent = [statusText, totalText].filter(Boolean).join(" · ");
     }
 
-    renderExercise(currentQuestions, data.draft_answers || {});
-    updateActionState();
+    if (assignmentStatus === "completed") {
+      await loadReviewDetail();
+    } else {
+      reviewMode = false;
+      renderExercise(currentQuestions, data.draft_answers || {});
+      updateActionState();
+    }
   } catch {
     alert("无法加载作业");
     openBack();
+  }
+}
+
+async function loadReviewDetail() {
+  if (!currentPublishId) return;
+  try {
+    const detail = await apiGet(`/api/student/review/${currentPublishId}`);
+    reviewMode = true;
+    currentQuestions = detail.questions || [];
+    currentAutoScore = detail.auto_score;
+    currentTotalScore = detail.total_score;
+    currentAutoResult = {};
+    const draft = {};
+    currentQuestions.forEach(q => {
+      const qid = q.id;
+      if (qid) {
+        currentAutoResult[qid] = q.result || "";
+        draft[qid] = q.student_answer;
+      }
+    });
+    renderExercise(currentQuestions, draft);
+    updateActionState();
+  } catch {
+    renderExercise(currentQuestions, {});
+    updateActionState();
   }
 }
 
@@ -208,8 +261,7 @@ async function submitExercise() {
     currentAutoResult = data.auto_result || {};
     currentAutoScore = data.auto_score;
     currentTotalScore = data.total_score;
-    renderExercise(currentQuestions, answers);
-    updateActionState();
+    await loadReviewDetail();
     alert("提交成功，已自动批改选择题和填空题");
   } catch {
     alert("提交失败");

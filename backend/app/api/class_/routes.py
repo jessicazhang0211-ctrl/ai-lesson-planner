@@ -123,8 +123,8 @@ def get_class(cid: int):
     return ok(c.to_dict(include_students=True))
 
 
-@bp.route('/<int:cid>/stats', methods=['GET'])
-def class_stats(cid: int):
+@bp.route('/<int:cid>/stats/basic', methods=['GET'])
+def class_stats_basic(cid: int):
     uid = _get_uid()
     if not uid:
         return err('missing X-User-Id', http_status=401)

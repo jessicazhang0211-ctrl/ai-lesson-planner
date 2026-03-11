@@ -6,7 +6,9 @@ async function renderTasks() {
   if (!box) return;
   try {
     const assignments = await apiGet("/api/student/assignments");
-    const tasks = (assignments || []).filter(a => a.resource_type === "exercise");
+    const tasks = (assignments || [])
+      .filter(a => a.resource_type === "exercise")
+      .filter(a => a.status !== "completed");
     if (!tasks.length) {
       box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">(empty)</div>`;
       return;

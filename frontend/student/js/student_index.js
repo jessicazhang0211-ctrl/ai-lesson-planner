@@ -35,6 +35,7 @@ async function loadHome() {
 
     const tasks = (assignments || [])
       .filter(a => a.resource_type === "exercise")
+      .filter(a => a.status !== "completed")
       .map(a => ({
         title: a.title || "练习",
         meta: `${a.status === "completed" ? "已完成" : "待完成"} · ${a.created_at || ""}`
@@ -60,7 +61,7 @@ function bindHomeEvents() {
     window.location.href = "./practice.html";
   });
   document.getElementById("btnQuickExam")?.addEventListener("click", () => {
-    window.location.href = "./exam.html";
+    window.location.href = "./review.html";
   });
   document.getElementById("btnRefreshTasks")?.addEventListener("click", loadHome);
 }

@@ -19,6 +19,22 @@
 
 .review-actions{ display:flex; gap:8px; }
 
+.review-filters{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap:12px;
+  margin-bottom:16px;
+}
+.review-filter{ display:grid; gap:6px; }
+.review-filter label{ font-size:12px; color:#6b7280; }
+.review-filter input,
+.review-filter select{
+  border:1px solid #e5e6eb;
+  border-radius:8px;
+  padding:8px 10px;
+  height:36px;
+}
+
 .review-layout{
   display:grid;
   grid-template-columns: 1.1fr 1fr;
@@ -92,6 +108,28 @@
 }
 
 .review-grade textarea{ min-height:80px; }
+
+.review-total{
+  padding:8px 10px;
+  border:1px solid #e5e6eb;
+  border-radius:8px;
+  background:#f7f8fa;
+  font-weight:600;
+}
+
+.review-score-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:8px;
+}
+.review-score-row input{
+  width:90px;
+}
+.review-score-hint{
+  font-size:12px;
+  color:#6b7280;
+}
 
 .review-empty{
   position:absolute;

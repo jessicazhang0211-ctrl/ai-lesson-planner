@@ -7,7 +7,7 @@ from app.models.resource_assignment import ResourceAssignment
 from app.models.exercise_submission import ExerciseSubmission
 from app.models.lesson import Lesson
 from app.models.exercise import Exercise
-from app.models.classroom import Classroom
+from app.models.classroom import Classroom, Student
 import json
 import datetime
 
@@ -131,6 +131,9 @@ def list_review():
 
     submissions = ExerciseSubmission.query.filter(ExerciseSubmission.publish_id.in_(pub_ids), ExerciseSubmission.status == status).all()
 
+    student_ids = [s.student_id for s in submissions]
+    students = {s.id: s for s in Student.query.filter(Student.id.in_(student_ids)).all()} if student_ids else {}
+
     class_ids = list({p.class_id for p in pubs})
     classes = {c.id: c for c in Classroom.query.filter(Classroom.id.in_(class_ids)).all()} if class_ids else {}
     exercises = {e.id: e for e in Exercise.query.filter(Exercise.id.in_([p.resource_id for p in pubs if p.resource_type == "exercise"])) .all()} if pubs else {}
@@ -142,6 +145,7 @@ def list_review():
         if not pub:
             continue
         ex = exercises.get(pub.resource_id)
+        student = students.get(s.student_id)
         result.append({
             "submission_id": s.id,
             "publish_id": s.publish_id,
@@ -149,6 +153,7 @@ def list_review():
             "class_name": classes.get(pub.class_id).name if classes.get(pub.class_id) else "",
             "title": ex.title if ex else "",
             "auto_score": s.auto_score,
+            "student_name": student.name if student else "",
             "status": s.status,
             "created_at": s.created_at.strftime("%Y-%m-%d %H:%M:%S") if s.created_at else ""
         })
@@ -186,10 +191,20 @@ def review_detail(submission_id: int):
     except Exception:
         answers = {}
 
+    teacher_detail = {}
+    try:
+        teacher_detail = json.loads(submission.teacher_detail or "{}")
+    except Exception:
+        teacher_detail = {}
+
     questions = []
     for q in structured.get("questions", []):
         q2 = dict(q)
-        q2["student_answer"] = answers.get(q.get("id"))
+        qid = q.get("id")
+        qtype = (q.get("type") or "").lower()
+        q2["student_answer"] = answers.get(qid)
+        q2["is_subjective"] = qtype in ("short", "essay")
+        q2["teacher_score"] = (teacher_detail.get(qid) or {}).get("score") if qid else None
         questions.append(q2)
 
     return ok({
@@ -199,9 +214,76 @@ def review_detail(submission_id: int):
         "auto_score": submission.auto_score,
         "teacher_score": submission.teacher_score,
         "total_score": submission.total_score,
+        "teacher_comment": submission.teacher_comment or "",
         "status": submission.status,
         "questions": questions
     })
+
+
+@bp.route("/review/history", methods=["GET"])
+@token_required
+def review_history():
+    user_id = int(getattr(g, "current_user_id", 0) or 0)
+    if not user_id:
+        return err("missing user", http_status=401)
+
+    class_id = request.args.get("class_id")
+    title_kw = (request.args.get("title") or "").strip()
+    student_kw = (request.args.get("student") or "").strip()
+
+    pubs_q = ResourcePublish.query.filter_by(created_by=user_id, revoked=False)
+    if class_id:
+        try:
+            class_id = int(class_id)
+            pubs_q = pubs_q.filter_by(class_id=class_id)
+        except ValueError:
+            return err("invalid class_id", http_status=400)
+
+    pubs = pubs_q.all()
+    pub_ids = [p.id for p in pubs]
+    if not pub_ids:
+        return ok([])
+
+    submissions = ExerciseSubmission.query.filter(
+        ExerciseSubmission.publish_id.in_(pub_ids),
+        ExerciseSubmission.status == "graded"
+    ).order_by(ExerciseSubmission.updated_at.desc()).all()
+
+    class_ids = list({p.class_id for p in pubs})
+    classes = {c.id: c for c in Classroom.query.filter(Classroom.id.in_(class_ids)).all()} if class_ids else {}
+    exercises = {e.id: e for e in Exercise.query.filter(Exercise.id.in_([p.resource_id for p in pubs if p.resource_type == "exercise"])) .all()} if pubs else {}
+    students = {s.id: s for s in Student.query.filter(Student.id.in_([s.student_id for s in submissions])).all()} if submissions else {}
+
+    pub_map = {p.id: p for p in pubs}
+    result = []
+    for s in submissions:
+        pub = pub_map.get(s.publish_id)
+        if not pub:
+            continue
+        ex = exercises.get(pub.resource_id)
+        student = students.get(s.student_id)
+
+        if title_kw and ex and title_kw not in (ex.title or ""):
+            continue
+        if student_kw and student and student_kw not in (student.name or ""):
+            continue
+
+        result.append({
+            "submission_id": s.id,
+            "publish_id": s.publish_id,
+            "class_id": pub.class_id,
+            "class_name": classes.get(pub.class_id).name if classes.get(pub.class_id) else "",
+            "title": ex.title if ex else "",
+            "auto_score": s.auto_score,
+            "teacher_score": s.teacher_score,
+            "total_score": s.total_score,
+            "student_name": student.name if student else "",
+            "teacher_comment": s.teacher_comment or "",
+            "status": s.status,
+            "created_at": s.updated_at.strftime("%Y-%m-%d %H:%M:%S") if s.updated_at else ""
+        })
+
+    return ok(result)
 
 
 @bp.route("/review/<int:submission_id>/score", methods=["POST"])
@@ -220,15 +302,49 @@ def review_score(submission_id: int):
         return err("not allowed", http_status=403)
 
     data = request.get_json(silent=True) or {}
-    teacher_score = data.get("teacher_score")
+    scores = data.get("scores") or {}
     teacher_comment = data.get("teacher_comment") or ""
 
+    exercise = Exercise.query.get(pub.resource_id)
+    if not exercise or not exercise.content_json:
+        return err("exercise format not supported", http_status=400)
+
     try:
-        teacher_score = int(teacher_score)
+        structured = json.loads(exercise.content_json)
     except Exception:
-        return err("invalid teacher_score", http_status=400)
+        return err("invalid exercise format", http_status=400)
+
+    max_scores = {}
+    subjective_ids = set()
+    for q in structured.get("questions", []):
+        qid = q.get("id")
+        if not qid:
+            continue
+        qtype = (q.get("type") or "").lower()
+        if qtype in ("short", "essay"):
+            subjective_ids.add(qid)
+            try:
+                max_scores[qid] = int(q.get("score") or 0)
+            except Exception:
+                max_scores[qid] = 0
+
+    teacher_detail = {}
+    teacher_score = 0
+    for qid, raw_score in scores.items():
+        if qid not in subjective_ids:
+            continue
+        try:
+            s = int(raw_score)
+        except Exception:
+            return err("invalid teacher_score", http_status=400)
+        max_s = max_scores.get(qid, 0)
+        if s < 0 or s > max_s:
+            return err("invalid teacher_score", http_status=400)
+        teacher_detail[qid] = {"score": s}
+        teacher_score += s
 
     submission.teacher_score = teacher_score
+    submission.teacher_detail = json.dumps(teacher_detail, ensure_ascii=False)
     submission.teacher_comment = teacher_comment
     submission.total_score = (submission.auto_score or 0) + teacher_score
     submission.status = "graded"
@@ -270,13 +386,21 @@ def resource_stats(resource_type: str, resource_id: int):
     if not user_id:
         return err("missing user", http_status=401)
 
-    pubs = (ResourcePublish.query
-        .filter_by(created_by=user_id, resource_type=resource_type, resource_id=resource_id, revoked=False)
-        .all())
+    class_id = request.args.get("class_id")
+    pubs_q = (ResourcePublish.query
+        .filter_by(created_by=user_id, resource_type=resource_type, resource_id=resource_id, revoked=False))
+    if class_id:
+        try:
+            class_id = int(class_id)
+            pubs_q = pubs_q.filter_by(class_id=class_id)
+        except ValueError:
+            return err("invalid class_id", http_status=400)
+
+    pubs = pubs_q.all()
 
     pub_ids = [p.id for p in pubs]
     if not pub_ids:
-        return ok({"overall": {"assigned": 0, "completed": 0, "rate": 0}, "classes": []})
+        return ok({"overall": {"assigned": 0, "completed": 0, "rate": 0}, "classes": [], "questions": [], "trend": []})
 
     assignments = ResourceAssignment.query.filter(ResourceAssignment.publish_id.in_(pub_ids)).all()
 
@@ -320,7 +444,102 @@ def resource_stats(resource_type: str, resource_id: int):
             "last_published_at": v["last_published_at"].strftime("%Y-%m-%d %H:%M:%S") if v["last_published_at"] else ""
         })
 
+    # exercise question stats
+    questions_stats = []
+    trend = []
+    if resource_type == "exercise":
+        exercise = Exercise.query.get(resource_id)
+        if exercise and exercise.content_json:
+            try:
+                structured = json.loads(exercise.content_json)
+            except Exception:
+                structured = {}
+            questions = structured.get("questions", [])
+
+            submissions = (ExerciseSubmission.query
+                .filter(ExerciseSubmission.publish_id.in_(pub_ids), ExerciseSubmission.status == "graded")
+                .order_by(ExerciseSubmission.updated_at.desc())
+                .all())
+
+            # trend: last 10 graded submissions
+            for s in list(reversed(submissions[:10])):
+                dt = s.updated_at or s.created_at
+                label = dt.strftime("%m-%d") if dt else ""
+                trend.append({"label": label, "score": s.total_score})
+
+            # build per-question stats
+            totals = {}
+            wrongs = {}
+            counts = {}
+            max_scores = {}
+            qtypes = {}
+            stems = {}
+            analyses = {}
+
+            for q in questions:
+                qid = q.get("id")
+                if not qid:
+                    continue
+                try:
+                    max_scores[qid] = int(q.get("score") or 0)
+                except Exception:
+                    max_scores[qid] = 0
+                qtypes[qid] = q.get("type") or ""
+                stems[qid] = q.get("stem") or ""
+                analyses[qid] = q.get("analysis") or ""
+                totals[qid] = 0
+                wrongs[qid] = 0
+                counts[qid] = 0
+
+            for s in submissions:
+                try:
+                    auto_result = json.loads(s.auto_result or "{}")
+                except Exception:
+                    auto_result = {}
+                try:
+                    teacher_detail = json.loads(s.teacher_detail or "{}")
+                except Exception:
+                    teacher_detail = {}
+
+                for qid in counts.keys():
+                    qtype = (qtypes.get(qid) or "").lower()
+                    max_s = max_scores.get(qid, 0)
+                    score = None
+                    if qtype in ("short", "essay"):
+                        score = (teacher_detail.get(qid) or {}).get("score")
+                        if score is None:
+                            continue
+                        wrong = score < max_s
+                    else:
+                        result = auto_result.get(qid)
+                        if result is None:
+                            continue
+                        score = max_s if result == "correct" else 0
+                        wrong = result == "wrong"
+                    totals[qid] += score
+                    counts[qid] += 1
+                    if wrong:
+                        wrongs[qid] += 1
+
+            for qid in counts.keys():
+                if counts[qid] == 0:
+                    avg_score = None
+                else:
+                    avg_score = round(totals[qid] / counts[qid], 2)
+                questions_stats.append({
+                    "id": qid,
+                    "stem": stems.get(qid, ""),
+                    "type": qtypes.get(qid, ""),
+                    "analysis": analyses.get(qid, ""),
+                    "max_score": max_scores.get(qid, 0),
+                    "avg_score": avg_score,
+                    "wrong_count": wrongs.get(qid, 0),
+                    "answer_count": counts.get(qid, 0)
+                })
+
     return ok({
         "overall": {"assigned": total_assigned, "completed": total_completed, "rate": rate},
-        "classes": class_list
+        "classes": class_list,
+        "questions": questions_stats,
+        "trend": trend
     })

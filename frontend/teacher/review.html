@@ -47,14 +47,34 @@
         <div class="review-sub">主观题人工批改，客观题已自动判分。</div>
       </div>
       <div class="review-actions">
+        <button class="btn ghost" id="tabPending">待批改</button>
+        <button class="btn ghost" id="tabHistory">历史批改</button>
         <button class="btn ghost" id="btnRefresh">刷新</button>
       </div>
     </div>
 
+    <section class="card review-filters" id="historyFilters">
+      <div class="review-filter">
+        <label>班级</label>
+        <select id="filterClass"></select>
+      </div>
+      <div class="review-filter">
+        <label>学生姓名</label>
+        <input id="filterStudent" placeholder="输入学生姓名" />
+      </div>
+      <div class="review-filter">
+        <label>作业名称</label>
+        <input id="filterTitle" placeholder="输入作业名称" />
+      </div>
+      <div class="review-filter">
+        <button class="btn" id="btnSearch">搜索</button>
+      </div>
+    </section>
+
     <div class="review-layout">
       <section class="card review-list">
         <div class="review-list-head">
-          <div class="review-list-title">待批改列表</div>
+          <div class="review-list-title" id="reviewListTitle">待批改列表</div>
           <div class="review-list-meta" id="reviewCount">0</div>
         </div>
         <div id="reviewItems" class="review-items"></div>
@@ -69,8 +89,8 @@
         </div>
         <div class="review-body" id="reviewBody"></div>
         <div class="review-grade">
-          <label>主观题评分</label>
-          <input type="number" id="teacherScore" min="0" value="0" />
+          <label>主观题总分</label>
+          <div class="review-total" id="teacherTotal">0</div>
           <label>评语</label>
           <textarea id="teacherComment" placeholder="写下点评或建议"></textarea>
           <button class="btn primary" id="btnSubmitScore">提交评分</button>

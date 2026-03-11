@@ -12,6 +12,7 @@ class ExerciseSubmission(db.Model):
     auto_result = db.Column(db.Text, nullable=True)
     auto_score = db.Column(db.Integer, nullable=True)
     teacher_score = db.Column(db.Integer, nullable=True)
+    teacher_detail = db.Column(db.Text, nullable=True)
     total_score = db.Column(db.Integer, nullable=True)
     teacher_comment = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(32), default="pending_review")  # saved | pending_review | graded
@@ -25,6 +26,7 @@ class ExerciseSubmission(db.Model):
             "student_id": self.student_id,
             "auto_score": self.auto_score,
             "teacher_score": self.teacher_score,
+            "teacher_detail": self.teacher_detail or "",
             "total_score": self.total_score,
             "teacher_comment": self.teacher_comment or "",
             "status": self.status,

@@ -30,6 +30,11 @@ const resourceDict = {
 		statsAssigned: "已发布",
 		statsCompleted: "已完成",
 		statsRate: "完成率",
+		statsAvg: "平均分",
+		statsWrong: "错题数",
+		statsAnswered: "作答数",
+		statsMax: "满分",
+		statsChart: "成绩趋势",
 		publishTitle: "发布资源",
 		class: "班级",
 		mode: "发布方式",
@@ -81,6 +86,11 @@ const resourceDict = {
 		statsAssigned: "Assigned",
 		statsCompleted: "Completed",
 		statsRate: "Rate",
+		statsAvg: "Average",
+		statsWrong: "Wrong",
+		statsAnswered: "Answered",
+		statsMax: "Max",
+		statsChart: "Trend",
 		publishTitle: "Publish Resource",
 		class: "Class",
 		mode: "Publish mode",
@@ -217,10 +227,11 @@ async function apiRevokePublish(pubId) {
 	return res.ok && data.code === 0;
 }
 
-async function apiFetchStats(item) {
+async function apiFetchStats(item, classId) {
 	const token = getToken();
 	if (!token) return null;
-	const res = await fetch(`${API_BASE}/api/resource/resource/${item.resource_type}/${item.resource_id}/stats`, {
+	const qs = classId ? `?class_id=${classId}` : "";
+	const res = await fetch(`${API_BASE}/api/resource/resource/${item.resource_type}/${item.resource_id}/stats${qs}`, {
 		headers: { "Authorization": `Bearer ${token}` }
 	});
 	const data = await res.json().catch(() => ({}));
@@ -441,33 +452,90 @@ function openStatsModal(item) {
 	const title = document.getElementById("statsTitle");
 	const summary = document.getElementById("statsSummary");
 	const list = document.getElementById("statsList");
+	const chart = document.getElementById("statsChart");
+	const classSelect = document.getElementById("statsClass");
 
 	if (title) title.textContent = item.title || "—";
 	if (summary) summary.textContent = "";
 	if (list) list.innerHTML = "";
+	if (chart) chart.innerHTML = "";
+	if (classSelect) classSelect.innerHTML = "";
 
 	modal.classList.add("open");
 	modal.setAttribute("aria-hidden", "false");
 
-	apiFetchStats(item).then(stats => {
+	const renderStats = (stats) => {
 		if (!stats) return;
 		const overall = stats.overall || { assigned: 0, completed: 0, rate: 0 };
 		if (summary) {
 			summary.textContent = `${t("statsOverall")}：${overall.rate}%  ·  ${t("statsAssigned")}${overall.assigned}  ·  ${t("statsCompleted")}${overall.completed}`;
 		}
-		if (list) {
+
+		if (classSelect) {
 			const classes = stats.classes || [];
-			list.innerHTML = classes.map(c => {
+			const options = [`<option value="">${t("typeAll")}</option>`]
+				.concat(classes.map(c => `<option value="${c.class_id}">${c.class_name || "-"}</option>`));
+			classSelect.innerHTML = options.join("");
+		}
+
+		if (chart) {
+			const trend = stats.trend || [];
+			if (!trend.length) {
+				chart.innerHTML = `<div style="color:#8a8f98;font-size:12px;">${t("noData")}</div>`;
+			} else {
+				const width = 640;
+				const height = 200;
+				const padding = 24;
+				const maxScore = Math.max(...trend.map(i => i.score ?? 0), 100);
+				const minScore = Math.min(...trend.map(i => i.score ?? 0), 0);
+				const range = Math.max(1, maxScore - minScore);
+				const stepX = (width - padding * 2) / Math.max(1, trend.length - 1);
+				const points = trend.map((item, idx) => {
+					const x = padding + stepX * idx;
+					const y = height - padding - ((item.score - minScore) / range) * (height - padding * 2);
+					return { x, y, label: item.label || "" };
+				});
+				const path = points.map((p, idx) => `${idx === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
+				const dots = points.map(p => `<circle class="stats-dot" cx="${p.x}" cy="${p.y}" r="4" />`).join("");
+				const labels = points.map(p => `<text class="stats-label" x="${p.x}" y="${height - 6}" text-anchor="middle">${p.label}</text>`).join("");
+				chart.innerHTML = `
+					<svg viewBox="0 0 ${width} ${height}">
+						<path class="stats-line" d="${path}"></path>
+						${dots}
+						${labels}
+					</svg>
+				`;
+			}
+		}
+
+		if (list) {
+			const questions = stats.questions || [];
+			if (!questions.length) {
+				list.innerHTML = `<div style="color:#8a8f98;font-size:12px;">${t("noData")}</div>`;
+				return;
+			}
+			list.innerHTML = questions.map(q => {
+				const avg = q.avg_score == null ? "-" : q.avg_score;
 				return `
 					<div class="stats-item">
 						<div>
-							<div class="name">${c.class_name || "-"}</div>
-							<div class="meta">${t("statsAssigned")}${c.assigned} · ${t("statsCompleted")}${c.completed}</div>
+							<div class="name">${q.stem || "-"}</div>
+							<div class="meta">${q.type || ""} · ${t("statsMax")}${q.max_score}</div>
 						</div>
-						<div class="meta">${t("statsRate")} ${c.rate}%</div>
+						<div class="meta">${t("statsAvg")}${avg} · ${t("statsWrong")}${q.wrong_count} · ${t("statsAnswered")}${q.answer_count}</div>
 					</div>
 				`;
 			}).join("");
+		}
+	};
+
+	apiFetchStats(item).then(stats => {
+		renderStats(stats);
+		if (classSelect) {
+			classSelect.addEventListener("change", () => {
+				const cid = classSelect.value || "";
+				apiFetchStats(item, cid).then(renderStats);
+			});
 		}
 	});
 }

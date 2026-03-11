@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>教案资源 · 学生端</title>
+  <title>复习 · 学生端</title>
   <link rel="stylesheet" href="./css/student.css" />
 </head>
 <body>
@@ -30,8 +30,8 @@
     <nav class="menu">
       <a class="menu-item" href="./index.html">学习概览</a>
       <a class="menu-item" href="./practice.html">练习</a>
-      <a class="menu-item" href="./review.html">复习</a>
-      <a class="menu-item active" href="./lessons.html">教案资源</a>
+      <a class="menu-item active" href="./review.html">复习</a>
+      <a class="menu-item" href="./lessons.html">教案资源</a>
       <a class="menu-item" href="./scores.html">成绩与学情</a>
       <a class="menu-item" href="./settings.html">设置</a>
     </nav>
@@ -40,44 +40,53 @@
   <main class="content">
     <section class="hero">
       <div>
-        <h1 class="hero-title">老师教案资源</h1>
-        <p class="hero-sub">查看老师发布的教案与学习资料。</p>
+        <h1 class="hero-title">复习与错题</h1>
+        <p class="hero-sub">已完成作业自动归档，可查看错题解析。</p>
       </div>
       <div class="hero-actions">
-        <button class="btn" id="btnRefreshLessons">刷新</button>
+        <button class="btn" id="btnRefreshReview">刷新</button>
       </div>
     </section>
 
-    <section class="lesson-layout">
+    <section class="card review-filters">
+      <div class="review-filter">
+        <label>作业名称</label>
+        <input id="reviewTitleKeyword" placeholder="输入作业名称" />
+      </div>
+      <div class="review-filter">
+        <button class="btn" id="btnReviewSearch">筛选</button>
+      </div>
+    </section>
+
+    <section class="review-layout">
       <div class="card">
         <div class="card-head">
           <div>
-            <div class="card-title">教案列表</div>
-            <div class="card-sub">点击查看详情</div>
+            <div class="card-title">已完成作业</div>
+            <div class="card-sub">点击查看错题与解析</div>
           </div>
         </div>
-        <div class="lesson-list" id="lessonList"></div>
+        <div class="list" id="reviewList"></div>
       </div>
 
-      <div class="card lesson-detail">
+      <div class="card">
         <div class="card-head">
           <div>
-            <div class="card-title" id="lessonTitle">—</div>
-            <div class="card-sub" id="lessonMeta">—</div>
+            <div class="card-title" id="reviewTitle">错题解析</div>
+            <div class="card-sub" id="reviewMeta">—</div>
           </div>
-          <div class="lesson-actions">
-            <button class="btn" id="btnDownloadPdf">下载 PDF</button>
-          </div>
+          <label class="review-filter">
+            <input type="checkbox" id="toggleWrongOnly" checked />
+            只看错题
+          </label>
         </div>
-        <pre class="lesson-content" id="lessonContent"></pre>
-        <div class="lesson-empty" id="lessonEmpty">选择左侧教案查看详情</div>
+        <div class="review-body" id="reviewBody"></div>
       </div>
     </section>
   </main>
 </div>
 
 <script src="./js/student_common.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-<script src="./js/student_lessons.js"></script>
+<script src="./js/student_review.js"></script>
 </body>
 </html>

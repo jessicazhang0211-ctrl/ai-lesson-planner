@@ -8,6 +8,8 @@ async function renderScores() {
       } else {
         scoreBox.innerHTML = scores.map(item => {
           const value = item.score != null ? item.score : "--";
+          const maxScore = item.max_score != null ? item.max_score : null;
+          const display = maxScore != null ? `${value}/${maxScore}` : `${value}`;
           const meta = item.completed_at || item.published_at || "";
           return `
             <div class="score-item">
@@ -15,7 +17,7 @@ async function renderScores() {
                 <div class="score-title">${item.title || "练习"}</div>
                 <div class="score-sub">${meta}</div>
               </div>
-              <div class="score-value">${value}</div>
+              <div class="score-value">${display}</div>
             </div>
           `;
         }).join("");
@@ -26,6 +28,8 @@ async function renderScores() {
   }
 
   try {
+    const trendBox = document.getElementById("scoreTrend");
+    if (trendBox) trendBox.innerHTML = `<div class="loading">加载中...</div>`;
     const overview = await apiGet("/api/student/overview");
     const kpiSubmission = document.getElementById("kpiSubmission");
     const kpiAvgAll = document.getElementById("kpiAvgAll");
@@ -34,7 +38,11 @@ async function renderScores() {
     if (kpiSubmission) kpiSubmission.textContent = `${overview.submission_rate ?? 0}%`;
     if (kpiAvgAll) kpiAvgAll.textContent = overview.avg_score_all != null ? String(overview.avg_score_all) : "--";
     if (kpiAvgWeek) kpiAvgWeek.textContent = overview.avg_score_week != null ? String(overview.avg_score_week) : "--";
-    if (kpiLatest) kpiLatest.textContent = overview.latest_score != null ? String(overview.latest_score) : "--";
+    if (kpiLatest) {
+      const latest = overview.latest_score != null ? String(overview.latest_score) : "--";
+      const latestTotal = overview.latest_total_score != null ? String(overview.latest_total_score) : null;
+      kpiLatest.textContent = latestTotal ? `${latest}/${latestTotal}` : latest;
+    }
 
     renderTrendChart(overview.trend || []);
 
@@ -53,6 +61,14 @@ async function renderScores() {
     if (studyState) studyState.textContent = "--";
     if (studyTip) studyTip.textContent = "--";
   }
+}
+
+function escapeAttr(s) {
+  return String(s ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll("\"", "&quot;");
 }
 
 function renderTrendChart(items) {
@@ -78,7 +94,13 @@ function renderTrendChart(items) {
   });
 
   const path = points.map((p, idx) => `${idx === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
-  const dots = points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" />`).join("");
+  const dots = points.map((p, idx) => {
+    const item = items[idx] || {};
+    const score = item.score != null ? item.score : "--";
+    const title = escapeAttr(item.title || "");
+    const label = escapeAttr(item.label || "");
+    return `<circle class="trend-point" cx="${p.x}" cy="${p.y}" r="4" data-score="${score}" data-title="${title}" data-label="${label}" />`;
+  }).join("");
   const labels = points.map(p => `<text x="${p.x}" y="${height - 6}" text-anchor="middle">${p.label}</text>`).join("");
 
   box.innerHTML = `
@@ -88,6 +110,29 @@ function renderTrendChart(items) {
       ${labels}
     </svg>
   `;
+
+  const tooltip = document.createElement("div");
+  tooltip.className = "trend-tooltip";
+  tooltip.id = "trendTooltip";
+  box.appendChild(tooltip);
+
+  box.querySelectorAll(".trend-point").forEach(point => {
+    point.addEventListener("mousemove", (e) => {
+      const score = point.getAttribute("data-score") || "--";
+      const title = point.getAttribute("data-title") || "";
+      const label = point.getAttribute("data-label") || "";
+      const rect = box.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      tooltip.textContent = `${title || "作业"}：${score}${label ? ` · ${label}` : ""}`;
+      tooltip.style.left = `${x}px`;
+      tooltip.style.top = `${y - 12}px`;
+      tooltip.classList.add("show");
+    });
+    point.addEventListener("mouseleave", () => {
+      tooltip.classList.remove("show");
+    });
+  });
 }
 
 document.addEventListener("DOMContentLoaded", () => {

@@ -10,6 +10,9 @@ class StudentProfile(db.Model):
     class_id = db.Column(db.Integer, db.ForeignKey("classes.id"), nullable=False)
     student_id = db.Column(db.Integer, db.ForeignKey("class_students.id"), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    analysis_json = db.Column(db.Text, nullable=True)
+    analysis_updated_at = db.Column(db.DateTime, nullable=True)
+    analysis_latest_completed_at = db.Column(db.DateTime, nullable=True)
 
     def to_dict(self):
         return {
