@@ -44,6 +44,10 @@ body {
   display: flex;
   gap: 10px;
 }
+.muted {
+  font-size: 12px;
+  color: #8a8f98;
+}
 
 .btn {
   border: 1px solid var(--border);
@@ -150,24 +154,85 @@ body {
   border: 1px dashed var(--border);
   border-radius: 10px;
   background: #f8fafc;
+  position: relative;
+}
+.trend-svg {
+  width: 100%;
+  height: 220px;
+}
+.trend-line {
+  fill: none;
+  stroke-width: 3;
+}
+.trend-line.submit {
+  stroke: var(--accent);
+}
+.trend-line.accuracy {
+  stroke: var(--success);
+}
+.trend-dot.submit {
+  fill: var(--accent);
+}
+.trend-dot.accuracy {
+  fill: var(--success);
+}
+.trend-svg text {
+  font-size: 11px;
+  fill: var(--muted);
+}
+.trend-tooltip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 6px 10px;
+  background: #111827;
+  color: #fff;
+  font-size: 12px;
+  border-radius: 8px;
+  transform: translate(-50%, 0);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s ease;
+  white-space: nowrap;
+}
+.trend-tooltip.show {
+  opacity: 1;
+}
+
+.chart-group {
+  flex: 1;
+  min-width: 34px;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  position: relative;
+  height: 100%;
+  justify-content: center;
 }
 
 .chart-bar {
-  flex: 1;
-  min-width: 26px;
+  width: 16px;
   border-radius: 8px 8px 4px 4px;
-  background: linear-gradient(180deg, var(--accent), #4f46e5);
   position: relative;
   transition: transform 0.2s ease;
+  margin-bottom: 24px;
+}
+
+.chart-bar.submit {
+  background: linear-gradient(180deg, var(--accent), #4f46e5);
+}
+
+.chart-bar.accuracy {
+  background: linear-gradient(180deg, #16a34a, #22c55e);
 }
 
 .chart-bar:hover {
   transform: translateY(-4px);
 }
 
-.chart-bar .label {
+.chart-group .label {
   position: absolute;
-  bottom: -18px;
+  bottom: 6px;
   left: 50%;
   transform: translateX(-50%);
   font-size: 12px;
@@ -176,7 +241,7 @@ body {
 
 .chart-bar .value {
   position: absolute;
-  top: -22px;
+  top: -20px;
   left: 50%;
   transform: translateX(-50%);
   font-size: 12px;
@@ -187,6 +252,16 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+#riskList {
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+#praiseList {
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .risk-item {
@@ -234,6 +309,11 @@ body {
   background: rgba(245, 158, 11, 0.1);
   border-color: rgba(245, 158, 11, 0.4);
   color: var(--warn);
+}
+.tag.praise {
+  background: rgba(22, 163, 74, 0.12);
+  border-color: rgba(22, 163, 74, 0.45);
+  color: var(--success);
 }
 
 .table-wrap {

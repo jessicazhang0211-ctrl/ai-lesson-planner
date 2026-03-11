@@ -1,94 +1,46 @@
-// Simple mocked analytics for 学情分析页面
+// API-backed analytics for 学情分析页面
 (function () {
+  const API_BASE = "http://127.0.0.1:5000";
   const kpiStudents = document.getElementById('kpiStudents');
   const kpiActiveHint = document.getElementById('kpiActiveHint');
   const kpiSubmit = document.getElementById('kpiSubmit');
   const kpiAccuracy = document.getElementById('kpiAccuracy');
   const kpiRisk = document.getElementById('kpiRisk');
-  const trendChart = document.getElementById('trendChart');
+  const monthTrendChart = document.getElementById('monthTrendChart');
+  const weekTrendChart = document.getElementById('weekTrendChart');
+  const praiseList = document.getElementById('praiseList');
   const riskList = document.getElementById('riskList');
   const classTable = document.querySelector('#classTable tbody');
   const classTabs = document.getElementById('classTabs');
   const btnRefresh = document.getElementById('btnRefresh');
   const btnExport = document.getElementById('btnExport');
 
-  let state = buildMock();
+  let state = {
+    classData: [],
+    monthly: [],
+    weekly: [],
+    praises: [],
+    risks: [],
+    overview: { students: 0, active: 0, submitRate: 0, accuracyAvg: 0, risk: 0 }
+  };
 
-  function buildMock() {
-    const classes = ['高一(1)班', '高一(2)班', '高一(3)班'];
-    const classData = classes.map((name) => {
-      const total = rand(32, 45);
-      const submitted = rand(Math.floor(total * 0.6), total);
-      const accuracy = rand(70, 96);
-      const risk = rand(0, 4);
-      return {
-        name,
-        total,
-        submitted,
-        accuracy,
-        risk,
-      };
+  function getToken() {
+    return localStorage.getItem("auth_token") || "";
+  }
+
+  async function apiGet(path) {
+    const token = getToken();
+    const res = await fetch(`${API_BASE}${path}`, {
+      headers: { "Authorization": `Bearer ${token}` }
     });
-
-    const weekly = Array.from({ length: 7 }, (_, i) => ({
-      day: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'][i],
-      submit: rand(62, 95),
-      accuracy: rand(68, 97),
-    }));
-
-    const risks = Array.from({ length: rand(2, 6) }).map(() => {
-      const score = rand(45, 70);
-      const submit = rand(40, 80);
-      const flag = score < 55 || submit < 60 ? 'danger' : 'warn';
-      return {
-        name: randomName(),
-        className: classes[rand(0, classes.length - 1)],
-        submit,
-        accuracy: score,
-        tag: flag,
-      };
-    });
-
-    const totals = classData.reduce(
-      (acc, cur) => {
-        acc.total += cur.total;
-        acc.submitted += cur.submitted;
-        acc.risk += cur.risk;
-        acc.accuracySum += cur.accuracy;
-        return acc;
-      },
-      { total: 0, submitted: 0, risk: 0, accuracySum: 0 }
-    );
-
-    const active = rand(Math.floor(totals.total * 0.7), totals.total);
-
-    return {
-      classData,
-      weekly,
-      risks,
-      overview: {
-        students: totals.total,
-        active,
-        submitRate: rate(totals.submitted, totals.total),
-        accuracyAvg: Math.round(totals.accuracySum / classData.length),
-        risk: totals.risk + risks.length,
-      },
-    };
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.code !== 0) throw new Error(data.message || "api error");
+    return data.data || {};
   }
 
   function rate(part, total) {
     if (!total) return 0;
     return Math.round((part / total) * 100);
-  }
-
-  function rand(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-
-  function randomName() {
-    const last = ['张', '李', '王', '赵', '刘', '陈', '杨'];
-    const first = ['晨', '琪', '然', '悦', '宇', '凯', '欣', '婷'];
-    return last[rand(0, last.length - 1)] + first[rand(0, first.length - 1)];
   }
 
   function renderKpi() {
@@ -99,21 +51,155 @@
     kpiRisk.textContent = state.overview.risk;
   }
 
-  function renderTrend() {
-    trendChart.innerHTML = '';
-    state.weekly.forEach((item) => {
-      const bar = document.createElement('div');
-      bar.className = 'chart-bar';
-      bar.style.height = `${item.submit}%`;
-      const val = document.createElement('div');
-      val.className = 'value';
-      val.textContent = `${item.submit}%`;
+  function renderMonthTrendLine(box, items) {
+    if (!box) return;
+    box.innerHTML = '';
+    if (!items.length) {
+      box.innerHTML = '<div class="muted">暂无数据</div>';
+      return;
+    }
+    const width = 720;
+    const height = 220;
+    const padding = 26;
+    const maxScore = Math.max(...items.map(i => i.submit ?? 0), ...items.map(i => i.accuracy ?? 0), 100);
+    const minScore = Math.min(...items.map(i => i.submit ?? 0), ...items.map(i => i.accuracy ?? 0), 0);
+    const range = Math.max(1, maxScore - minScore);
+    const stepX = (width - padding * 2) / Math.max(1, items.length - 1);
+
+    const submitPoints = items.map((item, idx) => {
+      const x = padding + stepX * idx;
+      const y = height - padding - ((item.submit - minScore) / range) * (height - padding * 2);
+      return { x, y, label: item.day || "" };
+    });
+    const accPoints = items.map((item, idx) => {
+      const x = padding + stepX * idx;
+      const y = height - padding - ((item.accuracy - minScore) / range) * (height - padding * 2);
+      return { x, y, label: item.day || "" };
+    });
+
+    const submitPath = submitPoints.map((p, idx) => `${idx === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
+    const accPath = accPoints.map((p, idx) => `${idx === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
+    const submitDots = submitPoints.map((p, idx) => {
+      const item = items[idx] || {};
+      return `<circle class="trend-dot submit" cx="${p.x}" cy="${p.y}" r="3" data-type="submit" data-day="${item.day || ''}" data-value="${item.submit ?? 0}" />`;
+    }).join("");
+    const accDots = accPoints.map((p, idx) => {
+      const item = items[idx] || {};
+      return `<circle class="trend-dot accuracy" cx="${p.x}" cy="${p.y}" r="3" data-type="accuracy" data-day="${item.day || ''}" data-value="${item.accuracy ?? 0}" />`;
+    }).join("");
+
+    const labels = items.map((item, idx) => {
+      if (idx % 5 !== 0 && idx !== items.length - 1) return "";
+      const x = padding + stepX * idx;
+      return `<text x="${x}" y="${height - 6}" text-anchor="middle">${item.day || ""}</text>`;
+    }).join("");
+
+    box.innerHTML = `
+      <svg viewBox="0 0 ${width} ${height}" class="trend-svg" role="img" aria-label="monthly trend">
+        <path d="${submitPath}" class="trend-line submit"></path>
+        ${submitDots}
+        <path d="${accPath}" class="trend-line accuracy"></path>
+        ${accDots}
+        ${labels}
+      </svg>
+    `;
+
+    const tooltip = document.createElement("div");
+    tooltip.className = "trend-tooltip";
+    box.appendChild(tooltip);
+
+    box.querySelectorAll(".trend-dot").forEach(dot => {
+      dot.addEventListener("mouseenter", () => {
+        const type = dot.getAttribute("data-type");
+        const day = dot.getAttribute("data-day") || "";
+        const value = dot.getAttribute("data-value") || "0";
+        const label = type === "submit" ? "提交率" : "正确率";
+        const boxRect = box.getBoundingClientRect();
+        const dotRect = dot.getBoundingClientRect();
+        const x = dotRect.left - boxRect.left + dotRect.width / 2;
+        const y = dotRect.top - boxRect.top;
+        const margin = 10;
+        const maxX = box.clientWidth - margin;
+        const minX = margin;
+        tooltip.textContent = `${day} · ${label} ${value}%`;
+        const clampedX = Math.min(maxX, Math.max(minX, x));
+        tooltip.style.left = `${clampedX}px`;
+        tooltip.classList.add("show");
+        const tooltipHeight = tooltip.offsetHeight || 0;
+        const desiredTop = y - tooltipHeight - 8;
+        const clampedTop = Math.min(box.clientHeight - margin, Math.max(margin, desiredTop));
+        tooltip.style.top = `${clampedTop}px`;
+      });
+      dot.addEventListener("mouseleave", () => {
+        tooltip.classList.remove("show");
+      });
+    });
+  }
+
+  function renderPraises() {
+    if (!praiseList) return;
+    praiseList.innerHTML = '';
+    if (!state.praises.length) {
+      praiseList.innerHTML = '<div class="risk-item"><span class="risk-name">暂无表扬</span></div>';
+      return;
+    }
+    state.praises.forEach((r) => {
+      const item = document.createElement('div');
+      item.className = 'risk-item';
+      const main = document.createElement('div');
+      main.className = 'risk-main';
+      const name = document.createElement('div');
+      name.className = 'risk-name';
+      name.textContent = r.name;
+      const meta = document.createElement('div');
+      meta.className = 'risk-meta';
+      meta.textContent = `${r.className} · 提交率 ${r.submit}% · 正确率 ${r.accuracy}%`;
+      main.appendChild(name);
+      main.appendChild(meta);
+      const tag = document.createElement('div');
+      tag.className = 'tag praise';
+      tag.textContent = '表扬';
+      item.appendChild(main);
+      item.appendChild(tag);
+      praiseList.appendChild(item);
+    });
+  }
+
+  function renderTrend(box, items) {
+    if (!box) return;
+    box.innerHTML = '';
+    if (!items.length) {
+      box.innerHTML = '<div class="muted">暂无数据</div>';
+      return;
+    }
+    items.forEach((item) => {
+      const group = document.createElement('div');
+      group.className = 'chart-group';
+
+      const submitBar = document.createElement('div');
+      submitBar.className = 'chart-bar submit';
+      submitBar.style.height = `${item.submit}%`;
+      const submitVal = document.createElement('div');
+      submitVal.className = 'value';
+      submitVal.textContent = `${item.submit}%`;
+      submitBar.appendChild(submitVal);
+
+      const accBar = document.createElement('div');
+      accBar.className = 'chart-bar accuracy';
+      accBar.style.height = `${item.accuracy}%`;
+      const accVal = document.createElement('div');
+      accVal.className = 'value';
+      accVal.textContent = `${item.accuracy}%`;
+      accBar.appendChild(accVal);
+
       const label = document.createElement('div');
       label.className = 'label';
       label.textContent = item.day;
-      bar.appendChild(val);
-      bar.appendChild(label);
-      trendChart.appendChild(bar);
+
+      group.appendChild(submitBar);
+      group.appendChild(accBar);
+      group.appendChild(label);
+      box.appendChild(group);
     });
   }
 
@@ -185,15 +271,38 @@
 
   function renderAll() {
     renderKpi();
-    renderTrend();
+    renderMonthTrendLine(monthTrendChart, state.monthly || []);
+    renderTrend(weekTrendChart, state.weekly || []);
+    renderPraises();
     renderRisks();
     renderTabs();
     renderTable();
   }
 
-  function refresh() {
-    state = buildMock();
-    renderAll();
+  async function refresh() {
+    if (monthTrendChart) monthTrendChart.innerHTML = '<div class="muted">加载中...</div>';
+    if (weekTrendChart) weekTrendChart.innerHTML = '<div class="muted">加载中...</div>';
+    if (praiseList) praiseList.innerHTML = '';
+    riskList.innerHTML = '';
+    classTable.innerHTML = '';
+    classTabs.innerHTML = '';
+    try {
+      const data = await apiGet('/api/class/overview');
+      state = {
+        classData: data.classes || [],
+        monthly: data.monthly || [],
+        weekly: data.weekly || [],
+        praises: data.praises || [],
+        risks: data.risks || [],
+        overview: data.overview || { students: 0, active: 0, submitRate: 0, accuracyAvg: 0, risk: 0 }
+      };
+      renderAll();
+    } catch {
+      if (monthTrendChart) monthTrendChart.innerHTML = '<div class="muted">加载失败</div>';
+      if (weekTrendChart) weekTrendChart.innerHTML = '<div class="muted">加载失败</div>';
+      if (praiseList) praiseList.innerHTML = '<div class="risk-item"><span class="risk-name">加载失败</span></div>';
+      riskList.innerHTML = '<div class="risk-item"><span class="risk-name">加载失败</span></div>';
+    }
   }
 
   btnRefresh?.addEventListener('click', refresh);
@@ -201,5 +310,5 @@
     alert('导出功能可接入后端生成 PDF/Excel，这里仅为示例。');
   });
 
-  renderAll();
+  refresh();
 })();

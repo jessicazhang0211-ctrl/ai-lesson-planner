@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PPT 生成 · AI 辅助备课系统</title>
+  <link rel="stylesheet" href="./css/teacher.css" />
+  <link rel="stylesheet" href="./css/dashboard.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-left" onclick="goHome()">
+    <img src="../assets/logo.png" class="logo" alt="logo" />
+    <span class="system-name" id="appName">AI 辅助备课系统</span>
+  </div>
+
+  <div class="topbar-right">
+    <span class="username">User</span>
+    <img src="../assets/avatar.png" class="avatar" alt="avatar" onclick="toggleUserMenu()" />
+
+    <div class="user-menu" id="userMenu">
+      <div class="menu-item" data-i18n="settings" onclick="goSettings()">设置</div>
+      <div class="menu-item logout" data-i18n="logout" onclick="logout()">退出登录</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
+
+    <nav class="menu">
+      <a class="menu-item" href="./index.html" data-i18n="dashboard">学情分析</a>
+      <a class="menu-item" href="./lesson.html" data-i18n="lesson">教案生成</a>
+      <a class="menu-item active" href="./ppt.html" data-i18n="ppt">PPT 生成</a>
+      <a class="menu-item" href="./exercise.html" data-i18n="exercise">习题设计</a>
+      <a class="menu-item" href="./resource.html" data-i18n="resource">资源管理</a>
+      <a class="menu-item" href="./review.html" data-i18n="review">作业批改</a>
+      <a class="menu-item" href="./class_management.html" data-i18n="class">班级管理</a>
+      <a class="menu-item" href="./settings.html" data-i18n="settings">设置</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <div class="page-head">
+      <h1 class="page-title">PPT 生成</h1>
+      <div class="page-sub">该功能待完成，目前只是一个设想。</div>
+    </div>
+
+    <section class="card" style="padding: 24px;">
+      <div style="font-size: 16px; color: #1f2937; margin-bottom: 6px;">功能说明</div>
+      <div style="color: #6b7280; line-height: 1.6;">
+        这里将来会提供 PPT 模板选择、内容生成与一键导出功能。
+        当前版本仅保留入口，后续会逐步完善。
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="./js/teacher.js"></script>
+</body>
+</html>

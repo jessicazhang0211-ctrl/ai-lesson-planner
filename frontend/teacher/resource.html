@@ -112,6 +112,17 @@
 			<div class="res-pub-list" id="publishedList"></div>
 			<div class="res-pub-empty" id="publishedEmpty" data-i18n-page="pubEmpty">暂无发布记录</div>
 		</section>
+
+		<section class="card res-pub">
+			<div class="res-pub-head">
+				<div class="res-list-title" data-i18n-page="pubLessonTitle">已发布教案</div>
+				<div class="res-actions">
+					<button class="btn ghost" id="btnPubLessonRefresh" data-i18n-page="refresh">刷新</button>
+				</div>
+			</div>
+			<div class="res-pub-list" id="publishedLessonList"></div>
+			<div class="res-pub-empty" id="publishedLessonEmpty" data-i18n-page="pubLessonEmpty">暂无教案发布记录</div>
+		</section>
 	</main>
 </div>
 
@@ -149,6 +160,10 @@
 					<input id="accuracyValue" type="number" min="0" max="100" value="60" />
 					<button class="btn" id="applyAccuracy" data-i18n-page="applyAcc">筛选</button>
 				</div>
+			</div>
+			<div class="modal-row" id="accuracyCountRow">
+				<label data-i18n-page="filterCount">筛选人数</label>
+				<div id="accuracyCount" class="muted">0</div>
 			</div>
 
 			<div class="modal-row" id="studentRow">

@@ -18,6 +18,8 @@ const resourceDict = {
 		empty: "选择左侧资源查看详情",
 		pubTitle: "已发布作业",
 		pubEmpty: "暂无发布记录",
+		pubLessonTitle: "已发布教案",
+		pubLessonEmpty: "暂无教案发布记录",
 		pubClass: "班级",
 		pubDetail: "详情",
 		pubRevoke: "撤销",
@@ -44,6 +46,7 @@ const resourceDict = {
 		modeMixed: "正确率筛选 + 手动调整",
 		accuracy: "正确率",
 		applyAcc: "筛选",
+		filterCount: "筛选人数",
 		students: "学生",
 		cancel: "取消",
 		confirm: "确认发布",
@@ -74,6 +77,8 @@ const resourceDict = {
 		empty: "Select a resource to preview",
 		pubTitle: "Published Assignments",
 		pubEmpty: "No published items",
+		pubLessonTitle: "Published Lessons",
+		pubLessonEmpty: "No published lessons",
 		pubClass: "Class",
 		pubDetail: "Details",
 		pubRevoke: "Revoke",
@@ -100,6 +105,7 @@ const resourceDict = {
 		modeMixed: "Accuracy + manual",
 		accuracy: "Accuracy",
 		applyAcc: "Apply",
+		filterCount: "Filtered",
 		students: "Students",
 		cancel: "Cancel",
 		confirm: "Confirm",
@@ -295,19 +301,20 @@ function renderList() {
 	});
 }
 
-function renderPublishedList() {
-	const list = document.getElementById("publishedList");
-	const empty = document.getElementById("publishedEmpty");
+
+function renderPublishedSection(items, listId, emptyId) {
+	const list = document.getElementById(listId);
+	const empty = document.getElementById(emptyId);
 	if (!list || !empty) return;
 
-	if (!state.published.length) {
+	if (!items.length) {
 		list.innerHTML = "";
 		empty.style.display = "flex";
 		return;
 	}
 
 	empty.style.display = "none";
-	list.innerHTML = state.published.map(item => {
+	list.innerHTML = items.map(item => {
 		const title = item.title || "-";
 		const typeLabel = item.resource_type === "exercise" ? t("pubTypeExercise") : t("pubTypeLesson");
 		const className = item.class_name || "-";
@@ -352,6 +359,13 @@ function renderPublishedList() {
 			}
 		});
 	});
+}
+
+function renderPublishedList() {
+	const exercises = state.published.filter(item => item.resource_type === "exercise");
+	const lessons = state.published.filter(item => item.resource_type === "lesson");
+	renderPublishedSection(exercises, "publishedList", "publishedEmpty");
+	renderPublishedSection(lessons, "publishedLessonList", "publishedLessonEmpty");
 }
 
 async function refreshPublished() {
@@ -557,23 +571,38 @@ function closePublishModal() {
 function setModeUI(mode) {
 	const accuracyRow = document.getElementById("accuracyRow");
 	const studentRow = document.getElementById("studentRow");
+	const countRow = document.getElementById("accuracyCountRow");
 	if (!accuracyRow || !studentRow) return;
 
 	accuracyRow.style.display = (mode === "accuracy" || mode === "mixed") ? "grid" : "none";
 	studentRow.style.display = (mode === "all") ? "none" : "grid";
+	if (countRow) countRow.style.display = (mode === "accuracy" || mode === "mixed") ? "grid" : "none";
 
-	renderStudents(mode === "accuracy");
-}
-
-function renderStudents(disabled) {
-	const box = document.getElementById("studentList");
-	if (!box) return;
-	if (!state.students.length) {
-		box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">${t("selectClass")}</div>`;
+	if (mode === "accuracy" || mode === "mixed") {
+		applyAccuracySelection();
 		return;
 	}
 
-	box.innerHTML = state.students.map(s => {
+	renderStudents(false);
+}
+
+function renderStudents(disabled, listOverride = null) {
+	const box = document.getElementById("studentList");
+	if (!box) return;
+	const countEl = document.getElementById("accuracyCount");
+	if (!state.students.length) {
+		box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">${t("selectClass")}</div>`;
+		if (countEl) countEl.textContent = "0";
+		return;
+	}
+	const list = Array.isArray(listOverride) ? listOverride : state.students;
+	if (countEl) countEl.textContent = String(list.length);
+	if (!list.length) {
+		box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">${t("noData")}</div>`;
+		return;
+	}
+
+	box.innerHTML = list.map(s => {
 		const checked = state.selectedStudentIds.has(s.id) ? "checked" : "";
 		const dis = disabled ? "disabled" : "";
 		const accuracy = s.accuracy == null ? "--" : `${s.accuracy}%`;
@@ -597,18 +626,20 @@ function renderStudents(disabled) {
 	});
 }
 
-function applyAccuracySelection() {
+function getAccuracyFilteredStudents() {
 	const op = document.getElementById("accuracyOp").value;
 	const value = Number(document.getElementById("accuracyValue").value || 0);
+	return state.students
+		.filter(s => typeof s.accuracy === "number")
+		.filter(s => op === "gte" ? s.accuracy >= value : s.accuracy <= value);
+}
 
-	state.selectedStudentIds = new Set(
-		state.students
-			.filter(s => typeof s.accuracy === "number")
-			.filter(s => op === "gte" ? s.accuracy >= value : s.accuracy <= value)
-			.map(s => s.id)
-	);
+function applyAccuracySelection() {
+	const filtered = getAccuracyFilteredStudents();
+	state.selectedStudentIds = new Set(filtered.map(s => s.id));
 	const mode = document.getElementById("publishMode").value;
-	renderStudents(mode === "accuracy");
+	const listOverride = mode === "accuracy" ? filtered : null;
+	renderStudents(mode === "accuracy", listOverride);
 }
 
 async function loadClasses() {
@@ -635,7 +666,7 @@ async function loadStudents(cid) {
 		applyAccuracySelection();
 		return;
 	}
-	renderStudents(mode === "accuracy");
+	renderStudents(false);
 }
 
 async function publishSelected() {
@@ -705,6 +736,7 @@ function bindEvents() {
 	document.getElementById("btnApply").addEventListener("click", applyFilters);
 	document.getElementById("btnRefresh").addEventListener("click", refresh);
 	document.getElementById("btnPubRefresh").addEventListener("click", refreshPublished);
+	document.getElementById("btnPubLessonRefresh").addEventListener("click", refreshPublished);
 	document.getElementById("btnDelete").addEventListener("click", deleteSelected);
 	document.getElementById("btnPublish").addEventListener("click", () => {
 		openPublishModal();
