@@ -25,6 +25,7 @@ def generate_lesson():
     subject = data.get("subject", "")
     topic = data.get("topic", "")
     duration = data.get("duration", "")
+    lesson_count = data.get("lesson_count", "")
     objectives = data.get("objectives", "")
     key_points = data.get("key_points", "")
     activities = data.get("activities", "")
@@ -39,6 +40,7 @@ def generate_lesson():
 学科：{subject}
 课题：{topic}
 课时：{duration} 分钟
+节数：{lesson_count}
 教学目标：{objectives}
 重难点：{key_points}
 教学活动：{activities}
@@ -50,6 +52,8 @@ def generate_lesson():
 四、教学过程
 五、评价与反馈
 六、作业设计
+
+如果节数大于1，请按“第1课时/第2课时...”分节输出，每一节都包含上述六个部分。
 
 请用中文生成完整教案。
 """
@@ -68,6 +72,7 @@ def generate_lesson():
             'grade': grade,
             'subject': subject,
             'duration': duration,
+            'lesson_count': lesson_count,
             'objectives': objectives,
             'key_points': key_points,
             'activities': activities
@@ -86,7 +91,7 @@ def generate_lesson():
         db.session.add(lesson)
         db.session.commit()
 
-        return ok({"lesson_plan": lesson_plan})
+        return ok({"lesson_plan": lesson_plan, "lesson_id": lesson.id})
     except Exception as e:
         print(f"Gemini error: {str(e)}")  # 调试日志
         return err(f"AI 生成失败: {str(e)}", http_status=500)
@@ -137,3 +142,32 @@ def delete_lesson(lesson_id: int):
         return ok({"deleted": True})
     except Exception as e:
         return err(f"删除失败: {str(e)}", http_status=500)
+
+
+@bp.route('/<int:lesson_id>', methods=['PUT'])
+@token_required
+def update_lesson(lesson_id: int):
+    try:
+        user_id = getattr(g, 'current_user_id', None)
+        if not user_id:
+            return err("缺少用户ID", http_status=400)
+        lesson = Lesson.query.get(lesson_id)
+        if not lesson or lesson.created_by != int(user_id):
+            return err("lesson not found", http_status=404)
+
+        data = request.get_json(silent=True) or {}
+        content = (data.get("content") or "").strip()
+        title = data.get("title") or lesson.title
+        meta = data.get("meta") or {}
+
+        if meta:
+            description = f"__META__{json.dumps(meta, ensure_ascii=False)}__\n" + content
+        else:
+            description = content
+
+        lesson.title = title
+        lesson.description = description
+        db.session.commit()
+        return ok({"updated": True})
+    except Exception as e:
+        return err(f"保存失败: {str(e)}", http_status=500)

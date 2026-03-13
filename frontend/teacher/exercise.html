@@ -138,11 +138,13 @@
           <div class="card-title" data-i18n-page="preview">预览</div>
           <div class="preview-actions">
             <a href="#" id="copyBtn" class="link" data-i18n-page="copy">复制</a>
-            <a href="#" id="downloadBtn" class="link" data-i18n-page="download">下载 .txt</a>
+            <a href="#" id="saveBtn" class="link" data-i18n-page="save">保存</a>
+            <a href="#" id="downloadPdfBtn" class="link" data-i18n-page="downloadPdf">下载 PDF</a>
+            <a href="#" id="downloadWordBtn" class="link" data-i18n-page="downloadWord">下载 Word</a>
           </div>
         </div>
 
-        <pre id="output" class="output"></pre>
+        <div id="output" class="output" contenteditable="true" spellcheck="false"></div>
 
         <div class="empty" id="emptyState">
           <div class="empty-title" data-i18n-page="emptyTitle">还没有内容</div>
@@ -154,6 +156,7 @@
 </div>
 
 <script src="./js/teacher.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="./js/exercise.js"></script>
 </body>
 </html>

@@ -1,5 +1,34 @@
 let lessonCache = [];
 let selectedLessonId = null;
+let pdfFontLoaded = false;
+const PDF_FONT_FAMILY = "SanJiZiHaiSongGBK";
+const PDF_FONT_FILE_NORMAL = "SanJiZiHaiSongGBK-2.ttf";
+const PDF_FONT_FILE_BOLD = "SanJiZiHaiSongGBK-2.ttf";
+const PDF_FONT_URL_NORMAL = "../assets/fonts/SanJiZiHaiSongGBK-2.ttf";
+const PDF_FONT_URL_BOLD = "../assets/fonts/SanJiZiHaiSongGBK-2.ttf";
+
+async function ensurePdfFontLoaded(doc) {
+  if (pdfFontLoaded) return;
+  const loadFontFile = async (url) => {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("font load failed");
+    const buffer = await res.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+    let binary = "";
+    for (let i = 0; i < bytes.length; i += 1) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+  };
+
+  const normalBase64 = await loadFontFile(PDF_FONT_URL_NORMAL);
+  const boldBase64 = await loadFontFile(PDF_FONT_URL_BOLD);
+  doc.addFileToVFS(PDF_FONT_FILE_NORMAL, normalBase64);
+  doc.addFileToVFS(PDF_FONT_FILE_BOLD, boldBase64);
+  doc.addFont(PDF_FONT_FILE_NORMAL, PDF_FONT_FAMILY, "normal");
+  doc.addFont(PDF_FONT_FILE_BOLD, PDF_FONT_FAMILY, "bold");
+  pdfFontLoaded = true;
+}
 
 async function renderLessons() {
   const box = document.getElementById("lessonList");
@@ -56,12 +85,18 @@ function openLesson(id) {
   renderLessons();
 }
 
-function downloadLessonPdf() {
+async function downloadLessonPdf() {
   const item = lessonCache.find(x => x.id === selectedLessonId);
   if (!item) return;
   const jspdf = window.jspdf;
   if (!jspdf || !jspdf.jsPDF) return;
   const doc = new jspdf.jsPDF({ unit: "pt", format: "a4" });
+  try {
+    await ensurePdfFontLoaded(doc);
+    doc.setFont(PDF_FONT_FAMILY, "normal");
+  } catch {
+    doc.setFont("helvetica", "normal");
+  }
   const title = item.title || "教案";
   const content = item.content || "";
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -69,10 +104,10 @@ function downloadLessonPdf() {
   const marginX = 40;
   const marginTop = 48;
   const lineHeight = 16;
-  doc.setFont("helvetica", "bold");
+  doc.setFont(doc.getFont().fontName, "bold");
   doc.setFontSize(16);
   doc.text(title, marginX, marginTop);
-  doc.setFont("helvetica", "normal");
+  doc.setFont(doc.getFont().fontName, "normal");
   doc.setFontSize(11);
   const textLines = doc.splitTextToSize(content, pageWidth - marginX * 2);
   let cursorY = marginTop + 24;

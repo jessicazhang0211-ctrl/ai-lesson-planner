@@ -97,6 +97,18 @@
           </select>
         </div>
 
+        <div class="form-row">
+          <label data-i18n-page="lessonCount">节数</label>
+          <select id="lessonCount">
+            <option value="1" selected>1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+          </select>
+        </div>
+
         <div class="card-title mt" data-i18n-page="teachingDesign">教学设计</div>
 
         <div class="form-row">
@@ -138,11 +150,13 @@
           <div class="card-title" data-i18n-page="preview">预览</div>
           <div class="preview-actions">
             <a href="#" id="copyBtn" class="link" data-i18n-page="copy">复制</a>
-            <a href="#" id="downloadBtn" class="link" data-i18n-page="download">下载 .txt</a>
+            <a href="#" id="saveBtn" class="link" data-i18n-page="save">保存</a>
+            <a href="#" id="downloadPdfBtn" class="link" data-i18n-page="downloadPdf">下载 PDF</a>
+            <a href="#" id="downloadWordBtn" class="link" data-i18n-page="downloadWord">下载 Word</a>
           </div>
         </div>
 
-        <pre id="output" class="output"></pre>
+        <div id="output" class="output" contenteditable="true" spellcheck="false"></div>
 
         <div class="empty" id="emptyState">
           <div class="empty-title" data-i18n-page="emptyTitle">还没有内容</div>
@@ -155,6 +169,7 @@
 
 <!-- 公共脚本（登录校验/顶栏侧栏/全局语言/用户信息） -->
 <script src="./js/teacher.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <!-- 教案页面专属脚本 -->
 <script src="./js/lesson.js"></script>
 </body>

@@ -108,7 +108,7 @@ def generate_exercise():
         )
         db.session.add(exercise)
         db.session.commit()
-        return ok({"content": content})
+        return ok({"content": content, "exercise_id": exercise.id})
     except Exception as e:
         return err(f"AI 生成失败: {str(e)}", http_status=500)
 
@@ -158,3 +158,34 @@ def delete_exercise(exercise_id: int):
         return ok({"deleted": True})
     except Exception as e:
         return err(f"删除失败: {str(e)}", http_status=500)
+
+
+@bp.route('/<int:exercise_id>', methods=['PUT'])
+@token_required
+def update_exercise(exercise_id: int):
+    try:
+        user_id = getattr(g, 'current_user_id', None)
+        if not user_id:
+            return err("缺少用户ID", http_status=400)
+        exercise = Exercise.query.get(exercise_id)
+        if not exercise or exercise.created_by != int(user_id):
+            return err("exercise not found", http_status=404)
+
+        data = request.get_json(silent=True) or {}
+        content = (data.get("content") or "").strip()
+        title = data.get("title") or exercise.title
+        meta = data.get("meta") or {}
+
+        if meta:
+            description = f"__META__{json.dumps(meta, ensure_ascii=False)}__\n" + content
+        else:
+            description = content
+
+        exercise.title = title
+        exercise.description = description
+        exercise.content_json = None
+        from app.extensions import db
+        db.session.commit()
+        return ok({"updated": True})
+    except Exception as e:
+        return err(f"保存失败: {str(e)}", http_status=500)
