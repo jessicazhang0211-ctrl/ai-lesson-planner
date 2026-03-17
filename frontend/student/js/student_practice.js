@@ -1,6 +1,45 @@
 let currentPublishId = null;
 let currentQuestions = [];
 
+const practiceDict = {
+  zh: {
+    empty: "(空)",
+    completed: "已完成",
+    saved: "已保存",
+    pending: "待完成",
+    view: "查看",
+    continue: "继续",
+    start: "开始",
+    exercise: "练习",
+    noTask: "暂无可练习的作业",
+    startFailed: "无法开始练习"
+  },
+  en: {
+    empty: "(empty)",
+    completed: "Completed",
+    saved: "Saved",
+    pending: "Pending",
+    view: "View",
+    continue: "Continue",
+    start: "Start",
+    exercise: "Exercise",
+    noTask: "No available assignments",
+    startFailed: "Unable to start practice"
+  }
+};
+const i18n = window.I18N || null;
+if (i18n) i18n.registerDict("studentPractice", practiceDict);
+
+function getLocale() {
+  return i18n ? i18n.getLocale() : (localStorage.getItem("locale") || "zh");
+}
+
+function t(key) {
+  if (i18n) return i18n.t("studentPractice", key, key);
+  const locale = getLocale();
+  return (practiceDict[locale] && practiceDict[locale][key]) || practiceDict.zh[key] || key;
+}
+
 async function renderTasks() {
   const box = document.getElementById("taskList");
   if (!box) return;
@@ -10,18 +49,18 @@ async function renderTasks() {
       .filter(a => a.resource_type === "exercise")
       .filter(a => a.status !== "completed");
     if (!tasks.length) {
-      box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">(empty)</div>`;
+      box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">${t("empty")}</div>`;
       return;
     }
     box.innerHTML = tasks.map(item => {
       const done = item.status === "completed";
       const saved = item.status === "saved";
-      const meta = `${done ? "已完成" : (saved ? "已保存" : "待完成")} · ${item.created_at || ""}`;
-      const btnText = done ? "查看" : (saved ? "继续" : "开始");
+      const meta = `${done ? t("completed") : (saved ? t("saved") : t("pending"))} · ${item.created_at || ""}`;
+      const btnText = done ? t("view") : (saved ? t("continue") : t("start"));
       return `
         <div class="task-item" data-publish-id="${item.publish_id}">
           <div>
-            <div class="task-title">${item.title || "练习"}</div>
+            <div class="task-title">${item.title || t("exercise")}</div>
             <div class="task-meta">${meta}</div>
           </div>
           <button class="btn">${btnText}</button>
@@ -37,7 +76,7 @@ async function renderTasks() {
       });
     });
   } catch {
-    box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">(empty)</div>`;
+    box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">${t("empty")}</div>`;
   }
 }
 
@@ -50,13 +89,13 @@ async function startQuickPractice() {
     const assignments = await apiGet("/api/student/assignments");
     const tasks = (assignments || []).filter(a => a.resource_type === "exercise");
     if (!tasks.length) {
-      alert("暂无可练习的作业");
+      alert(t("noTask"));
       return;
     }
     const pending = tasks.find(t => t.status !== "completed") || tasks[0];
     openExercisePage(Number(pending.publish_id));
   } catch {
-    alert("无法开始练习");
+    alert(t("startFailed"));
   }
 }
 

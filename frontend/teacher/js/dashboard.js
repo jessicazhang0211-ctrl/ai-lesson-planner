@@ -1,6 +1,48 @@
 // API-backed analytics for 学情分析页面
 (function () {
   const API_BASE = "http://127.0.0.1:5000";
+  const dashboardDict = {
+    zh: {
+      noData: "暂无数据",
+      submitRate: "提交率",
+      accuracyRate: "正确率",
+      noPraise: "暂无表扬",
+      noRisk: "暂无预警",
+      praise: "表扬",
+      highRisk: "高风险",
+      watch: "关注",
+      all: "全部",
+      loading: "加载中...",
+      loadFailed: "加载失败",
+      exportHint: "导出功能可接入后端生成 PDF/Excel，这里仅为示例。"
+    },
+    en: {
+      noData: "No data",
+      submitRate: "Submission",
+      accuracyRate: "Accuracy",
+      noPraise: "No praise yet",
+      noRisk: "No alerts",
+      praise: "Praise",
+      highRisk: "High Risk",
+      watch: "Watch",
+      all: "All",
+      loading: "Loading...",
+      loadFailed: "Load failed",
+      exportHint: "Export can be connected to backend PDF/Excel generation. This is a demo prompt."
+    }
+  };
+  const i18n = window.I18N || null;
+  if (i18n) i18n.registerDict("teacherDashboard", dashboardDict);
+
+  function getLocale() {
+    return i18n ? i18n.getLocale() : (localStorage.getItem("locale") || "zh");
+  }
+
+  function t(key) {
+    if (i18n) return i18n.t("teacherDashboard", key, key);
+    const locale = getLocale();
+    return (dashboardDict[locale] && dashboardDict[locale][key]) || dashboardDict.zh[key] || key;
+  }
   const kpiStudents = document.getElementById('kpiStudents');
   const kpiActiveHint = document.getElementById('kpiActiveHint');
   const kpiSubmit = document.getElementById('kpiSubmit');
@@ -55,7 +97,7 @@
     if (!box) return;
     box.innerHTML = '';
     if (!items.length) {
-      box.innerHTML = '<div class="muted">暂无数据</div>';
+      box.innerHTML = `<div class="muted">${t("noData")}</div>`;
       return;
     }
     const width = 720;
@@ -113,7 +155,7 @@
         const type = dot.getAttribute("data-type");
         const day = dot.getAttribute("data-day") || "";
         const value = dot.getAttribute("data-value") || "0";
-        const label = type === "submit" ? "提交率" : "正确率";
+        const label = type === "submit" ? t("submitRate") : t("accuracyRate");
         const boxRect = box.getBoundingClientRect();
         const dotRect = dot.getBoundingClientRect();
         const x = dotRect.left - boxRect.left + dotRect.width / 2;
@@ -140,7 +182,7 @@
     if (!praiseList) return;
     praiseList.innerHTML = '';
     if (!state.praises.length) {
-      praiseList.innerHTML = '<div class="risk-item"><span class="risk-name">暂无表扬</span></div>';
+      praiseList.innerHTML = `<div class="risk-item"><span class="risk-name">${t("noPraise")}</span></div>`;
       return;
     }
     state.praises.forEach((r) => {
@@ -153,12 +195,12 @@
       name.textContent = r.name;
       const meta = document.createElement('div');
       meta.className = 'risk-meta';
-      meta.textContent = `${r.className} · 提交率 ${r.submit}% · 正确率 ${r.accuracy}%`;
+      meta.textContent = `${r.className} · ${t("submitRate")} ${r.submit}% · ${t("accuracyRate")} ${r.accuracy}%`;
       main.appendChild(name);
       main.appendChild(meta);
       const tag = document.createElement('div');
       tag.className = 'tag praise';
-      tag.textContent = '表扬';
+      tag.textContent = t("praise");
       item.appendChild(main);
       item.appendChild(tag);
       praiseList.appendChild(item);
@@ -169,7 +211,7 @@
     if (!box) return;
     box.innerHTML = '';
     if (!items.length) {
-      box.innerHTML = '<div class="muted">暂无数据</div>';
+      box.innerHTML = `<div class="muted">${t("noData")}</div>`;
       return;
     }
     items.forEach((item) => {
@@ -206,7 +248,7 @@
   function renderRisks() {
     riskList.innerHTML = '';
     if (!state.risks.length) {
-      riskList.innerHTML = '<div class="risk-item"><span class="risk-name">暂无预警</span></div>';
+      riskList.innerHTML = `<div class="risk-item"><span class="risk-name">${t("noRisk")}</span></div>`;
       return;
     }
     state.risks.forEach((r) => {
@@ -219,12 +261,12 @@
       name.textContent = r.name;
       const meta = document.createElement('div');
       meta.className = 'risk-meta';
-      meta.textContent = `${r.className} · 提交率 ${r.submit}% · 正确率 ${r.accuracy}%`;
+      meta.textContent = `${r.className} · ${t("submitRate")} ${r.submit}% · ${t("accuracyRate")} ${r.accuracy}%`;
       main.appendChild(name);
       main.appendChild(meta);
       const tag = document.createElement('div');
       tag.className = `tag ${r.tag}`;
-      tag.textContent = r.tag === 'danger' ? '高风险' : '关注';
+      tag.textContent = r.tag === 'danger' ? t("highRisk") : t("watch");
       item.appendChild(main);
       item.appendChild(tag);
       riskList.appendChild(item);
@@ -233,7 +275,7 @@
 
   function renderTabs() {
     classTabs.innerHTML = '';
-    const allBtn = makeTab('全部', true);
+    const allBtn = makeTab(t("all"), true);
     classTabs.appendChild(allBtn);
     state.classData.forEach((c) => classTabs.appendChild(makeTab(c.name)));
   }
@@ -245,7 +287,7 @@
     btn.addEventListener('click', () => {
       Array.from(classTabs.querySelectorAll('button')).forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
-      renderTable(label === '全部' ? null : label);
+      renderTable(label === t("all") ? null : label);
     });
     return btn;
   }
@@ -280,8 +322,8 @@
   }
 
   async function refresh() {
-    if (monthTrendChart) monthTrendChart.innerHTML = '<div class="muted">加载中...</div>';
-    if (weekTrendChart) weekTrendChart.innerHTML = '<div class="muted">加载中...</div>';
+    if (monthTrendChart) monthTrendChart.innerHTML = `<div class="muted">${t("loading")}</div>`;
+    if (weekTrendChart) weekTrendChart.innerHTML = `<div class="muted">${t("loading")}</div>`;
     if (praiseList) praiseList.innerHTML = '';
     riskList.innerHTML = '';
     classTable.innerHTML = '';
@@ -298,16 +340,20 @@
       };
       renderAll();
     } catch {
-      if (monthTrendChart) monthTrendChart.innerHTML = '<div class="muted">加载失败</div>';
-      if (weekTrendChart) weekTrendChart.innerHTML = '<div class="muted">加载失败</div>';
-      if (praiseList) praiseList.innerHTML = '<div class="risk-item"><span class="risk-name">加载失败</span></div>';
-      riskList.innerHTML = '<div class="risk-item"><span class="risk-name">加载失败</span></div>';
+      if (monthTrendChart) monthTrendChart.innerHTML = `<div class="muted">${t("loadFailed")}</div>`;
+      if (weekTrendChart) weekTrendChart.innerHTML = `<div class="muted">${t("loadFailed")}</div>`;
+      if (praiseList) praiseList.innerHTML = `<div class="risk-item"><span class="risk-name">${t("loadFailed")}</span></div>`;
+      riskList.innerHTML = `<div class="risk-item"><span class="risk-name">${t("loadFailed")}</span></div>`;
     }
   }
 
   btnRefresh?.addEventListener('click', refresh);
   btnExport?.addEventListener('click', () => {
-    alert('导出功能可接入后端生成 PDF/Excel，这里仅为示例。');
+    alert(t("exportHint"));
+  });
+
+  window.addEventListener("app:locale-changed", () => {
+    renderAll();
   });
 
   refresh();

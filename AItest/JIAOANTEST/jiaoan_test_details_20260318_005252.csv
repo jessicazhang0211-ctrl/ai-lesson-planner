@@ -1,0 +1,49 @@
+task_id,provider,model,http_code,status,latency_ms,json_parse_ok,judge_status,content_completeness,age_appropriateness,teaching_design_quality,json_structure_usability,low_age_support_strategy,resource_recommendation_quality,ai_intelligence,total_score,brief_reason
+Y1-T1,OpenAI,gpt-5.4,200,OK,160190.82,True,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T2,OpenAI,gpt-5.4,400,HTTP_ERROR,8754.62,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y1-T3,OpenAI,gpt-5.4,200,OK,130166.55,True,ok,16,19,17,8,10,9,4,83,内容详尽且适龄，教学设计清晰；但文档末端有截断，结构不完整。
+Y1-T4,OpenAI,gpt-5.4,200,OK,158625.64,True,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T5,OpenAI,gpt-5.4,200,OK,215574.55,True,ok,19,18,19,13,10,9,4,92,内容详尽、环节清晰、支持策略充足，少量结构冗余与年龄标注可更准确
+Y1-T6,OpenAI,gpt-5.4,200,OK,174145.91,True,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T1,OpenAI,gpt-5-mini,200,OK,94194.25,True,ok,19,20,19,14,10,9,4,95,内容详尽、环节衔接良好，低龄支持与活动丰富；略有少量信息重复与外部资源泛化。
+Y1-T2,OpenAI,gpt-5-mini,200,OK,96736.66,True,ok,17,18,18,13,9,9,4,88,内容全面、教学递进与支架清晰，资源匹配良好，适合低龄课堂，局部可精简与补充作业。
+Y1-T3,OpenAI,gpt-5-mini,200,OK,85232.37,True,ok,18,19,19,13,9,9,4,91,内容详实、环节清晰且适龄支持充分，仅有少量细节截断可补。
+Y1-T4,OpenAI,gpt-5-mini,200,OK,82433.35,True,ok,18,20,19,13,9,9,4,92,内容详尽、适龄且教学递进清晰，资源和支架充分，略有轻微模板痕迹。
+Y1-T5,OpenAI,gpt-5-mini,200,OK,82918.57,True,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T6,OpenAI,gpt-5-mini,200,OK,94254.22,True,judge_http_520,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T1,Anthropic,Claude Opus 4.6,200,OK,22489.37,False,ok,12,18,14,10,9,7,3,73,内容较完整，年龄适配好，教学设计和资源细节不足
+Y1-T2,Anthropic,Claude Opus 4.6,200,OK,23228.51,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T3,Anthropic,Claude Opus 4.6,200,OK,32205.2,False,ok,14,18,15,12,9,7,4,79,内容详实但缺明确学习目标与评估细则；教学设计贴合低龄，有操作与口语支架；资源建议不够具体。
+Y1-T4,Anthropic,Claude Opus 4.6,200,OK,22073.53,False,ok,15,18,15,11,9,7,4,79,内容具体且贴近低龄，缺少完整教学流程、评估与资源清单。
+Y1-T5,Anthropic,Claude Opus 4.6,200,OK,21223.72,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T6,Anthropic,Claude Opus 4.6,200,OK,23355.81,False,ok,12,18,15,6,9,6,3,69,内容较完整、适龄且有支架；但JSON不完整，评估与资源细节不足
+Y1-T1,Anthropic,Claude Sonnet 4.6,200,OK,22134.73,False,ok,10,17,15,12,9,7,3,73,适龄且有清晰支架与低龄策略，但文本被截断，缺评价与资源细节。
+Y1-T2,Anthropic,Claude Sonnet 4.6,200,OK,25164.47,False,ok,15,19,16,12,9,7,4,82,内容详实且适龄，教学设计清晰；评估与资源细化不足
+Y1-T3,Anthropic,Claude Sonnet 4.6,200,OK,21101.83,False,ok,8,17,14,11,9,6,3,68,儿童化设计到位，有支架与活动，但文档不完整，缺评估与资源清单
+Y1-T4,Anthropic,Claude Sonnet 4.6,200,OK,19679.25,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T5,Anthropic,Claude Sonnet 4.6,200,OK,23098.66,False,ok,14,18,15,10,9,6,3,75,内容详实但截断，目标与评价不够完整，适龄与教学策略较好。
+Y1-T6,Anthropic,Claude Sonnet 4.6,200,OK,24116.1,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T1,Google,Gemini 2.5 Pro,200,OK,37799.29,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T2,Google,Gemini 2.5 Pro,200,OK,40130.65,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T3,Google,Gemini 2.5 Pro,200,OK,40065.89,False,ok,16,19,15,6,9,8,3,76,内容较全、贴合低龄但流程与差异化不够，JSON被截断影响可用性。
+Y1-T4,Google,Gemini 2.5 Pro,200,OK,38682.2,False,ok,14,18,14,12,9,7,4,78,内容较详实但结尾被截断，年龄适配与低龄支持良好，教学与资源细节可再完善。
+Y1-T5,Google,Gemini 2.5 Pro,200,OK,40624.13,False,ok,15,18,15,9,9,9,3,78,内容详尽且切合低龄，但教案末尾被截断，缺少完整教学流程与差异化细节。
+Y1-T6,Google,Gemini 2.5 Pro,200,OK,41081.58,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T1,Google,Gemini 2.5 Flash,200,OK,5606.88,False,ok,3,3,1,0,0,0,0,7,输出不完整且JSON无效，缺少教学目标、流程、评价与资源。
+Y1-T2,Google,Gemini 2.5 Flash,200,OK,5195.32,False,ok,2,3,2,2,1,1,1,12,输出被截断，缺少目标、流程、评价与资源，无法完整评审。
+Y1-T3,Google,Gemini 2.5 Flash,200,OK,5268.27,False,ok,2,6,2,1,1,1,0,13,教案严重不完整，缺教学流程与资源，且JSON无效
+Y1-T4,Google,Gemini 2.5 Flash,200,OK,4632.23,False,ok,3,4,2,1,1,1,0,12,输出被截断，缺少教学流程、评价与资源等关键内容，年龄与支持措施不足。
+Y1-T5,Google,Gemini 2.5 Flash,200,OK,5384.01,False,ok,3,4,2,2,2,1,1,15,文本被截断，关键教学要素与儿童支持策略缺失，结构不可用。
+Y1-T6,Google,Gemini 2.5 Flash,200,OK,5504.29,False,ok,2,3,1,3,1,1,0,11,内容严重缺失，仅有元数据，缺少教学目标、流程与资源等关键要素。
+Y1-T1,DeepSeek,deepseek-reasoner,200,OK,149440.25,False,ok,18,19,13,13,9,9,4,85,内容全面且适龄，支持策略与资源匹配；教学流程部分被截断，练习与小结不够完整。
+Y1-T2,DeepSeek,deepseek-reasoner,200,OK,140425.18,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T3,DeepSeek,deepseek-reasoner,200,OK,139188.9,False,ok,0,0,0,0,0,0,0,0,候选教案缺失，未提供目标/流程/资源等内容，无法评分
+Y1-T4,DeepSeek,deepseek-reasoner,200,OK,134813.02,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T5,DeepSeek,deepseek-reasoner,200,OK,133471.81,False,ok,15,18,15,8,9,9,3,77,内容较完整且适龄，有实践与词汇支持，但教案与JSON被截断，影响可用性
+Y1-T6,DeepSeek,deepseek-reasoner,200,OK,136582.05,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T1,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24083.16,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T2,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24104.51,False,ok,12,18,13,5,8,7,4,67,内容较全面有支架与活动建议，但目标截断与JSON不完整。
+Y1-T3,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24222.46,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T4,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24237.99,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T5,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24337.66,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T6,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24059.75,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback

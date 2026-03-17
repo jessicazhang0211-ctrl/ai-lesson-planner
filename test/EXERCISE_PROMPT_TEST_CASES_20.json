@@ -1,0 +1,306 @@
+{
+  "suite": "exercise_prompt_generation",
+  "api": "/api/exercise/generate",
+  "method": "POST",
+  "count": 20,
+  "cases": [
+    {
+      "case_id": "E001",
+      "name": "grade1_addition_single_choice",
+      "payload": {
+        "grade": "一年级",
+        "subject": "数学",
+        "topic": "20以内加法",
+        "types": ["single"],
+        "difficulty": "简单",
+        "count": 10,
+        "includeAnswer": true
+      },
+      "expected": {
+        "http_status": 200,
+        "output_should_be_json": true,
+        "questions_min": 10
+      }
+    },
+    {
+      "case_id": "E002",
+      "name": "grade2_mixed_objective_types",
+      "payload": {
+        "grade": "二年级",
+        "subject": "数学",
+        "topic": "表内乘法",
+        "types": ["single", "true_false", "fill"],
+        "difficulty": "中等",
+        "count": 12,
+        "includeAnswer": true
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "E003",
+      "name": "grade3_multi_choice",
+      "payload": {
+        "grade": "三年级",
+        "subject": "数学",
+        "topic": "周长计算",
+        "types": ["multi"],
+        "difficulty": "中等",
+        "count": 8,
+        "includeAnswer": true
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "E004",
+      "name": "grade4_true_false",
+      "payload": {
+        "grade": "四年级",
+        "subject": "数学",
+        "topic": "小数意义",
+        "types": ["true_false"],
+        "difficulty": "简单",
+        "count": 15,
+        "includeAnswer": true
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "E005",
+      "name": "grade5_fill_blank",
+      "payload": {
+        "grade": "五年级",
+        "subject": "数学",
+        "topic": "分数约分",
+        "types": ["fill"],
+        "difficulty": "中等",
+        "count": 10,
+        "includeAnswer": true
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "E006",
+      "name": "grade6_short_answer",
+      "payload": {
+        "grade": "六年级",
+        "subject": "数学",
+        "topic": "比例应用",
+        "types": ["short"],
+        "difficulty": "较难",
+        "count": 6,
+        "includeAnswer": true
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "E007",
+      "name": "mixed_all_types",
+      "payload": {
+        "grade": "六年级",
+        "subject": "数学",
+        "topic": "综合复习",
+        "types": ["single", "multi", "true_false", "fill", "short"],
+        "difficulty": "中等",
+        "count": 20,
+        "includeAnswer": true
+      },
+      "expected": {
+        "http_status": 200,
+        "questions_min": 20
+      }
+    },
+    {
+      "case_id": "E008",
+      "name": "english_prompt_payload",
+      "payload": {
+        "grade": "Grade 5",
+        "subject": "Math",
+        "topic": "Equivalent Fractions",
+        "types": ["single", "fill"],
+        "difficulty": "medium",
+        "count": 10,
+        "includeAnswer": true
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "E009",
+      "name": "count_as_string",
+      "payload": {
+        "grade": "三年级",
+        "subject": "数学",
+        "topic": "时分秒",
+        "types": ["single"],
+        "difficulty": "简单",
+        "count": "10",
+        "includeAnswer": true
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "E010",
+      "name": "empty_types_array",
+      "payload": {
+        "grade": "四年级",
+        "subject": "数学",
+        "topic": "小数加减",
+        "types": [],
+        "difficulty": "中等",
+        "count": 10,
+        "includeAnswer": true
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "E011",
+      "name": "zero_count_boundary",
+      "payload": {
+        "grade": "二年级",
+        "subject": "数学",
+        "topic": "长度单位",
+        "types": ["single"],
+        "difficulty": "简单",
+        "count": 0,
+        "includeAnswer": true
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "E012",
+      "name": "negative_count_boundary",
+      "payload": {
+        "grade": "二年级",
+        "subject": "数学",
+        "topic": "长度单位",
+        "types": ["single"],
+        "difficulty": "简单",
+        "count": -5,
+        "includeAnswer": true
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "E013",
+      "name": "very_high_count_stress",
+      "payload": {
+        "grade": "五年级",
+        "subject": "数学",
+        "topic": "小数乘法",
+        "types": ["single", "fill"],
+        "difficulty": "中等",
+        "count": 50,
+        "includeAnswer": true
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "E014",
+      "name": "topic_empty_string",
+      "payload": {
+        "grade": "三年级",
+        "subject": "数学",
+        "topic": "",
+        "types": ["single"],
+        "difficulty": "中等",
+        "count": 10,
+        "includeAnswer": true
+      },
+      "expected": {
+        "http_status": 200,
+        "note": "current API does not hard fail on empty topic"
+      }
+    },
+    {
+      "case_id": "E015",
+      "name": "difficulty_uncommon_text",
+      "payload": {
+        "grade": "六年级",
+        "subject": "数学",
+        "topic": "圆锥体积",
+        "types": ["single", "short"],
+        "difficulty": "奥赛",
+        "count": 10,
+        "includeAnswer": true
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "E016",
+      "name": "cross_subject_science",
+      "payload": {
+        "grade": "五年级",
+        "subject": "科学",
+        "topic": "杠杆与滑轮",
+        "types": ["single", "true_false"],
+        "difficulty": "中等",
+        "count": 10,
+        "includeAnswer": true
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "E017",
+      "name": "unicode_and_symbols_topic",
+      "payload": {
+        "grade": "四年级",
+        "subject": "数学",
+        "topic": "统计图 #A + 应用",
+        "types": ["single", "fill"],
+        "difficulty": "中等",
+        "count": 10,
+        "includeAnswer": true
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "E018",
+      "name": "include_answer_false",
+      "payload": {
+        "grade": "四年级",
+        "subject": "数学",
+        "topic": "平均数",
+        "types": ["single", "multi"],
+        "difficulty": "中等",
+        "count": 10,
+        "includeAnswer": false
+      },
+      "expected": {
+        "http_status": 200,
+        "note": "backend prompt currently does not branch by includeAnswer"
+      }
+    },
+    {
+      "case_id": "E019",
+      "name": "types_as_string_invalid_shape",
+      "payload": {
+        "grade": "三年级",
+        "subject": "数学",
+        "topic": "分数初步",
+        "types": "single,multi",
+        "difficulty": "中等",
+        "count": 10,
+        "includeAnswer": true
+      },
+      "expected": {
+        "http_status": 500,
+        "note": "expected join error when types is not array"
+      }
+    },
+    {
+      "case_id": "E020",
+      "name": "missing_types_field",
+      "payload": {
+        "grade": "三年级",
+        "subject": "数学",
+        "topic": "分数初步",
+        "difficulty": "中等",
+        "count": 10,
+        "includeAnswer": true
+      },
+      "expected": {
+        "http_status": 200,
+        "note": "backend defaults types to empty list"
+      }
+    }
+  ]
+}

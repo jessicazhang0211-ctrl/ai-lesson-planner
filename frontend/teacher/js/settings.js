@@ -59,6 +59,8 @@ const settingsDict = {
     saveFail: "保存失败，请重试",
     pwdMismatch: "两次输入的新密码不一致",
     pwdWrong: "当前密码错误",
+    pwdFieldsRequired: "请填写所有密码字段",
+    loadUserFail: "无法加载用户信息，请重新登录"
   },
 
   en: {
@@ -118,6 +120,8 @@ const settingsDict = {
     saveFail: "Save failed. Please try again.",
     pwdMismatch: "New passwords do not match",
     pwdWrong: "Current password is wrong",
+    pwdFieldsRequired: "Please fill in all password fields",
+    loadUserFail: "Unable to load user information. Please sign in again"
   }
 };
 
@@ -299,7 +303,7 @@ function renderAccountPanel(panel) {
     const confirmPwd = document.getElementById("confirmPwd").value.trim();
 
     if (!curPwd || !newPwd || !confirmPwd) {
-      alert("请填写所有密码字段");
+      alert(t("pwdFieldsRequired"));
       return;
     }
     if (newPwd !== confirmPwd) {
@@ -350,7 +354,9 @@ function renderLanguagePanel(panel) {
 
   document.getElementById("savePrefs").addEventListener("click", (e) => {
     e.preventDefault();
-    localStorage.setItem("locale", document.getElementById("langSelect").value);
+    const nextLocale = document.getElementById("langSelect").value;
+    if (window.I18N) window.I18N.setLocale(nextLocale);
+    else localStorage.setItem("locale", nextLocale);
 
     if (typeof applySystemSettings === "function") applySystemSettings();
     if (typeof applyTeacherLang === "function") applyTeacherLang();
@@ -554,7 +560,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadMe();
   } catch (e) {
     console.error("loadMe failed", e);
-    alert("无法加载用户信息，请重新登录");
+    alert(t("loadUserFail"));
     me = {}; // 设置为空对象以显示默认内容
   }
 

@@ -1,3 +1,26 @@
+const studentSettingsDict = {
+  zh: {
+    pwdMismatch: "两次输入的新密码不一致",
+    saved: "设置已保存"
+  },
+  en: {
+    pwdMismatch: "The two new passwords do not match",
+    saved: "Settings saved"
+  }
+};
+const i18n = window.I18N || null;
+if (i18n) i18n.registerDict("studentSettings", studentSettingsDict);
+
+function getLocale() {
+  return i18n ? i18n.getLocale() : (localStorage.getItem("locale") || "zh");
+}
+
+function t(key) {
+  if (i18n) return i18n.t("studentSettings", key, key);
+  const locale = getLocale();
+  return (studentSettingsDict[locale] && studentSettingsDict[locale][key]) || studentSettingsDict.zh[key] || key;
+}
+
 function loadSettings() {
   const signature = localStorage.getItem("student_signature") || "";
   const avatar = localStorage.getItem("student_avatar") || "";
@@ -39,12 +62,12 @@ function bindSettingsEvents() {
     const confirmPwd = document.getElementById("passwordConfirm").value;
     if (newPwd || confirmPwd) {
       if (newPwd !== confirmPwd) {
-        alert("两次输入的新密码不一致");
+        alert(t("pwdMismatch"));
         return;
       }
       localStorage.setItem("student_password", newPwd);
     }
-    alert("设置已保存");
+    alert(t("saved"));
   });
 }
 

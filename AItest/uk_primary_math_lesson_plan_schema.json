@@ -1,0 +1,480 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/uk_primary_math_lesson_plan.schema.json",
+  "title": "UK Primary Mathematics Lesson Plan Schema",
+  "description": "Structured JSON output for a teacher-facing AI lesson planning assistant aligned to primary mathematics in England.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "metadata",
+    "learner_profile",
+    "objectives",
+    "prerequisite_knowledge",
+    "common_misconceptions",
+    "representations_and_resources",
+    "mathematical_talk",
+    "lesson_flow",
+    "differentiation",
+    "practice_tasks",
+    "assessment",
+    "safeguarding_and_privacy"
+  ],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "locale",
+        "jurisdiction",
+        "key_stage",
+        "year_group",
+        "topic",
+        "lesson_title",
+        "duration_minutes",
+        "teacher_review_required",
+        "curriculum_refs"
+      ],
+      "properties": {
+        "locale": {
+          "type": "string",
+          "const": "en-GB"
+        },
+        "jurisdiction": {
+          "type": "string",
+          "const": "England"
+        },
+        "key_stage": {
+          "type": "string",
+          "enum": [
+            "KS1",
+            "Lower KS2",
+            "Upper KS2"
+          ]
+        },
+        "year_group": {
+          "type": "string",
+          "enum": [
+            "Year 1",
+            "Year 2",
+            "Year 3",
+            "Year 4",
+            "Year 5",
+            "Year 6"
+          ]
+        },
+        "topic": {
+          "type": "string",
+          "minLength": 3
+        },
+        "lesson_title": {
+          "type": "string",
+          "minLength": 3
+        },
+        "duration_minutes": {
+          "type": "integer",
+          "minimum": 20,
+          "maximum": 90
+        },
+        "teacher_review_required": {
+          "type": "boolean",
+          "const": true
+        },
+        "curriculum_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 2
+          }
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "learner_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "typical_age_range",
+        "attainment_profile",
+        "prior_learning_summary",
+        "cognitive_load_notes"
+      ],
+      "properties": {
+        "typical_age_range": {
+          "type": "string",
+          "minLength": 3
+        },
+        "attainment_profile": {
+          "type": "string",
+          "minLength": 3
+        },
+        "prior_learning_summary": {
+          "type": "string",
+          "minLength": 3
+        },
+        "send_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "eal_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cognitive_load_notes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "objectives": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "learning_objective",
+        "success_criteria",
+        "key_vocabulary"
+      ],
+      "properties": {
+        "learning_objective": {
+          "type": "string",
+          "minLength": 5
+        },
+        "success_criteria": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "key_vocabulary": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 2
+          }
+        }
+      }
+    },
+    "prerequisite_knowledge": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 3
+      }
+    },
+    "common_misconceptions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 3
+      }
+    },
+    "representations_and_resources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "representation",
+          "purpose"
+        ],
+        "properties": {
+          "representation": {
+            "type": "string",
+            "minLength": 3
+          },
+          "resource": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string",
+            "minLength": 3
+          }
+        }
+      }
+    },
+    "mathematical_talk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sentence_stems",
+        "teacher_questions"
+      ],
+      "properties": {
+        "sentence_stems": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "teacher_questions": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        }
+      }
+    },
+    "lesson_flow": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "$ref": "#/$defs/lesson_step"
+      }
+    },
+    "differentiation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "support",
+        "core",
+        "stretch"
+      ],
+      "properties": {
+        "support": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "core": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "stretch": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "send_support": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "eal_support": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "practice_tasks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "guided_practice",
+        "independent_practice"
+      ],
+      "properties": {
+        "guided_practice": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/task_item"
+          }
+        },
+        "independent_practice": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/task_item"
+          }
+        },
+        "homework_optional": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/task_item"
+          }
+        }
+      }
+    },
+    "assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hinge_question",
+        "exit_ticket",
+        "evidence_to_collect"
+      ],
+      "properties": {
+        "hinge_question": {
+          "type": "string",
+          "minLength": 5
+        },
+        "exit_ticket": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "evidence_to_collect": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        }
+      }
+    },
+    "safeguarding_and_privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "teacher_review_required",
+        "pii_expected",
+        "safe_release_notes"
+      ],
+      "properties": {
+        "teacher_review_required": {
+          "type": "boolean",
+          "const": true
+        },
+        "pii_expected": {
+          "type": "boolean",
+          "const": false
+        },
+        "safe_release_notes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        }
+      }
+    },
+    "citations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "lesson_step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "phase",
+        "minutes",
+        "teacher_actions",
+        "pupil_actions",
+        "questions",
+        "checking_for_understanding"
+      ],
+      "properties": {
+        "phase": {
+          "type": "string",
+          "enum": [
+            "retrieval",
+            "input",
+            "guided_practice",
+            "independent_practice",
+            "plenary"
+          ]
+        },
+        "minutes": {
+          "type": "integer",
+          "minimum": 3,
+          "maximum": 30
+        },
+        "teacher_actions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "pupil_actions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "questions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "checking_for_understanding": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        }
+      }
+    },
+    "task_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_name",
+        "prompt",
+        "expected_focus"
+      ],
+      "properties": {
+        "task_name": {
+          "type": "string",
+          "minLength": 3
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 3
+        },
+        "expected_focus": {
+          "type": "string",
+          "minLength": 3
+        },
+        "support_scaffold": {
+          "type": "string"
+        },
+        "stretch_extension": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

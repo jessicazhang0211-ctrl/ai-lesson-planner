@@ -7,6 +7,75 @@ let currentAutoScore = null;
 let currentTotalScore = null;
 let reviewMode = false;
 
+const practiceDoDict = {
+  zh: {
+    empty: "(空)",
+    correct: "正确",
+    wrong: "错误",
+    partial: "不全对",
+    pending: "待批改",
+    tfTrue: "正确",
+    tfFalse: "错误",
+    analysis: "解析",
+    correctAnswer: "正确答案",
+    teacherScore: "老师评分",
+    yourAnswer: "你的答案",
+    autoScore: "自动得分",
+    totalScore: "总分",
+    submitted: "该作业已提交。",
+    submittedWithMeta: "该作业已提交。{meta}",
+    submittedHint: "可返回练习列表查看状态。",
+    savedHint: "已保存，可继续作答后提交。",
+    homework: "作业",
+    status: "状态",
+    loadFailed: "无法加载作业",
+    saveFailed: "保存失败",
+    saveSuccess: "保存成功",
+    submitFailed: "提交失败",
+    submitSuccess: "提交成功，已自动批改选择题和填空题",
+    graded: "已批改"
+  },
+  en: {
+    empty: "(empty)",
+    correct: "Correct",
+    wrong: "Wrong",
+    partial: "Partial",
+    pending: "Pending review",
+    tfTrue: "True",
+    tfFalse: "False",
+    analysis: "Explanation",
+    correctAnswer: "Correct answer",
+    teacherScore: "Teacher score",
+    yourAnswer: "Your answer",
+    autoScore: "Auto score",
+    totalScore: "Total score",
+    submitted: "This assignment has been submitted.",
+    submittedWithMeta: "This assignment has been submitted. {meta}",
+    submittedHint: "You can return to the list to check status.",
+    savedHint: "Saved. You can continue and submit later.",
+    homework: "Homework",
+    status: "Status",
+    loadFailed: "Unable to load assignment",
+    saveFailed: "Save failed",
+    saveSuccess: "Saved",
+    submitFailed: "Submit failed",
+    submitSuccess: "Submitted. Objective questions were graded automatically.",
+    graded: "graded"
+  }
+};
+const i18n = window.I18N || null;
+if (i18n) i18n.registerDict("studentPracticeDo", practiceDoDict);
+
+function getLocale() {
+  return i18n ? i18n.getLocale() : (localStorage.getItem("locale") || "zh");
+}
+
+function t(key) {
+  if (i18n) return i18n.t("studentPracticeDo", key, key);
+  const locale = getLocale();
+  return (practiceDoDict[locale] && practiceDoDict[locale][key]) || practiceDoDict.zh[key] || key;
+}
+
 function getPublishId() {
   const params = new URLSearchParams(window.location.search);
   const raw = params.get("publish_id");
@@ -28,7 +97,7 @@ function renderExercise(questions, draftAnswers) {
   const body = document.getElementById("exerciseBody");
   if (!body) return;
   if (!questions.length) {
-    body.innerHTML = "<div style='color:#8a8f98;font-size:12px;'>(empty)</div>";
+    body.innerHTML = `<div style='color:#8a8f98;font-size:12px;'>${t("empty")}</div>`;
     return;
   }
   const draft = draftAnswers || {};
@@ -37,7 +106,7 @@ function renderExercise(questions, draftAnswers) {
     const qid = q.id || `q${idx + 1}`;
     const type = (q.type || "").toLowerCase();
     const result = getDisplayResult(q, qid);
-    const statusTag = result ? `<span class="q-status ${result}">${result === "correct" ? "正确" : (result === "wrong" ? "错误" : (result === "partial" ? "不全对" : "待批改"))}</span>` : "";
+    const statusTag = result ? `<span class="q-status ${result}">${result === "correct" ? t("correct") : (result === "wrong" ? t("wrong") : (result === "partial" ? t("partial") : t("pending")) )}</span>` : "";
     let inputHtml = "";
     if (type === "single" && Array.isArray(q.options)) {
       inputHtml = q.options.map((op, i) => {
@@ -64,10 +133,10 @@ function renderExercise(questions, draftAnswers) {
       const v = String(draft[qid] || "");
       inputHtml = `
         <label class="answer-option">
-          <input type="radio" name="${qid}" value="true" ${v === "true" ? "checked" : ""} ${locked ? "disabled" : ""} /> 正确
+          <input type="radio" name="${qid}" value="true" ${v === "true" ? "checked" : ""} ${locked ? "disabled" : ""} /> ${t("tfTrue")}
         </label>
         <label class="answer-option">
-          <input type="radio" name="${qid}" value="false" ${v === "false" ? "checked" : ""} ${locked ? "disabled" : ""} /> 错误
+          <input type="radio" name="${qid}" value="false" ${v === "false" ? "checked" : ""} ${locked ? "disabled" : ""} /> ${t("tfFalse")}
         </label>
       `;
     } else if (type === "fill") {
@@ -77,13 +146,13 @@ function renderExercise(questions, draftAnswers) {
       const v = typeof draft[qid] === "string" ? draft[qid] : "";
       inputHtml = `<textarea name="${qid}" class="answer-text" ${locked ? "readonly" : ""}>${v}</textarea>`;
     }
-    const analysisHtml = (reviewMode && result !== "correct" && q.analysis) ? `<div class="review-analysis">解析：${q.analysis}</div>` : "";
-    const answerHtml = (reviewMode && result !== "correct" && q.answer != null) ? `<div class="review-meta">正确答案：${q.answer}</div>` : "";
-    const teacherScoreHtml = (reviewMode && q.teacher_score != null) ? `<div class="review-meta">老师评分：${q.teacher_score}</div>` : "";
+    const analysisHtml = (reviewMode && result !== "correct" && q.analysis) ? `<div class="review-analysis">${t("analysis")}: ${q.analysis}</div>` : "";
+    const answerHtml = (reviewMode && result !== "correct" && q.answer != null) ? `<div class="review-meta">${t("correctAnswer")}: ${q.answer}</div>` : "";
+    const teacherScoreHtml = (reviewMode && q.teacher_score != null) ? `<div class="review-meta">${t("teacherScore")}: ${q.teacher_score}</div>` : "";
     return `
       <div class="question-item">
         <div class="question-title">${idx + 1}. ${q.stem || ""} ${statusTag}</div>
-        ${reviewMode ? `<div class="review-meta">你的答案：${draft[qid] ?? "--"}</div>` : ""}
+        ${reviewMode ? `<div class="review-meta">${t("yourAnswer")}: ${draft[qid] ?? "--"}</div>` : ""}
         ${inputHtml}
         ${reviewMode ? answerHtml : ""}
         ${reviewMode ? teacherScoreHtml : ""}
@@ -139,12 +208,12 @@ function updateActionState() {
   submitBtn.disabled = done;
 
   if (done) {
-    const scoreText = typeof currentAutoScore === "number" ? `自动得分 ${currentAutoScore}` : "";
-    const totalText = typeof currentTotalScore === "number" ? `总分 ${currentTotalScore}` : "";
+    const scoreText = typeof currentAutoScore === "number" ? `${t("autoScore")} ${currentAutoScore}` : "";
+    const totalText = typeof currentTotalScore === "number" ? `${t("totalScore")} ${currentTotalScore}` : "";
     const meta = [scoreText, totalText].filter(Boolean).join(" · ");
-    setTip(meta ? `该作业已提交。${meta}` : "该作业已提交。可返回练习列表查看状态。");
+    setTip(meta ? t("submittedWithMeta").replace("{meta}", meta) : `${t("submitted")} ${t("submittedHint")}`);
   } else if (assignmentStatus === "saved") {
-    setTip("已保存，可继续作答后提交。");
+    setTip(t("savedHint"));
   } else {
     setTip("");
   }
@@ -168,10 +237,10 @@ async function loadExercise() {
 
     const title = document.getElementById("exerciseTitle");
     const meta = document.getElementById("exerciseMeta");
-    if (title) title.textContent = data.title || "作业";
+    if (title) title.textContent = data.title || t("homework");
     if (meta) {
-      const statusText = submissionStatus ? `状态：${submissionStatus}` : "";
-      const totalText = typeof currentTotalScore === "number" ? `总分：${currentTotalScore}` : "";
+      const statusText = submissionStatus ? `${t("status")}: ${submissionStatus}` : "";
+      const totalText = typeof currentTotalScore === "number" ? `${t("totalScore")}: ${currentTotalScore}` : "";
       meta.textContent = [statusText, totalText].filter(Boolean).join(" · ");
     }
 
@@ -183,7 +252,7 @@ async function loadExercise() {
       updateActionState();
     }
   } catch {
-    alert("无法加载作业");
+    alert(t("loadFailed"));
     openBack();
   }
 }
@@ -227,15 +296,15 @@ async function saveExercise() {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || data.code !== 0) {
-      alert(data.message || "保存失败");
+      alert(data.message || t("saveFailed"));
       return;
     }
     assignmentStatus = "saved";
     submissionStatus = "saved";
-    setTip("已保存，可继续作答后提交。");
-    alert("保存成功");
+    setTip(t("savedHint"));
+    alert(t("saveSuccess"));
   } catch {
-    alert("保存失败");
+    alert(t("saveFailed"));
   }
 }
 
@@ -253,18 +322,18 @@ async function submitExercise() {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || data.code !== 0) {
-      alert(data.message || "提交失败");
+      alert(data.message || t("submitFailed"));
       return;
     }
     assignmentStatus = "completed";
-    submissionStatus = data.status || "graded";
+    submissionStatus = data.status || t("graded");
     currentAutoResult = data.auto_result || {};
     currentAutoScore = data.auto_score;
     currentTotalScore = data.total_score;
     await loadReviewDetail();
-    alert("提交成功，已自动批改选择题和填空题");
+    alert(t("submitSuccess"));
   } catch {
-    alert("提交失败");
+    alert(t("submitFailed"));
   }
 }
 

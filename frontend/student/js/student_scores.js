@@ -1,10 +1,37 @@
+const scoresDict = {
+  zh: {
+    empty: "(空)",
+    loading: "加载中...",
+    exercise: "练习",
+    homework: "作业"
+  },
+  en: {
+    empty: "(empty)",
+    loading: "Loading...",
+    exercise: "Exercise",
+    homework: "Assignment"
+  }
+};
+const i18n = window.I18N || null;
+if (i18n) i18n.registerDict("studentScores", scoresDict);
+
+function getLocale() {
+  return i18n ? i18n.getLocale() : (localStorage.getItem("locale") || "zh");
+}
+
+function t(key) {
+  if (i18n) return i18n.t("studentScores", key, key);
+  const locale = getLocale();
+  return (scoresDict[locale] && scoresDict[locale][key]) || scoresDict.zh[key] || key;
+}
+
 async function renderScores() {
   const scoreBox = document.getElementById("scoreList");
   if (scoreBox) {
     try {
       const scores = await apiGet("/api/student/scores");
       if (!scores.length) {
-        scoreBox.innerHTML = `<div style="color:#8a8f98;font-size:12px;">(empty)</div>`;
+        scoreBox.innerHTML = `<div style="color:#8a8f98;font-size:12px;">${t("empty")}</div>`;
       } else {
         scoreBox.innerHTML = scores.map(item => {
           const value = item.score != null ? item.score : "--";
@@ -14,7 +41,7 @@ async function renderScores() {
           return `
             <div class="score-item">
               <div>
-                <div class="score-title">${item.title || "练习"}</div>
+                <div class="score-title">${item.title || t("exercise")}</div>
                 <div class="score-sub">${meta}</div>
               </div>
               <div class="score-value">${display}</div>
@@ -23,13 +50,13 @@ async function renderScores() {
         }).join("");
       }
     } catch {
-      scoreBox.innerHTML = `<div style="color:#8a8f98;font-size:12px;">(empty)</div>`;
+      scoreBox.innerHTML = `<div style="color:#8a8f98;font-size:12px;">${t("empty")}</div>`;
     }
   }
 
   try {
     const trendBox = document.getElementById("scoreTrend");
-    if (trendBox) trendBox.innerHTML = `<div class="loading">加载中...</div>`;
+    if (trendBox) trendBox.innerHTML = `<div class="loading">${t("loading")}</div>`;
     const overview = await apiGet("/api/student/overview");
     const kpiSubmission = document.getElementById("kpiSubmission");
     const kpiAvgAll = document.getElementById("kpiAvgAll");
@@ -75,7 +102,7 @@ function renderTrendChart(items) {
   const box = document.getElementById("scoreTrend");
   if (!box) return;
   if (!items.length) {
-    box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">(empty)</div>`;
+    box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">${t("empty")}</div>`;
     return;
   }
 
@@ -124,7 +151,7 @@ function renderTrendChart(items) {
       const rect = box.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      tooltip.textContent = `${title || "作业"}：${score}${label ? ` · ${label}` : ""}`;
+      tooltip.textContent = `${title || t("homework")}: ${score}${label ? ` · ${label}` : ""}`;
       tooltip.style.left = `${x}px`;
       tooltip.style.top = `${y - 12}px`;
       tooltip.classList.add("show");

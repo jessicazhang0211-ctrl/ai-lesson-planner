@@ -1,8 +1,37 @@
+const studentHomeDict = {
+  zh: {
+    empty: "(空)",
+    start: "开始",
+    exercise: "练习",
+    completed: "已完成",
+    pending: "待完成"
+  },
+  en: {
+    empty: "(empty)",
+    start: "Start",
+    exercise: "Exercise",
+    completed: "Completed",
+    pending: "Pending"
+  }
+};
+const i18n = window.I18N || null;
+if (i18n) i18n.registerDict("studentHome", studentHomeDict);
+
+function getLocale() {
+  return i18n ? i18n.getLocale() : (localStorage.getItem("locale") || "zh");
+}
+
+function t(key) {
+  if (i18n) return i18n.t("studentHome", key, key);
+  const locale = getLocale();
+  return (studentHomeDict[locale] && studentHomeDict[locale][key]) || studentHomeDict.zh[key] || key;
+}
+
 function renderList(id, items, type) {
   const box = document.getElementById(id);
   if (!box) return;
   if (!items.length) {
-    box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">(empty)</div>`;
+    box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">${t("empty")}</div>`;
     return;
   }
   box.innerHTML = items.map(item => {
@@ -13,7 +42,7 @@ function renderList(id, items, type) {
             <div class="task-title">${item.title}</div>
             <div class="task-meta">${item.meta}</div>
           </div>
-          <button class="btn">开始</button>
+          <button class="btn">${t("start")}</button>
         </div>
       `;
     }
@@ -37,8 +66,8 @@ async function loadHome() {
       .filter(a => a.resource_type === "exercise")
       .filter(a => a.status !== "completed")
       .map(a => ({
-        title: a.title || "练习",
-        meta: `${a.status === "completed" ? "已完成" : "待完成"} · ${a.created_at || ""}`
+        title: a.title || t("exercise"),
+        meta: `${a.status === "completed" ? t("completed") : t("pending")} · ${a.created_at || ""}`
       }));
 
     renderList("taskList", tasks, "task");

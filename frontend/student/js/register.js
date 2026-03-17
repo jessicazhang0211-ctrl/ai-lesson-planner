@@ -2,49 +2,35 @@ const dict = {
   zh: {
     appName: "AI 辅助备课系统",
     title: "学生注册",
-    subtitle: "创建学生账号后开始学习",
+    subtitle: "学生自助注册已关闭",
     name: "姓名",
     email: "邮箱",
     password: "密码",
     confirm: "确认密码",
-    submit: "注册",
+    submit: "已关闭",
     goLogin: "去登录",
     teacher: "教师端",
     classLabel: "班级",
-    hint: "注册后将跳转到登录页",
+    hint: "学生账号由教师导入分配，请联系教师获取学号和初始密码",
     errors: {
-      required: "请填写完整信息",
-      invalidEmail: "请输入有效邮箱",
-      pwdTooShort: "密码至少 6 位",
-      pwdMismatch: "两次密码不一致",
-      failed: "注册失败，请稍后重试"
-    },
-    alerts: {
-      success: "注册成功！即将跳转到登录页"
+      disabled: "学生不允许自助注册，请联系教师导入账号"
     }
   },
   en: {
     appName: "AI Lesson Planner",
-    title: "Student sign up",
-    subtitle: "Create a student account to start learning",
+    title: "Student Sign Up",
+    subtitle: "Student self-signup is disabled",
     name: "Name",
     email: "Email",
     password: "Password",
     confirm: "Confirm password",
-    submit: "Sign up",
+    submit: "Disabled",
     goLogin: "Go to sign in",
     teacher: "Teacher Portal",
     classLabel: "Class",
-    hint: "You will be redirected to the login page after signing up",
+    hint: "Student accounts are assigned by teachers. Please ask your teacher for student ID and initial password",
     errors: {
-      required: "Please complete all fields",
-      invalidEmail: "Please enter a valid email",
-      pwdTooShort: "Password must be at least 6 characters",
-      pwdMismatch: "Passwords do not match",
-      failed: "Sign up failed. Please try again."
-    },
-    alerts: {
-      success: "Sign up successful! Redirecting to login..."
+      disabled: "Student self-signup is disabled. Please contact your teacher"
     }
   }
 };
@@ -52,6 +38,7 @@ const dict = {
 function $(id) { return document.getElementById(id); }
 
 let lang = localStorage.getItem("locale") || "zh";
+if (window.I18N) lang = window.I18N.getLocale();
 
 function setError(msg) {
   const el = $("error");
@@ -62,10 +49,6 @@ function setError(msg) {
   }
   el.style.display = "block";
   el.textContent = msg;
-}
-
-function isValidEmail(v) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 }
 
 function applyLang() {
@@ -87,66 +70,19 @@ function applyLang() {
   $("teacherLink").textContent = t.teacher;
   $("hintText").textContent = t.hint;
 
-  $("langToggle").textContent = lang === "zh" ? "EN" : "中文";
+  $("langToggle").textContent = lang === "zh" ? "EN" : "ZH";
 }
 
 function toggleLang() {
   lang = lang === "zh" ? "en" : "zh";
-  localStorage.setItem("locale", lang);
+  if (window.I18N) window.I18N.setLocale(lang);
+  else localStorage.setItem("locale", lang);
   applyLang();
 }
 
 async function onSubmit(e) {
   e.preventDefault();
-  setError("");
-
-  const name = $("name").value.trim();
-  const email = $("email").value.trim();
-  const password = $("password").value.trim();
-  const confirm = $("confirm").value.trim();
-  const classId = $("classId").value;
-
-  const t = dict[lang];
-
-  if (!name || !email || !password || !confirm || !classId) {
-    setError(t.errors.required);
-    return;
-  }
-  if (!isValidEmail(email)) {
-    setError(t.errors.invalidEmail);
-    return;
-  }
-  if (password.length < 6) {
-    setError(t.errors.pwdTooShort);
-    return;
-  }
-  if (password !== confirm) {
-    setError(t.errors.pwdMismatch);
-    return;
-  }
-
-  try {
-    const res = await fetch("http://127.0.0.1:5000/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password, role: "student", class_id: Number(classId) })
-    });
-
-    const data = await res.json();
-
-    if (data.code === 0) {
-      localStorage.setItem("prefill_email", email);
-      localStorage.setItem("prefill_name", name);
-
-      alert(t.alerts.success);
-      window.location.href = "./login.html";
-      return;
-    }
-
-    setError(data.message || t.errors.failed);
-  } catch {
-    setError(lang === "zh" ? "网络错误：无法连接后端" : "Network error: backend not reachable");
-  }
+  setError(dict[lang].errors.disabled);
 }
 
 function bindEvents() {
@@ -158,23 +94,6 @@ function bindEvents() {
   $("registerForm").addEventListener("submit", onSubmit);
 }
 
-async function loadClasses() {
-  const select = $("classId");
-  if (!select) return;
-  try {
-    const res = await fetch("http://127.0.0.1:5000/api/class/public");
-    const data = await res.json();
-    const list = (data && data.code === 0) ? (data.data || []) : [];
-    if (!list.length) {
-      select.innerHTML = "";
-      return;
-    }
-    select.innerHTML = list.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
-  } catch {
-    select.innerHTML = "";
-  }
-}
-
 applyLang();
 bindEvents();
-loadClasses();
+setError(dict[lang].errors.disabled);

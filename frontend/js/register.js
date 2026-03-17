@@ -16,7 +16,8 @@ const dict = {
       invalidEmail: "请输入有效邮箱",
       pwdTooShort: "密码至少 6 位",
       pwdMismatch: "两次密码不一致",
-      failed: "注册失败，请稍后重试"
+      failed: "注册失败，请稍后重试",
+      network: "网络错误：无法连接后端"
     },
     alerts: {
       success: "注册成功！即将跳转到登录页"
@@ -39,7 +40,8 @@ const dict = {
       invalidEmail: "Please enter a valid email",
       pwdTooShort: "Password must be at least 6 characters",
       pwdMismatch: "Passwords do not match",
-      failed: "Sign up failed. Please try again."
+      failed: "Sign up failed. Please try again.",
+      network: "Network error: backend not reachable"
     },
     alerts: {
       success: "Sign up successful! Redirecting to login..."
@@ -50,6 +52,7 @@ const dict = {
 function $(id) { return document.getElementById(id); }
 
 let lang = localStorage.getItem("locale") || "zh";
+if (window.I18N) lang = window.I18N.getLocale();
 
 function setError(msg) {
   const el = $("error");
@@ -84,12 +87,13 @@ function applyLang() {
   $("studentLink").textContent = t.student;
   $("hintText").textContent = t.hint;
 
-  $("langToggle").textContent = lang === "zh" ? "EN" : "中文";
+  $("langToggle").textContent = lang === "zh" ? "EN" : "ZH";
 }
 
 function toggleLang() {
   lang = lang === "zh" ? "en" : "zh";
-  localStorage.setItem("locale", lang);
+  if (window.I18N) window.I18N.setLocale(lang);
+  else localStorage.setItem("locale", lang);
   applyLang();
 }
 
@@ -148,7 +152,7 @@ async function onSubmit(e) {
 
     setError(data.message || t.errors.failed);
   } catch {
-    setError(lang === "zh" ? "网络错误：无法连接后端" : "Network error: backend not reachable");
+    setError(t.errors.network);
   }
 }
 

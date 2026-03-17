@@ -3,19 +3,23 @@ from flask_cors import CORS
 from app.config import Config
 from app.extensions import db
 from app.api import register_blueprints
+from app.middlewares import register_error_handlers
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
     # 允许跨域（前后端分离必备）
-    CORS(app)
+    CORS(app, resources={r"/api/*": {"origins": app.config.get("CORS_ORIGINS", [])}})
 
     # 初始化数据库
     db.init_app(app)
 
     # 注册路由
     register_blueprints(app)
+
+    if app.config.get("ENABLE_GLOBAL_ERROR_HANDLER"):
+        register_error_handlers(app)
 
     @app.get("/api/health")
     def health():

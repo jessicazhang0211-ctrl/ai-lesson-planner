@@ -14,7 +14,8 @@ const dict = {
     errors: {
       required: "请填写完整信息",
       invalidEmail: "请输入有效邮箱",
-      loginFailed: "登录失败，请检查账号或密码"
+      loginFailed: "登录失败，请检查账号或密码",
+      network: "网络错误：无法连接后端"
     },
     alerts: {
       forgot: "忘记密码流程（待做）"
@@ -35,7 +36,8 @@ const dict = {
     errors: {
       required: "Please complete all fields",
       invalidEmail: "Please enter a valid email",
-      loginFailed: "Login failed. Please check your credentials."
+      loginFailed: "Login failed. Please check your credentials.",
+      network: "Network error: backend not reachable"
     },
     alerts: {
       forgot: "Forgot password flow (TODO)"
@@ -46,6 +48,7 @@ const dict = {
 function $(id) { return document.getElementById(id); }
 
 let lang = localStorage.getItem("locale") || "zh";
+if (window.I18N) lang = window.I18N.getLocale();
 
 function setError(msg) {
   const el = $("error");
@@ -85,12 +88,13 @@ function applyLang() {
   $("hintText").textContent = t.hint;
 
   // 右上角切换显示
-  $("langToggle").textContent = lang === "zh" ? "EN" : "中文";
+  $("langToggle").textContent = lang === "zh" ? "EN" : "ZH";
 }
 
 function toggleLang() {
   lang = lang === "zh" ? "en" : "zh";
-  localStorage.setItem("locale", lang);
+  if (window.I18N) window.I18N.setLocale(lang);
+  else localStorage.setItem("locale", lang);
   applyLang();
 }
 
@@ -144,7 +148,7 @@ async function loginSubmit(e) {
 
     setError(dict[lang].errors.loginFailed);
   } catch {
-    setError(lang === "zh" ? "网络错误：无法连接后端" : "Network error: backend not reachable");
+    setError(dict[lang].errors.network);
   }
 }
 

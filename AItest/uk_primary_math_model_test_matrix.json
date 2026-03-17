@@ -1,0 +1,273 @@
+{
+  "meta": {
+    "project": "UK Primary Mathematics AI Lesson Planning Assistant",
+    "version": "1.0.0",
+    "created_at": "2026-03-15",
+    "purpose": "Representative model set for an England-focused dissertation on AI-assisted primary mathematics lesson planning.",
+    "recommendation_note": "This is a dissertation-ready coverage matrix, not a literal list of every model on the market."
+  },
+  "core_experiment_set": [
+    {
+      "provider": "OpenAI",
+      "model": "gpt-5.4",
+      "category": "flagship_closed",
+      "priority": "core",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "best-quality lesson planning baseline",
+      "compare_dimensions": [
+        "curriculum alignment",
+        "reasoning quality",
+        "JSON reliability",
+        "cost"
+      ]
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-5-mini",
+      "category": "cost_latency_closed",
+      "priority": "core",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "cheap/fast baseline",
+      "compare_dimensions": [
+        "latency",
+        "cost",
+        "acceptable quality floor"
+      ]
+    },
+    {
+      "provider": "Anthropic",
+      "model": "Claude Opus 4.6",
+      "category": "flagship_closed",
+      "priority": "core",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "high-quality pedagogical writing and reasoning benchmark",
+      "compare_dimensions": [
+        "pedagogical quality",
+        "reasoning",
+        "clarity",
+        "consistency"
+      ]
+    },
+    {
+      "provider": "Anthropic",
+      "model": "Claude Sonnet 4.6",
+      "category": "balanced_closed",
+      "priority": "core",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "balanced quality/cost benchmark",
+      "compare_dimensions": [
+        "quality",
+        "latency",
+        "structured output"
+      ]
+    },
+    {
+      "provider": "Google",
+      "model": "Gemini 2.5 Pro",
+      "category": "flagship_closed",
+      "priority": "core",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "complex reasoning and long-context lesson planning benchmark",
+      "compare_dimensions": [
+        "reasoning",
+        "long-context use",
+        "cost",
+        "format compliance"
+      ]
+    },
+    {
+      "provider": "Google",
+      "model": "Gemini 2.5 Flash",
+      "category": "cost_latency_closed",
+      "priority": "core",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "price-performance benchmark",
+      "compare_dimensions": [
+        "latency",
+        "cost",
+        "adequate pedagogical quality"
+      ]
+    },
+    {
+      "provider": "DeepSeek",
+      "model": "deepseek-reasoner",
+      "category": "low_cost_reasoning",
+      "priority": "core",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "low-cost reasoning comparison",
+      "compare_dimensions": [
+        "cost",
+        "reasoning",
+        "JSON validity",
+        "British English control"
+      ]
+    },
+    {
+      "provider": "DeepSeek",
+      "model": "deepseek-chat",
+      "category": "low_cost_chat",
+      "priority": "core",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "non-thinking low-cost baseline",
+      "compare_dimensions": [
+        "latency",
+        "cost",
+        "hallucination risk"
+      ]
+    },
+    {
+      "provider": "Alibaba Cloud / Qwen",
+      "model": "qwen3.5-plus",
+      "category": "balanced_closed",
+      "priority": "core",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "strong multilingual hosted comparison",
+      "compare_dimensions": [
+        "multilingual quality",
+        "cost",
+        "format control"
+      ]
+    },
+    {
+      "provider": "Alibaba Cloud / Qwen",
+      "model": "qwen3.5-flash",
+      "category": "cost_latency_closed",
+      "priority": "core",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "budget hosted comparison",
+      "compare_dimensions": [
+        "latency",
+        "cost",
+        "acceptable quality floor"
+      ]
+    }
+  ],
+  "extended_optional_set": [
+    {
+      "provider": "Anthropic",
+      "model": "Claude Haiku 4.5",
+      "category": "fast_closed",
+      "priority": "optional",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "fast lightweight comparison"
+    },
+    {
+      "provider": "Google",
+      "model": "Gemini 2.5 Flash-Lite",
+      "category": "ultra_budget_closed",
+      "priority": "optional",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "ultra-cheap baseline"
+    },
+    {
+      "provider": "Google",
+      "model": "Gemini 3.1 Pro Preview",
+      "category": "preview_frontier",
+      "priority": "optional",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "frontier preview comparison",
+      "risk_flags": [
+        "preview_model",
+        "stability_may_change"
+      ]
+    },
+    {
+      "provider": "xAI",
+      "model": "Grok 4.20 Beta",
+      "category": "beta_frontier",
+      "priority": "optional",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "long-context / frontier optional comparison",
+      "risk_flags": [
+        "beta_model"
+      ]
+    },
+    {
+      "provider": "Mistral AI",
+      "model": "Magistral Medium 1.2",
+      "category": "reasoning_closed",
+      "priority": "optional",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "European reasoning comparison"
+    },
+    {
+      "provider": "Zhipu AI",
+      "model": "GLM-5",
+      "category": "agentic_closed",
+      "priority": "optional",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "China-based agentic comparison"
+    },
+    {
+      "provider": "Moonshot AI",
+      "model": "kimi-k2.5",
+      "category": "long_context_closed",
+      "priority": "optional",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "long-context comparison"
+    },
+    {
+      "provider": "Cohere",
+      "model": "Command",
+      "category": "enterprise_closed",
+      "priority": "optional",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "enterprise/RAG-oriented comparison"
+    }
+  ],
+  "local_or_open_weight_set": [
+    {
+      "provider": "OpenAI",
+      "model": "gpt-oss-20b",
+      "category": "open_weight_local",
+      "priority": "optional",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "local deployment baseline"
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-oss-120b",
+      "category": "open_weight_local",
+      "priority": "optional",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "stronger local deployment baseline"
+    },
+    {
+      "provider": "Alibaba Cloud / Qwen",
+      "model": "qwen3.5-27b",
+      "category": "open_weight_local",
+      "priority": "optional",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "open-weight multilingual local comparison"
+    },
+    {
+      "provider": "Mistral AI",
+      "model": "Magistral Small 1.2",
+      "category": "open_weight_local",
+      "priority": "optional",
+      "status_as_of": "2026-03-15",
+      "recommended_role": "smaller local reasoning comparison"
+    }
+  ],
+  "recommended_main_dissertation_setup": {
+    "models": [
+      "gpt-5.4",
+      "gpt-5-mini",
+      "Claude Opus 4.6",
+      "Claude Sonnet 4.6",
+      "Gemini 2.5 Pro",
+      "Gemini 2.5 Flash",
+      "deepseek-reasoner",
+      "qwen3.5-plus"
+    ],
+    "system_conditions": [
+      "direct_prompting",
+      "curriculum_grounded_rag",
+      "rag_plus_age_aware_guardrails"
+    ],
+    "notes": [
+      "This setup balances quality, cost, and cross-provider coverage.",
+      "It is large enough for a credible dissertation but still manageable."
+    ]
+  }
+}

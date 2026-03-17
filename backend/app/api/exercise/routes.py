@@ -2,12 +2,10 @@
 from flask import Blueprint, request, g
 from app.utils.response import ok, err
 from app.models import Exercise
-from app import Config
-import google.generativeai as genai
 from app.utils.auth import token_required
+from app.services.ai_service import ai_service
+from app.utils.json_handlers import extract_json
 import json
-
-genai.configure(api_key=Config.GEMINI_API_KEY)
 
 bp = Blueprint("exercise", __name__, url_prefix="/api/exercise")
 
@@ -47,38 +45,8 @@ def generate_exercise():
 
 仅输出 JSON，不要包含代码块或额外解释。
 """
-        model = genai.GenerativeModel('gemini-2.5-flash')
-        response = model.generate_content(prompt)
-        content = response.text.strip()
-
-        def _extract_json(text):
-            if not text:
-                return None
-            cleaned = text.strip()
-            if cleaned.startswith("```"):
-                cleaned = cleaned.replace("```json", "").replace("```", "").strip()
-            try:
-                return json.loads(cleaned)
-            except Exception:
-                pass
-            # try to extract first JSON object/array in the response
-            start = cleaned.find("{")
-            end = cleaned.rfind("}")
-            if start != -1 and end != -1 and end > start:
-                try:
-                    return json.loads(cleaned[start:end + 1])
-                except Exception:
-                    return None
-            start = cleaned.find("[")
-            end = cleaned.rfind("]")
-            if start != -1 and end != -1 and end > start:
-                try:
-                    return json.loads(cleaned[start:end + 1])
-                except Exception:
-                    return None
-            return None
-
-        structured = _extract_json(content)
+        content = ai_service.generate_text(prompt)
+        structured = extract_json(content)
         # 存档到数据库，前端参数信息一并序列化进description前缀
         from app.extensions import db
         import datetime, json

@@ -1,0 +1,35 @@
+flowchart TB
+  %% 论文风格：逻辑架构图
+  subgraph L0["L0 用户与角色层"]
+    Teacher["教师端用户"]
+    Student["学生端用户"]
+    Researcher["研究者 运维者"]
+  end
+
+  subgraph L1["L1 应用与业务层"]
+    FE["前端界面层\n登录 页面管理 教案编辑"]
+    API["API 接口层\nauth class lesson exercise resource student"]
+    Biz["业务服务层\n认证授权 教案生成 资源处理"]
+    Eval["实验评测层 AItest\n批量实验 复测评分 排名汇总"]
+  end
+
+  subgraph L2["L2 数据与智能能力层"]
+    DB[("MySQL 业务数据库")]
+    Asset[("实验资产 JSON")]
+    Result[("实验结果 CSV MD")]
+    ModelAPI["外部模型服务\nOpenAI Anthropic Gemini DeepSeek Qwen"]
+  end
+
+  Teacher --> FE
+  Student --> FE
+  Researcher --> Eval
+
+  FE --> API
+  API --> Biz
+  Biz --> DB
+  Biz --> ModelAPI
+
+  Eval --> Asset
+  Eval --> ModelAPI
+  Eval --> Result
+  Eval -. 使用业务规则与约束 .-> Biz

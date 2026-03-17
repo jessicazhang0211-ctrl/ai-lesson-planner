@@ -1,0 +1,47 @@
+{
+  "request_id": "uk-math-demo-001",
+  "mode": "teacher_lesson_prep",
+  "locale": "en-GB",
+  "jurisdiction": "England",
+  "key_stage": "KS1",
+  "year_group": "Year 2",
+  "topic": "Addition and subtraction within 100",
+  "lesson_title": "Bridging through 10 with two-digit numbers",
+  "duration_minutes": 50,
+  "class_profile": {
+    "age_range": "6-7",
+    "attainment_profile": "mixed attainment",
+    "prior_learning": [
+      "number bonds within 10",
+      "place value within 100",
+      "adding multiples of 10"
+    ],
+    "send_notes": [
+      "some pupils need reduced working-memory load",
+      "some pupils benefit from manipulatives and repeated rehearsal"
+    ],
+    "eal_notes": [
+      "pre-teach key vocabulary",
+      "use visuals and sentence stems"
+    ]
+  },
+  "deliverables": [
+    "lesson_plan",
+    "hinge_question",
+    "exit_ticket",
+    "worksheet_seed"
+  ],
+  "constraints": {
+    "teacher_facing_only": true,
+    "teacher_review_required": true,
+    "british_english_only": true,
+    "avoid_americanisms": true,
+    "json_only": true,
+    "schema_name": "uk_primary_math_lesson_plan_schema.json",
+    "include_curriculum_refs": true,
+    "one_main_new_idea": true,
+    "keep_child_facing_text_concrete": true,
+    "include_prerequisites_misconceptions_representations": true,
+    "include_support_core_stretch": true
+  }
+}

@@ -1,0 +1,21 @@
+flowchart TD
+  %% 论文风格：数据流图
+  A["输入数据\n教师参数 学生信息 任务集"] --> B["前端表单与请求构造"]
+  B --> C["API 接入与鉴权\nJWT Token"]
+  C --> D["业务编排\n教案生成 班级管理 资源处理"]
+
+  D --> E1["业务数据持久化\nMySQL"]
+  D --> E2["模型请求封装\nPrompt Guardrails"]
+  E2 --> F["外部模型推理\nGemini OpenAI Anthropic DeepSeek Qwen"]
+  F --> G["模型响应解析与清洗\nJSON 格式与文本规范"]
+  G --> H["返回前端展示\n教案 历史 资源"]
+
+  subgraph Exp["实验评测支路 AItest"]
+    X1["读取任务矩阵与配置"] --> X2["批量调用模型"]
+    X2 --> X3["记录运行结果\nHTTP 延迟 JSON like"]
+    X3 --> X4["Rubric 评分与复测"]
+    X4 --> X5["排名汇总与报告输出\nCSV MD"]
+  end
+
+  E2 -. 复用提示词约束 .-> X2
+  G -. 质量特征 .-> X4

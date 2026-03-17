@@ -1,0 +1,55 @@
+flowchart TB
+  subgraph U["用户层"]
+    T["教师"]
+    S["学生"]
+  end
+
+  subgraph F["前端层 frontend"]
+    L["登录与注册页面 login register"]
+    TP["教师端页面 frontend teacher"]
+    SP["学生端页面 frontend student"]
+    JS["页面脚本与资源 js assets css"]
+  end
+
+  subgraph B["后端 API 层 Flask"]
+    APP["应用入口 backend app py create app"]
+    BP["蓝图路由 auth user class lesson exercise resource student"]
+    MW["中间件 JWT 鉴权 token required 全局错误处理可选"]
+    SVC["服务层 ai service resource service"]
+    REPO["仓储层 repositories"]
+    ORM["模型层 SQLAlchemy models"]
+  end
+
+  subgraph D["数据与外部服务"]
+    DB[("MySQL ai_lesson_planner")]
+    GEM["Gemini API 教案生成"]
+  end
+
+  T --> L
+  T --> TP
+  S --> SP
+  L --> JS
+  TP --> JS
+  SP --> JS
+  JS -->|"HTTP api"| APP
+  APP --> BP
+  BP --> MW
+  MW --> SVC
+  MW --> REPO
+  REPO --> ORM
+  ORM --> DB
+  SVC --> GEM
+
+  subgraph X["AItest 评测子系统"]
+    CFG["实验配置资产 task set model matrix request template guardrails env"]
+    RUN["执行脚本 run experiments run report required experiment"]
+    CALL["多厂商模型调用适配 OpenAI Anthropic Gemini DeepSeek Qwen"]
+    JUDGE["评测与复测 retest with rubric eval judge model"]
+    OUT["结果产物 AItest results csv md"]
+  end
+
+  CFG --> RUN
+  RUN --> CALL
+  CALL --> OUT
+  OUT --> JUDGE
+  JUDGE --> OUT

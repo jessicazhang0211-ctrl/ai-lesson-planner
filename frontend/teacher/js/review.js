@@ -1,5 +1,52 @@
 const API_BASE = "http://127.0.0.1:5000";
 
+const reviewDict = {
+  zh: {
+    empty: "(空)",
+    autoScore: "自动得分",
+    totalScore: "总分",
+    comment: "评语",
+    status: "状态",
+    score: "评分",
+    fullScore: "满分",
+    studentAnswer: "学生作答",
+    referenceAnswer: "参考答案",
+    questionType: "题型",
+    pendingReview: "待批改列表",
+    historyReview: "历史批改",
+    all: "全部",
+    submitFailed: "提交失败"
+  },
+  en: {
+    empty: "(empty)",
+    autoScore: "Auto score",
+    totalScore: "Total score",
+    comment: "Comment",
+    status: "Status",
+    score: "Score",
+    fullScore: "Max",
+    studentAnswer: "Student answer",
+    referenceAnswer: "Reference answer",
+    questionType: "Type",
+    pendingReview: "Pending Reviews",
+    historyReview: "Review History",
+    all: "All",
+    submitFailed: "Submit failed"
+  }
+};
+const i18n = window.I18N || null;
+if (i18n) i18n.registerDict("teacherReview", reviewDict);
+
+function getLocale() {
+  return i18n ? i18n.getLocale() : (localStorage.getItem("locale") || "zh");
+}
+
+function t(key) {
+  if (i18n) return i18n.t("teacherReview", key, key);
+  const locale = getLocale();
+  return (reviewDict[locale] && reviewDict[locale][key]) || reviewDict.zh[key] || key;
+}
+
 let selectedSubmissionId = null;
 let reviewList = [];
 let currentDetail = null;
@@ -61,7 +108,7 @@ function renderList() {
 
   count.textContent = String(reviewList.length);
   if (!reviewList.length) {
-    box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">(empty)</div>`;
+    box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">${t("empty")}</div>`;
     return;
   }
 
@@ -71,7 +118,7 @@ function renderList() {
       <div class="review-item ${active}" data-id="${item.submission_id}">
         <div class="review-item-title">${item.title || ""}</div>
         <div class="review-item-meta">${item.class_name || ""} · ${item.student_name || ""} · ${item.created_at || ""}</div>
-        <div class="review-item-meta">自动得分：${item.auto_score ?? 0}${item.total_score != null ? ` · 总分：${item.total_score}` : ""}${item.teacher_comment ? ` · 评语：${item.teacher_comment}` : ""}</div>
+        <div class="review-item-meta">${t("autoScore")}: ${item.auto_score ?? 0}${item.total_score != null ? ` · ${t("totalScore")}: ${item.total_score}` : ""}${item.teacher_comment ? ` · ${t("comment")}: ${item.teacher_comment}` : ""}</div>
       </div>
     `;
   }).join("");
@@ -116,8 +163,8 @@ async function selectSubmission(id) {
     const detail = await apiGet(`/api/resource/review/${id}`);
     if (title) title.textContent = detail.title || "";
     if (meta) {
-      const commentText = detail.teacher_comment ? `评语：${detail.teacher_comment}` : "";
-      meta.textContent = [`自动得分：${detail.auto_score ?? 0}`, `状态：${detail.status}`, commentText]
+      const commentText = detail.teacher_comment ? `${t("comment")}: ${detail.teacher_comment}` : "";
+      meta.textContent = [`${t("autoScore")}: ${detail.auto_score ?? 0}`, `${t("status")}: ${detail.status}`, commentText]
         .filter(Boolean)
         .join(" · ");
     }
@@ -132,17 +179,17 @@ async function selectSubmission(id) {
         const value = q.teacher_score ?? 0;
         const scoreRow = isSubjective ? `
           <div class="review-score-row">
-            <label>评分</label>
+            <label>${t("score")}</label>
             <input type="number" class="teacher-score" data-qid="${q.id}" min="0" max="${maxScore}" value="${value}" />
-            <span class="review-score-hint">满分 ${maxScore}</span>
+            <span class="review-score-hint">${t("fullScore")} ${maxScore}</span>
           </div>
         ` : "";
         return `
           <div class="review-question">
             <div class="review-question-title">${idx + 1}. ${q.stem || ""}</div>
-            <div class="review-question-meta">学生作答：${q.student_answer ?? ""}</div>
-            <div class="review-question-meta">参考答案：${q.answer ?? ""}</div>
-            <div class="review-question-meta">题型：${q.type || ""} · 分值：${maxScore}</div>
+            <div class="review-question-meta">${t("studentAnswer")}: ${q.student_answer ?? ""}</div>
+            <div class="review-question-meta">${t("referenceAnswer")}: ${q.answer ?? ""}</div>
+            <div class="review-question-meta">${t("questionType")}: ${q.type || ""} · ${t("score")}: ${maxScore}</div>
             ${scoreRow}
           </div>
         `;
@@ -198,7 +245,7 @@ function setViewMode(mode) {
   const submitBtn = document.getElementById("btnSubmitScore");
 
   if (filters) filters.style.display = mode === "history" ? "grid" : "none";
-  if (title) title.textContent = mode === "history" ? "历史批改" : "待批改列表";
+  if (title) title.textContent = mode === "history" ? t("historyReview") : t("pendingReview");
   if (tabPending) tabPending.classList.toggle("primary", mode === "pending");
   if (tabHistory) tabHistory.classList.toggle("primary", mode === "history");
   if (submitBtn) submitBtn.style.display = mode === "history" ? "none" : "inline-flex";
@@ -214,7 +261,7 @@ async function loadClasses() {
   }
   const select = document.getElementById("filterClass");
   if (!select) return;
-  const options = ["<option value=\"\">全部</option>"]
+  const options = [`<option value="">${t("all")}</option>`]
     .concat(classOptions.map(c => `<option value="${c.id}">${c.name}</option>`));
   select.innerHTML = options.join("");
 }
@@ -238,10 +285,16 @@ function bindEvents() {
       await loadReviewList();
       setDetailEmpty(true);
     } catch (e) {
-      alert("提交失败");
+      alert(t("submitFailed"));
     }
   });
 }
+
+window.addEventListener("app:locale-changed", () => {
+  renderList();
+  if (currentDetail) renderDetail();
+  setViewMode(viewMode);
+});
 
 document.addEventListener("DOMContentLoaded", () => {
   bindEvents();

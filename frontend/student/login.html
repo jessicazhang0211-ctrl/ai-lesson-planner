@@ -26,14 +26,14 @@
         <p class="subtitle" id="subtitle">欢迎回来，请登录继续</p>
 
         <form class="form" id="loginForm">
-          <label class="label" id="emailLabel">
-            邮箱
+          <label class="label" id="stuIdLabel">
+            学号
             <input
               class="input"
-              id="email"
-              type="email"
-              autocomplete="email"
-              placeholder="name@example.com"
+              id="stuId"
+              type="text"
+              autocomplete="username"
+              placeholder="请输入学号"
             />
           </label>
 
@@ -59,18 +59,16 @@
           <p class="error" id="error" style="display:none;"></p>
 
           <button class="btn" id="submitBtn" type="submit">登录</button>
-          <div class="auth-links">
-            <a class="auth-link" href="./register.html" id="registerLink">注册新账号</a>
-          </div>
         </form>
 
         <div class="footer">
-          <span id="hintText">使用测试账号：test@example.com / 123456</span>
+          <span id="hintText">使用教师分配的学号和初始密码登录：123456</span>
         </div>
       </div>
     </div>
   </div>
 
+  <script src="../js/i18n.js"></script>
   <script src="./js/login.js"></script>
 </body>
 </html>

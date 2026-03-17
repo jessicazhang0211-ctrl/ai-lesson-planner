@@ -3,6 +3,7 @@ from flask import Blueprint, request
 from app.extensions import db
 from app.models.user import User
 from app.utils.response import ok, err
+from app.utils.auth import validate_password_strength
 
 bp = Blueprint("user", __name__, url_prefix="/api/user")
 
@@ -111,6 +112,10 @@ def change_password():
 
     if not current_password or not new_password:
         return err("missing fields", http_status=400)
+
+    strong, msg = validate_password_strength(new_password)
+    if not strong:
+        return err(msg, http_status=400)
 
     if not user.check_password(current_password):
         return err("current password incorrect", http_status=400)

@@ -10,7 +10,16 @@ const exerciseDict = {
     emptyTitle:"还没有内容", emptySub:"填写左侧信息并点击“生成习题”。",
     required:"请至少填写知识点/主题", copied:"已复制到剪贴板",
     history:"最近生成", refresh:"刷新", loading:"生成中...", loadFail:"加载失败", saved:"已保存", saveFail:"保存失败",
-    genFail:"生成失败：请检查后端是否启动 / 路由是否注册 / login_user 是否包含 id"
+    genFail:"生成失败：请检查后端是否启动 / 路由是否注册 / login_user 是否包含 id",
+    emptyHistory:"(空)",
+    withAnalysis:"含解析",
+    noAnalysis:"无解析",
+    questionCount:"题量",
+    answerLabel:"答案",
+    analysisLabel:"解析",
+    scoreLabel:"分值",
+    pdfFontError:"PDF 字体加载失败，中文会乱码。请用本地静态服务器打开前端后重试。\n例如：cd frontend && python -m http.server 8000",
+    defaultExerciseTitle:"习题"
   },
   en: {
     title:"Exercise Builder", sub:"Choose types & difficulty and generate ready-to-use exercises.",
@@ -23,7 +32,16 @@ const exerciseDict = {
     emptyTitle:"No content yet", emptySub:"Fill the form and click “Generate”.",
     required:"Please fill in the topic/skill", copied:"Copied",
     history:"Recent", refresh:"Refresh", loading:"Generating...", loadFail:"Load failed", saved:"Saved", saveFail:"Save failed",
-    genFail:"Failed: check backend / route registration / login_user has id"
+    genFail:"Failed: check backend / route registration / login_user has id",
+    emptyHistory:"(empty)",
+    withAnalysis:"With explanations",
+    noAnalysis:"No explanations",
+    questionCount:"Questions",
+    answerLabel:"Answer",
+    analysisLabel:"Explanation",
+    scoreLabel:"Score",
+    pdfFontError:"PDF font loading failed. CJK text may be garbled. Please open frontend via a local HTTP server and try again.\nExample: cd frontend && python -m http.server 8000",
+    defaultExerciseTitle:"Exercise"
   }
 };
 
@@ -33,6 +51,16 @@ const PDF_FONT_FILE_NORMAL = "SanJiZiHaiSongGBK-2.ttf";
 const PDF_FONT_FILE_BOLD = "SanJiZiHaiSongGBK-2.ttf";
 const PDF_FONT_URL_NORMAL = "../assets/fonts/SanJiZiHaiSongGBK-2.ttf";
 const PDF_FONT_URL_BOLD = "../assets/fonts/SanJiZiHaiSongGBK-2.ttf";
+
+function getFontCandidates(url) {
+  const baseName = "SanJiZiHaiSongGBK-2.ttf";
+  return [
+    url,
+    `../assets/fonts/${baseName}`,
+    `/assets/fonts/${baseName}`,
+    `/frontend/assets/fonts/${baseName}`
+  ];
+}
 
 const API_BASE = "http://127.0.0.1:5000";
 
@@ -120,11 +148,11 @@ function formatExerciseContent(raw, meta){
     if (includeAnswer === "yes") {
       if (q.answer !== undefined) {
         const ans = Array.isArray(q.answer) ? q.answer.join(", ") : String(q.answer);
-        lines.push(`   答案：${ans}`);
+        lines.push(`   ${t("answerLabel")}: ${ans}`);
       }
-      if (q.analysis) lines.push(`   解析：${q.analysis}`);
+      if (q.analysis) lines.push(`   ${t("analysisLabel")}: ${q.analysis}`);
     }
-    if (q.score) lines.push(`   分值：${q.score}`);
+    if (q.score) lines.push(`   ${t("scoreLabel")}: ${q.score}`);
     lines.push("");
   });
   return lines.join("\n").trim();
@@ -156,8 +184,20 @@ async function ensurePdfFontLoaded(doc) {
     return btoa(binary);
   };
 
-  const normalBase64 = await loadFontFile(PDF_FONT_URL_NORMAL);
-  const boldBase64 = await loadFontFile(PDF_FONT_URL_BOLD);
+  const loadByCandidates = async (candidates) => {
+    let lastError = null;
+    for (const u of candidates) {
+      try {
+        return await loadFontFile(u);
+      } catch (e) {
+        lastError = e;
+      }
+    }
+    throw lastError || new Error("font load failed");
+  };
+
+  const normalBase64 = await loadByCandidates(getFontCandidates(PDF_FONT_URL_NORMAL));
+  const boldBase64 = await loadByCandidates(getFontCandidates(PDF_FONT_URL_BOLD));
   doc.addFileToVFS(PDF_FONT_FILE_NORMAL, normalBase64);
   doc.addFileToVFS(PDF_FONT_FILE_BOLD, boldBase64);
   doc.addFont(PDF_FONT_FILE_NORMAL, PDF_FONT_FAMILY, "normal");
@@ -173,7 +213,8 @@ async function downloadPdf(filename, title, text) {
     await ensurePdfFontLoaded(doc);
     doc.setFont(PDF_FONT_FAMILY, "normal");
   } catch {
-    doc.setFont("helvetica", "normal");
+    alert(t("pdfFontError"));
+    return;
   }
 
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -245,7 +286,7 @@ async function apiUpdateExercise(exerciseId, content, meta){
     },
     body: JSON.stringify({
       content,
-      title: meta.topic || "习题",
+      title: meta.topic || t("defaultExerciseTitle"),
       meta
     })
   });
@@ -272,7 +313,7 @@ function renderHistory(list){
   const box = document.getElementById("historyList");
   if(!box) return;
   if(!list || list.length===0){
-    box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">(empty)</div>`;
+    box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">${t("emptyHistory")}</div>`;
     return;
   }
   box.innerHTML = list.map(item=>{
@@ -280,11 +321,11 @@ function renderHistory(list){
     const types = item.types ? (Array.isArray(item.types) ? item.types.join(',') : item.types) : '';
     const difficulty = item.difficulty || '';
     const count = item.count || '';
-    const includeAnswer = item.includeAnswer ? (item.includeAnswer==='yes'?'含解析':'无解析') : '';
+    const includeAnswer = item.includeAnswer ? (item.includeAnswer==='yes'?t('withAnalysis'):t('noAnalysis')) : '';
     const grade = item.grade || '';
     const subject = item.subject || '';
     const topic = item.topic || item.title || '-';
-    const sub = [grade, subject, types, difficulty, count?`题量${count}`:'', includeAnswer].filter(Boolean).join(' · ');
+    const sub = [grade, subject, types, difficulty, count?`${t('questionCount')} ${count}`:'', includeAnswer].filter(Boolean).join(' · ');
     return `
     <div class="hitem" data-id="${item.id}" data-content="${encodeURIComponent(item.content||item.description||'')}">
       <div class="hitem-top">
@@ -382,7 +423,7 @@ function bindEvents(){
     const text = getOutputText();
     if(!text) return;
     const name = (val("topic") || "exercises").replace(/[\\/:*?"<>|]/g, "_");
-    await downloadPdf(`${name}.pdf`, val("topic") || "习题", text);
+    await downloadPdf(`${name}.pdf`, val("topic") || t("defaultExerciseTitle"), text);
   });
 
   document.getElementById("downloadWordBtn").addEventListener("click", (e)=>{

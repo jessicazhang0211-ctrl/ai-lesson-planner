@@ -8,3 +8,4 @@ google-generativeai
 openpyxl
 xlrd
 PyJWT
+python-docx

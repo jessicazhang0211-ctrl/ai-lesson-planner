@@ -1,0 +1,42 @@
+flowchart LR
+  %% 论文风格：部署架构图
+  subgraph Client["终端侧"]
+    Browser1["教师浏览器"]
+    Browser2["学生浏览器"]
+  end
+
+  subgraph Host["Windows 主机 D 盘 ai-lesson-planner"]
+    subgraph FrontendNode["前端静态服务"]
+      StaticServer["HTTP 静态服务\nfrontend"]
+    end
+
+    subgraph BackendNode["后端服务进程"]
+      FlaskApp["Flask App\nbackend app.py"]
+      ServiceLayer["服务与路由\napi services repositories"]
+    end
+
+    subgraph AITestNode["实验与评测进程"]
+      Runner["run_experiments\nrun_report_required_experiment"]
+      Retest["retest_with_rubric"]
+      ResultFiles["results 目录\nCSV MD"]
+    end
+  end
+
+  subgraph External["外部依赖"]
+    MySQL[("MySQL 数据库")]
+    LLM["LLM Provider APIs"]
+  end
+
+  Browser1 --> StaticServer
+  Browser2 --> StaticServer
+  Browser1 --> FlaskApp
+  Browser2 --> FlaskApp
+
+  FlaskApp --> ServiceLayer
+  ServiceLayer --> MySQL
+  ServiceLayer --> LLM
+
+  Runner --> LLM
+  Runner --> ResultFiles
+  Retest --> LLM
+  Retest --> ResultFiles

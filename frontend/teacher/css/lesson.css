@@ -125,11 +125,19 @@
   min-height: 420px;
   white-space: pre-wrap;
   word-break: break-word;
-  font-size: 14px;
-  line-height: 1.8;
+  font-size: 15px;
+  line-height: 1.95;
+  letter-spacing: 0.2px;
   border: 1px solid #eef0f3;
   box-shadow: 0 12px 28px rgba(15,23,42,0.06);
-  font-family: "SimSun", "Songti SC", "宋体", serif;
+  font-family: "STSong", "Songti SC", "SimSun", "Noto Serif SC", "Source Han Serif SC", "宋体", serif;
+}
+
+.output::first-line{
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #0f172a;
 }
 
 .output:focus{

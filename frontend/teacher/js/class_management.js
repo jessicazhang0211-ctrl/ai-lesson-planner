@@ -162,7 +162,21 @@ const cmDict = {
     confirm_delete_class: "确定删除该班级？此操作不可撤销。",
     confirm_archive_class: "确定归档该班级？可在“已归档”中查看。",
     confirm_delete_student: "确定移出该学生？",
-    invalid_csv: "CSV 格式不正确（需包含 name,stu_id 或 姓名,学号）"
+    invalid_csv: "CSV 格式不正确（需包含 name,stu_id 或 姓名,学号）",
+    err_op_failed: "操作失败",
+    err_reset_pwd_failed: "重置密码失败",
+    err_fetch_student_failed: "获取学生详情失败",
+    err_save_failed: "保存失败",
+    err_create_class_failed: "创建班级失败",
+    err_update_student_failed: "更新学生失败",
+    err_add_student_failed: "添加学生失败",
+    err_delete_class_failed: "删除班级失败",
+    err_reset_code_failed: "重置班级码失败",
+    err_export_failed: "导出失败",
+    err_import_failed: "导入失败",
+    err_parsed_header: "解析到的表头",
+    err_delete_student_failed: "删除学生失败",
+    import_account_created: (n) => `已同步创建 ${n} 个学生账号，初始密码为 123456`
   },
 
   en: {
@@ -275,7 +289,21 @@ const cmDict = {
     confirm_delete_class: "Delete this class? This cannot be undone.",
     confirm_archive_class: "Archive this class? You can find it under “Archived”.",
     confirm_delete_student: "Remove this student?",
-    invalid_csv: "Invalid CSV (needs name,stu_id or 姓名,学号)"
+    invalid_csv: "Invalid CSV (requires name,stu_id headers)",
+    err_op_failed: "Operation failed",
+    err_reset_pwd_failed: "Failed to reset password",
+    err_fetch_student_failed: "Failed to load student details",
+    err_save_failed: "Save failed",
+    err_create_class_failed: "Failed to create class",
+    err_update_student_failed: "Failed to update student",
+    err_add_student_failed: "Failed to add student",
+    err_delete_class_failed: "Failed to delete class",
+    err_reset_code_failed: "Failed to reset class code",
+    err_export_failed: "Export failed",
+    err_import_failed: "Import failed",
+    err_parsed_header: "Parsed header",
+    err_delete_student_failed: "Failed to delete student",
+    import_account_created: (n) => `${n} student account(s) created. Initial password: 123456`
   }
 };
 
@@ -800,7 +828,7 @@ function onStudentActionClick(e) {
     if (typeof s.id === 'number' && typeof cls.id === 'number') {
       apiFetch(`/api/class/${cls.id}/students/${s.id}/reset-password`, { method: 'POST', body: JSON.stringify({}) })
         .then(d => { alert(`${t('toast_pwd_reset')}: ${d.new_password}`); })
-        .catch(() => { alert('重置密码失败'); });
+        .catch(() => { alert(t('err_reset_pwd_failed')); });
       return;
     }
     alert(t("toast_pwd_reset"));
@@ -811,7 +839,7 @@ function onStudentActionClick(e) {
     if (typeof s.id === 'number' && typeof cls.id === 'number') {
       apiFetch(`/api/class/${cls.id}/students/${s.id}/status`, { method: 'POST', body: JSON.stringify({ action: 'enable' }) })
         .then(d => { s.status = d.status; saveStore(state.store); renderAll(); alert(t('toast_saved')); })
-        .catch(() => { alert('操作失败'); });
+        .catch(() => { alert(t('err_op_failed')); });
       return;
     }
     s.status = "joined"; persistAndRender(t("toast_saved")); return;
@@ -821,7 +849,7 @@ function onStudentActionClick(e) {
     if (typeof s.id === 'number' && typeof cls.id === 'number') {
       apiFetch(`/api/class/${cls.id}/students/${s.id}`, { method: 'DELETE' })
         .then(() => { cls.students = (cls.students || []).filter(x => x.id !== s.id); saveStore(state.store); renderAll(); alert(t('toast_deleted')); })
-        .catch(() => { alert('操作失败'); });
+        .catch(() => { alert(t('err_op_failed')); });
       return;
     }
     cls.students = (cls.students || []).filter(x => x.id !== s.id);
@@ -833,7 +861,7 @@ function onStudentActionClick(e) {
     if (typeof s.id === 'number' && typeof cls.id === 'number') {
       apiFetch(`/api/class/${cls.id}/students/${s.id}/status`, { method: 'POST', body: JSON.stringify({ action: 'enable' }) })
         .then(d => { s.status = d.status; saveStore(state.store); renderAll(); alert(t('toast_saved')); })
-        .catch(() => { alert('操作失败'); });
+        .catch(() => { alert(t('err_op_failed')); });
       return;
     }
     s.status = "joined"; persistAndRender(t("toast_saved")); return;
@@ -843,7 +871,7 @@ function onStudentActionClick(e) {
     if (typeof s.id === 'number' && typeof cls.id === 'number') {
       apiFetch(`/api/class/${cls.id}/students/${s.id}/status`, { method: 'POST', body: JSON.stringify({ action: 'disable' }) })
         .then(d => { s.status = d.status; saveStore(state.store); renderAll(); alert(t('toast_saved')); })
-        .catch(() => { alert('操作失败'); });
+        .catch(() => { alert(t('err_op_failed')); });
       return;
     }
     s.status = "disabled"; persistAndRender(t("toast_saved")); return;
@@ -854,7 +882,7 @@ function onStudentActionClick(e) {
     if (typeof s.id === 'number' && typeof cls.id === 'number') {
       apiFetch(`/api/class/${cls.id}/students/${s.id}`, { method: 'DELETE' })
         .then(() => { cls.students = (cls.students || []).filter(x => x.id !== s.id); saveStore(state.store); renderAll(); alert(t('toast_deleted')); })
-        .catch(() => { alert('操作失败'); });
+        .catch(() => { alert(t('err_op_failed')); });
       return;
     }
     cls.students = (cls.students || []).filter(x => x.id !== s.id);
@@ -876,7 +904,7 @@ function openDrawer(studentId) {
     // fetch latest from server
     apiFetch(`/api/class/${cls.id}/students/${local.id}`, { method: 'GET' })
       .then(d => { renderDrawerStudent(d); drawer.classList.remove('hidden'); state.drawerStudentId = local.id; })
-      .catch(() => { alert('获取学生详情失败'); });
+      .catch(() => { alert(t('err_fetch_student_failed')); });
     return;
   }
 
@@ -952,7 +980,7 @@ function saveClassModal() {
       // PATCH
       apiFetch(`/api/class/${cls.id}`, { method: 'PATCH', body: JSON.stringify({ name, desc }) })
         .then((d) => { Object.assign(cls, d); saveStore(state.store); renderAll(); alert(t('toast_saved')); closeClassModal(); })
-        .catch(() => { alert('保存失败'); });
+        .catch(() => { alert(t('err_save_failed')); });
       return;
     }
     // local fallback
@@ -976,7 +1004,7 @@ function saveClassModal() {
         alert(t('toast_saved'));
         closeClassModal();
       })
-      .catch(e => { console.warn(e); alert('创建班级失败'); });
+      .catch(e => { console.warn(e); alert(`${t('err_create_class_failed')}: ${e?.message || ''}`); });
     return;
   }
 
@@ -1071,7 +1099,7 @@ function saveStuModal() {
     if (typeof s.id === 'number') {
       apiFetch(`/api/class/${cls.id}/students/${s.id}`, { method: 'PATCH', body: JSON.stringify({ name, stu_id, status, parent_phone, accuracy, submit }) })
         .then(d => { Object.assign(s, d); saveStore(state.store); renderAll(); alert(t('toast_saved')); closeStuModal(); })
-        .catch(() => { alert('更新学生失败'); });
+        .catch(() => { alert(t('err_update_student_failed')); });
       return;
     }
 
@@ -1092,7 +1120,7 @@ function saveStuModal() {
         alert(t('toast_saved'));
         closeStuModal();
       })
-      .catch(() => { alert('添加学生失败'); });
+      .catch(() => { alert(t('err_add_student_failed')); });
     return;
   }
 
@@ -1132,7 +1160,7 @@ function archiveSelected() {
   if (typeof cls.id === 'number') {
     apiFetch(`/api/class/${cls.id}/archive`, { method: 'POST', body: JSON.stringify({ action: 'archive' }) })
       .then(d => { cls.status = d.status; saveStore(state.store); renderAll(); alert(t('toast_archived')); })
-      .catch(() => { alert('操作失败'); });
+      .catch(() => { alert(t('err_op_failed')); });
     return;
   }
   cls.status = "archived";
@@ -1146,7 +1174,7 @@ function deleteSelected() {
   if (typeof cls.id === 'number') {
     apiFetch(`/api/class/${cls.id}`, { method: 'DELETE' })
       .then(() => { state.store.classes = state.store.classes.filter(c => c.id !== cls.id); state.selectedClassId = null; saveStore(state.store); renderAll(); alert(t('toast_deleted')); })
-      .catch(() => { alert('删除班级失败'); });
+      .catch(() => { alert(t('err_delete_class_failed')); });
     return;
   }
   state.store.classes = state.store.classes.filter(c => c.id !== cls.id);
@@ -1173,7 +1201,7 @@ function resetSelectedCode() {
   if (typeof cls.id === 'number') {
     apiFetch(`/api/class/${cls.id}/reset-code`, { method: 'POST' })
       .then(d => { cls.code = d.code; saveStore(state.store); renderAll(); alert(t('toast_code_reset')); })
-      .catch(() => { alert('重置班级码失败'); });
+      .catch(() => { alert(t('err_reset_code_failed')); });
     return;
   }
   cls.code = randomCode();
@@ -1219,7 +1247,7 @@ function exportClass() {
         a.remove();
         URL.revokeObjectURL(u);
       })
-      .catch(() => { alert('导出失败'); });
+      .catch(() => { alert(t('err_export_failed')); });
     return;
   }
 
@@ -1319,15 +1347,17 @@ function importCSVFile(file) {
            else state.store.classes.push(d.class);
            saveStore(state.store);
            renderAll();
-           alert(t('toast_saved'));
+           const created = Number(d.account_created || 0);
+           const msg = created > 0 ? `${t('toast_saved')}\n${t('import_account_created')(created)}` : t('toast_saved');
+           alert(msg);
          } else {
            alert(t('toast_saved'));
            fetchAndLoadClasses();
          }
        })
        .catch((err) => {
-         const detail = err?.parsed_header ? `\n解析到的表头: ${JSON.stringify(err.parsed_header)}` : '';
-         alert(`导入失败: ${err.message || err}${detail}`);
+         const detail = err?.parsed_header ? `\n${t('err_parsed_header')}: ${JSON.stringify(err.parsed_header)}` : '';
+         alert(`${t('err_import_failed')}: ${err.message || err}${detail}`);
        });
      return;
    }
@@ -1355,15 +1385,17 @@ function importCSVFile(file) {
             else state.store.classes.push(d.class);
             saveStore(state.store);
             renderAll();
-            alert(t('toast_saved'));
+            const created = Number(d.account_created || 0);
+            const msg = created > 0 ? `${t('toast_saved')}\n${t('import_account_created')(created)}` : t('toast_saved');
+            alert(msg);
           } else {
             alert(t('toast_saved'));
             fetchAndLoadClasses();
           }
         })
         .catch((err) => {
-          const detail = err?.parsed_header ? `\n解析到的表头: ${JSON.stringify(err.parsed_header)}` : '';
-          alert(`导入失败: ${err.message || err}${detail}`);
+          const detail = err?.parsed_header ? `\n${t('err_parsed_header')}: ${JSON.stringify(err.parsed_header)}` : '';
+          alert(`${t('err_import_failed')}: ${err.message || err}${detail}`);
         });
       return;
     }
@@ -1544,7 +1576,7 @@ function bindEvents() {
     if (typeof s.id === 'number' && typeof cls.id === 'number') {
       apiFetch(`/api/class/${cls.id}/students/${s.id}`, { method: 'DELETE' })
         .then(() => { cls.students = (cls.students || []).filter(x => x.id !== s.id); closeDrawer(); saveStore(state.store); renderAll(); alert(t('toast_deleted')); })
-        .catch(() => { alert('删除学生失败'); });
+        .catch(() => { alert(t('err_delete_student_failed')); });
       return;
     }
     cls.students = (cls.students || []).filter(x => x.id !== s.id);
@@ -1577,7 +1609,15 @@ function escapeHtml(s) {
 
 /** ---------- Init ---------- */
 function getLoginUser() {
-  try { return JSON.parse(localStorage.getItem('login_user') || 'null'); } catch { return null; }
+  try {
+    const user = JSON.parse(localStorage.getItem('login_user') || 'null');
+    if (!user || typeof user !== 'object') return null;
+    if (!user.id && user.user_id) user.id = user.user_id;
+    if (typeof user.id === 'string' && /^\d+$/.test(user.id)) user.id = Number(user.id);
+    return user;
+  } catch {
+    return null;
+  }
 }
 
 async function apiFetch(path, opts = {}) {

@@ -56,7 +56,8 @@ const resourceDict = {
 		publishOk: "已发布",
 		publishEmpty: "请选择发布学生",
 		loadFail: "加载失败",
-		selectClass: "请选择班级"
+		selectClass: "请选择班级",
+		sessionExpired: "登录已过期，请重新登录"
 	},
 	en: {
 		title: "Resource Manager",
@@ -115,7 +116,8 @@ const resourceDict = {
 		publishOk: "Published",
 		publishEmpty: "Please select students",
 		loadFail: "Load failed",
-		selectClass: "Please select a class"
+		selectClass: "Please select a class",
+		sessionExpired: "Session expired. Please sign in again"
 	}
 };
 
@@ -186,7 +188,7 @@ async function apiFetchHistory() {
 	]);
 
 	if (lessonResp.status === 401 || exerciseResp.status === 401) {
-		alert("登录已过期，请重新登录");
+		alert(t("sessionExpired"));
 		window.location.href = "../login.html";
 		return [];
 	}

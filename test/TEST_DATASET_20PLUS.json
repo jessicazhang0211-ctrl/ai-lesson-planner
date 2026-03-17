@@ -1,0 +1,318 @@
+{
+  "meta": {
+    "dataset_name": "ai_lesson_planner_test_dataset",
+    "version": "1.0",
+    "created_at": "2026-03-17",
+    "notes": "Seed-style test data for auth/class/lesson/exercise/resource flows"
+  },
+  "teachers": [
+    {
+      "id": 1,
+      "name": "Liu Fang",
+      "email": "liu.fang@example.edu",
+      "password": "123456",
+      "school": "Nanshan Primary School",
+      "job_title": "Math Teacher"
+    },
+    {
+      "id": 2,
+      "name": "Wang Lei",
+      "email": "wang.lei@example.edu",
+      "password": "123456",
+      "school": "Nanshan Primary School",
+      "job_title": "Math Teacher"
+    },
+    {
+      "id": 3,
+      "name": "Chen Yu",
+      "email": "chen.yu@example.edu",
+      "password": "123456",
+      "school": "Haidian Primary School",
+      "job_title": "Math Teacher"
+    }
+  ],
+  "classes": [
+    {
+      "id": 101,
+      "name": "Grade1-Class3",
+      "description": "Foundational arithmetic",
+      "status": "active",
+      "created_by": 1
+    },
+    {
+      "id": 102,
+      "name": "Grade3-Class2",
+      "description": "Multiplication and division",
+      "status": "active",
+      "created_by": 1
+    },
+    {
+      "id": 103,
+      "name": "Grade6-Class1",
+      "description": "Fractions and ratio",
+      "status": "active",
+      "created_by": 2
+    }
+  ],
+  "students": [
+    {
+      "id": 1001,
+      "name": "Zhang Rui",
+      "stu_id": "20260103001",
+      "class_id": 101,
+      "status": "joined",
+      "parent_phone": "13910000001"
+    },
+    {
+      "id": 1002,
+      "name": "Li Xin",
+      "stu_id": "20260103002",
+      "class_id": 101,
+      "status": "joined",
+      "parent_phone": "13910000002"
+    },
+    {
+      "id": 1003,
+      "name": "Sun Hao",
+      "stu_id": "20260103003",
+      "class_id": 101,
+      "status": "joined",
+      "parent_phone": "13910000003"
+    },
+    {
+      "id": 1004,
+      "name": "Gao Lin",
+      "stu_id": "20260103004",
+      "class_id": 101,
+      "status": "joined",
+      "parent_phone": "13910000004"
+    },
+    {
+      "id": 1005,
+      "name": "He Qian",
+      "stu_id": "20260103005",
+      "class_id": 101,
+      "status": "joined",
+      "parent_phone": "13910000005"
+    },
+    {
+      "id": 1006,
+      "name": "Ma Jie",
+      "stu_id": "20260302001",
+      "class_id": 102,
+      "status": "joined",
+      "parent_phone": "13910000006"
+    },
+    {
+      "id": 1007,
+      "name": "Xu Tong",
+      "stu_id": "20260302002",
+      "class_id": 102,
+      "status": "joined",
+      "parent_phone": "13910000007"
+    },
+    {
+      "id": 1008,
+      "name": "Deng Qi",
+      "stu_id": "20260302003",
+      "class_id": 102,
+      "status": "joined",
+      "parent_phone": "13910000008"
+    },
+    {
+      "id": 1009,
+      "name": "Yao Min",
+      "stu_id": "20260302004",
+      "class_id": 102,
+      "status": "joined",
+      "parent_phone": "13910000009"
+    },
+    {
+      "id": 1010,
+      "name": "Cao Yang",
+      "stu_id": "20260302005",
+      "class_id": 102,
+      "status": "joined",
+      "parent_phone": "13910000010"
+    },
+    {
+      "id": 1011,
+      "name": "Pan Yue",
+      "stu_id": "20260601001",
+      "class_id": 103,
+      "status": "joined",
+      "parent_phone": "13910000011"
+    },
+    {
+      "id": 1012,
+      "name": "Wu Chen",
+      "stu_id": "20260601002",
+      "class_id": 103,
+      "status": "joined",
+      "parent_phone": "13910000012"
+    },
+    {
+      "id": 1013,
+      "name": "Ren Xi",
+      "stu_id": "20260601003",
+      "class_id": 103,
+      "status": "joined",
+      "parent_phone": "13910000013"
+    },
+    {
+      "id": 1014,
+      "name": "Qin Mo",
+      "stu_id": "20260601004",
+      "class_id": 103,
+      "status": "joined",
+      "parent_phone": "13910000014"
+    },
+    {
+      "id": 1015,
+      "name": "Jiang Ke",
+      "stu_id": "20260601005",
+      "class_id": 103,
+      "status": "joined",
+      "parent_phone": "13910000015"
+    },
+    {
+      "id": 1016,
+      "name": "Feng Jia",
+      "stu_id": "20260103006",
+      "class_id": 101,
+      "status": "pending",
+      "parent_phone": "13910000016"
+    },
+    {
+      "id": 1017,
+      "name": "Tang Rui",
+      "stu_id": "20260302006",
+      "class_id": 102,
+      "status": "pending",
+      "parent_phone": "13910000017"
+    },
+    {
+      "id": 1018,
+      "name": "Shen Qi",
+      "stu_id": "20260601006",
+      "class_id": 103,
+      "status": "pending",
+      "parent_phone": "13910000018"
+    },
+    {
+      "id": 1019,
+      "name": "Nie Ran",
+      "stu_id": "20260302007",
+      "class_id": 102,
+      "status": "disabled",
+      "parent_phone": "13910000019"
+    },
+    {
+      "id": 1020,
+      "name": "Yu An",
+      "stu_id": "20260601007",
+      "class_id": 103,
+      "status": "disabled",
+      "parent_phone": "13910000020"
+    }
+  ],
+  "lessons": [
+    {
+      "id": 5001,
+      "title": "Grade1 Addition within 20",
+      "created_by": 1,
+      "topic": "Addition",
+      "duration_minutes": 40,
+      "lesson_count": 1
+    },
+    {
+      "id": 5002,
+      "title": "Grade3 Multiplication Strategies",
+      "created_by": 1,
+      "topic": "Multiplication",
+      "duration_minutes": 45,
+      "lesson_count": 1
+    },
+    {
+      "id": 5003,
+      "title": "Grade6 Fractions Comparison",
+      "created_by": 2,
+      "topic": "Fractions",
+      "duration_minutes": 45,
+      "lesson_count": 2
+    }
+  ],
+  "exercises": [
+    {
+      "id": 7001,
+      "title": "Addition Drill A",
+      "created_by": 1,
+      "class_id": 101,
+      "difficulty": "easy"
+    },
+    {
+      "id": 7002,
+      "title": "Multiplication Drill B",
+      "created_by": 1,
+      "class_id": 102,
+      "difficulty": "medium"
+    },
+    {
+      "id": 7003,
+      "title": "Fraction Practice C",
+      "created_by": 2,
+      "class_id": 103,
+      "difficulty": "medium"
+    }
+  ],
+  "resource_publications": [
+    {
+      "id": 9001,
+      "resource_type": "lesson",
+      "resource_id": 5001,
+      "class_id": 101,
+      "mode": "all_students",
+      "created_by": 1,
+      "revoked": false
+    },
+    {
+      "id": 9002,
+      "resource_type": "exercise",
+      "resource_id": 7002,
+      "class_id": 102,
+      "mode": "selected_students",
+      "student_ids": "1006,1007,1008",
+      "created_by": 1,
+      "revoked": false
+    }
+  ],
+  "exercise_submissions": [
+    {
+      "id": 11001,
+      "publish_id": 9002,
+      "student_id": 1006,
+      "status": "graded",
+      "auto_score": 88,
+      "teacher_score": 90,
+      "total_score": 89
+    },
+    {
+      "id": 11002,
+      "publish_id": 9002,
+      "student_id": 1007,
+      "status": "pending_review",
+      "auto_score": 75,
+      "teacher_score": null,
+      "total_score": null
+    },
+    {
+      "id": 11003,
+      "publish_id": 9002,
+      "student_id": 1008,
+      "status": "saved",
+      "auto_score": null,
+      "teacher_score": null,
+      "total_score": null
+    }
+  ]
+}

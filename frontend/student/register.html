@@ -23,49 +23,50 @@
         </div>
 
         <h1 class="title" id="title">学生注册</h1>
-        <p class="subtitle" id="subtitle">创建学生账号后开始学习</p>
+        <p class="subtitle" id="subtitle">学生自助注册已关闭</p>
 
         <form class="form" id="registerForm">
           <label class="label" id="nameLabel">
             姓名
-            <input class="input" id="name" type="text" placeholder="Jessica Zhang" />
+            <input class="input" id="name" type="text" placeholder="Jessica Zhang" disabled />
           </label>
 
           <label class="label" id="emailLabel">
             邮箱
-            <input class="input" id="email" type="email" placeholder="name@example.com" />
+            <input class="input" id="email" type="email" placeholder="name@example.com" disabled />
           </label>
 
           <label class="label" id="classLabel">
             班级
-            <select class="input" id="classId"></select>
+            <select class="input" id="classId" disabled></select>
           </label>
 
           <label class="label" id="passwordLabel">
             密码
-            <input class="input" id="password" type="password" placeholder="••••••••" />
+            <input class="input" id="password" type="password" placeholder="••••••••" disabled />
           </label>
 
           <label class="label" id="confirmLabel">
             确认密码
-            <input class="input" id="confirm" type="password" placeholder="••••••••" />
+            <input class="input" id="confirm" type="password" placeholder="••••••••" disabled />
           </label>
 
           <p class="error" id="error" style="display:none;"></p>
 
-          <button class="btn" id="submitBtn" type="submit">注册</button>
+          <button class="btn" id="submitBtn" type="submit" disabled>注册</button>
           <div class="auth-links">
             <a class="auth-link" href="./login.html" id="goLoginLink">去登录</a>
           </div>
         </form>
 
         <div class="footer">
-          <span id="hintText">注册后将跳转到登录页</span>
+          <span id="hintText">学生账号由教师导入分配，请联系教师获取学号和初始密码</span>
         </div>
       </div>
     </div>
   </div>
 
+  <script src="../js/i18n.js"></script>
   <script src="./js/register.js"></script>
 </body>
 </html>

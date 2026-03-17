@@ -1,0 +1,395 @@
+{
+  "meta": {
+    "dataset_name": "uk_primary_math_task_set_36",
+    "version": "1.0.0",
+    "created_at": "2026-03-15",
+    "jurisdiction": "England",
+    "locale": "en-GB",
+    "total_tasks": 36,
+    "design": "6 year groups x 6 topic families"
+  },
+  "topic_families": [
+    "number_and_place_value",
+    "operations",
+    "fractions",
+    "geometry",
+    "measurement",
+    "reasoning_problem_solving"
+  ],
+  "tasks": [
+    {
+      "task_id": "Y1-T1",
+      "year_group": "Year 1",
+      "key_stage": "KS1",
+      "topic_family": "number_and_place_value",
+      "topic": "Counting and comparing numbers to 20",
+      "duration_minutes": 50,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["counting objects to 10", "number recognition to 10"],
+      "support_needs": ["short instructions", "concrete manipulatives"]
+    },
+    {
+      "task_id": "Y1-T2",
+      "year_group": "Year 1",
+      "key_stage": "KS1",
+      "topic_family": "operations",
+      "topic": "Addition within 20 using number bonds",
+      "duration_minutes": 50,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["number bonds to 10", "counting on"],
+      "support_needs": ["ten frames", "sentence stems"]
+    },
+    {
+      "task_id": "Y1-T3",
+      "year_group": "Year 1",
+      "key_stage": "KS1",
+      "topic_family": "fractions",
+      "topic": "Recognising halves and quarters of shapes",
+      "duration_minutes": 50,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["equal sharing with objects"],
+      "support_needs": ["visual prompts", "guided oral rehearsal"]
+    },
+    {
+      "task_id": "Y1-T4",
+      "year_group": "Year 1",
+      "key_stage": "KS1",
+      "topic_family": "geometry",
+      "topic": "Identifying 2D and 3D shapes",
+      "duration_minutes": 50,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["basic shape names"],
+      "support_needs": ["real object sorting", "simple vocabulary cards"]
+    },
+    {
+      "task_id": "Y1-T5",
+      "year_group": "Year 1",
+      "key_stage": "KS1",
+      "topic_family": "measurement",
+      "topic": "Comparing length and height",
+      "duration_minutes": 50,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["language: longer shorter taller"],
+      "support_needs": ["hands-on comparison", "paired talk"]
+    },
+    {
+      "task_id": "Y1-T6",
+      "year_group": "Year 1",
+      "key_stage": "KS1",
+      "topic_family": "reasoning_problem_solving",
+      "topic": "Simple one-step number stories within 20",
+      "duration_minutes": 50,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["counting objects", "addition as combining"],
+      "support_needs": ["picture support", "reduced text load"]
+    },
+
+    {
+      "task_id": "Y2-T1",
+      "year_group": "Year 2",
+      "key_stage": "KS1",
+      "topic_family": "number_and_place_value",
+      "topic": "Place value and partitioning to 100",
+      "duration_minutes": 50,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["tens and ones with apparatus"],
+      "support_needs": ["base ten blocks", "spoken rehearsal"]
+    },
+    {
+      "task_id": "Y2-T2",
+      "year_group": "Year 2",
+      "key_stage": "KS1",
+      "topic_family": "operations",
+      "topic": "Bridging through 10 in addition and subtraction",
+      "duration_minutes": 50,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["number bonds to 10", "place value to 100"],
+      "support_needs": ["part-part-whole", "stem sentences"]
+    },
+    {
+      "task_id": "Y2-T3",
+      "year_group": "Year 2",
+      "key_stage": "KS1",
+      "topic_family": "fractions",
+      "topic": "Finding 1/2, 1/4 and 1/3 of quantities",
+      "duration_minutes": 50,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["equal groups", "skip counting"]
+    },
+    {
+      "task_id": "Y2-T4",
+      "year_group": "Year 2",
+      "key_stage": "KS1",
+      "topic_family": "geometry",
+      "topic": "Properties of 2D shapes and lines of symmetry",
+      "duration_minutes": 50,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["shape naming", "sorting by attributes"]
+    },
+    {
+      "task_id": "Y2-T5",
+      "year_group": "Year 2",
+      "key_stage": "KS1",
+      "topic_family": "measurement",
+      "topic": "Using standard units for length and mass",
+      "duration_minutes": 50,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["non-standard comparison"],
+      "support_needs": ["equipment modelling", "small-step tasks"]
+    },
+    {
+      "task_id": "Y2-T6",
+      "year_group": "Year 2",
+      "key_stage": "KS1",
+      "topic_family": "reasoning_problem_solving",
+      "topic": "Two-step word problems within 100",
+      "duration_minutes": 50,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["addition/subtraction methods"]
+    },
+
+    {
+      "task_id": "Y3-T1",
+      "year_group": "Year 3",
+      "key_stage": "Lower KS2",
+      "topic_family": "number_and_place_value",
+      "topic": "Place value to 1000 and number lines",
+      "duration_minutes": 55,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["partitioning to 100", "comparing numbers"]
+    },
+    {
+      "task_id": "Y3-T2",
+      "year_group": "Year 3",
+      "key_stage": "Lower KS2",
+      "topic_family": "operations",
+      "topic": "Column addition and subtraction with exchange",
+      "duration_minutes": 55,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["place value to 1000", "mental strategies"]
+    },
+    {
+      "task_id": "Y3-T3",
+      "year_group": "Year 3",
+      "key_stage": "Lower KS2",
+      "topic_family": "fractions",
+      "topic": "Unit and non-unit fractions on a number line",
+      "duration_minutes": 55,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["equal parts", "simple fractions in KS1"]
+    },
+    {
+      "task_id": "Y3-T4",
+      "year_group": "Year 3",
+      "key_stage": "Lower KS2",
+      "topic_family": "geometry",
+      "topic": "Right angles and turns",
+      "duration_minutes": 55,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["shape properties", "clockwise anti-clockwise"]
+    },
+    {
+      "task_id": "Y3-T5",
+      "year_group": "Year 3",
+      "key_stage": "Lower KS2",
+      "topic_family": "measurement",
+      "topic": "Perimeter of simple 2D shapes",
+      "duration_minutes": 55,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["cm and m", "adding lengths"]
+    },
+    {
+      "task_id": "Y3-T6",
+      "year_group": "Year 3",
+      "key_stage": "Lower KS2",
+      "topic_family": "reasoning_problem_solving",
+      "topic": "Reasoning with multiplication and division facts",
+      "duration_minutes": 55,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["2, 5, 10 times tables"]
+    },
+
+    {
+      "task_id": "Y4-T1",
+      "year_group": "Year 4",
+      "key_stage": "Lower KS2",
+      "topic_family": "number_and_place_value",
+      "topic": "Rounding and ordering numbers to 10,000",
+      "duration_minutes": 55,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["place value to 1000", "number line estimation"]
+    },
+    {
+      "task_id": "Y4-T2",
+      "year_group": "Year 4",
+      "key_stage": "Lower KS2",
+      "topic_family": "operations",
+      "topic": "Multiplication and division with factor pairs",
+      "duration_minutes": 55,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["times tables recall", "arrays"]
+    },
+    {
+      "task_id": "Y4-T3",
+      "year_group": "Year 4",
+      "key_stage": "Lower KS2",
+      "topic_family": "fractions",
+      "topic": "Equivalent fractions and tenths",
+      "duration_minutes": 55,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["unit fractions", "fraction as part of whole"]
+    },
+    {
+      "task_id": "Y4-T4",
+      "year_group": "Year 4",
+      "key_stage": "Lower KS2",
+      "topic_family": "geometry",
+      "topic": "Classifying quadrilaterals and symmetry",
+      "duration_minutes": 55,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["2D shape properties", "right angles"]
+    },
+    {
+      "task_id": "Y4-T5",
+      "year_group": "Year 4",
+      "key_stage": "Lower KS2",
+      "topic_family": "measurement",
+      "topic": "Area by counting squares",
+      "duration_minutes": 55,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["length measurement", "arrays"]
+    },
+    {
+      "task_id": "Y4-T6",
+      "year_group": "Year 4",
+      "key_stage": "Lower KS2",
+      "topic_family": "reasoning_problem_solving",
+      "topic": "Multi-step mixed operations word problems",
+      "duration_minutes": 55,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["column methods", "times tables to 12"]
+    },
+
+    {
+      "task_id": "Y5-T1",
+      "year_group": "Year 5",
+      "key_stage": "Upper KS2",
+      "topic_family": "number_and_place_value",
+      "topic": "Numbers to 1,000,000 and negative numbers",
+      "duration_minutes": 60,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["ordering to 10,000", "rounding"]
+    },
+    {
+      "task_id": "Y5-T2",
+      "year_group": "Year 5",
+      "key_stage": "Upper KS2",
+      "topic_family": "operations",
+      "topic": "Formal multiplication and short division",
+      "duration_minutes": 60,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["factor and multiple", "place value"]
+    },
+    {
+      "task_id": "Y5-T3",
+      "year_group": "Year 5",
+      "key_stage": "Upper KS2",
+      "topic_family": "fractions",
+      "topic": "Comparing and ordering fractions with different denominators",
+      "duration_minutes": 60,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["equivalent fractions", "common multiples"]
+    },
+    {
+      "task_id": "Y5-T4",
+      "year_group": "Year 5",
+      "key_stage": "Upper KS2",
+      "topic_family": "geometry",
+      "topic": "Angles around a point and on a straight line",
+      "duration_minutes": 60,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["acute obtuse right reflex", "protractor basics"]
+    },
+    {
+      "task_id": "Y5-T5",
+      "year_group": "Year 5",
+      "key_stage": "Upper KS2",
+      "topic_family": "measurement",
+      "topic": "Converting metric units and solving measure problems",
+      "duration_minutes": 60,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["decimal notation", "unit relationships"]
+    },
+    {
+      "task_id": "Y5-T6",
+      "year_group": "Year 5",
+      "key_stage": "Upper KS2",
+      "topic_family": "reasoning_problem_solving",
+      "topic": "Reasoning with fractions in contextual problems",
+      "duration_minutes": 60,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["fraction equivalence", "bar models"]
+    },
+
+    {
+      "task_id": "Y6-T1",
+      "year_group": "Year 6",
+      "key_stage": "Upper KS2",
+      "topic_family": "number_and_place_value",
+      "topic": "Integers and decimal place value for SATs readiness",
+      "duration_minutes": 60,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["rounding decimals", "negative number sequences"]
+    },
+    {
+      "task_id": "Y6-T2",
+      "year_group": "Year 6",
+      "key_stage": "Upper KS2",
+      "topic_family": "operations",
+      "topic": "Four operations with multi-step calculations",
+      "duration_minutes": 60,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["formal written methods", "estimation"]
+    },
+    {
+      "task_id": "Y6-T3",
+      "year_group": "Year 6",
+      "key_stage": "Upper KS2",
+      "topic_family": "fractions",
+      "topic": "Fraction, decimal and percentage equivalence",
+      "duration_minutes": 60,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["equivalent fractions", "decimal place value"]
+    },
+    {
+      "task_id": "Y6-T4",
+      "year_group": "Year 6",
+      "key_stage": "Upper KS2",
+      "topic_family": "geometry",
+      "topic": "Coordinates in four quadrants and transformations",
+      "duration_minutes": 60,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["first quadrant coordinates", "translations"]
+    },
+    {
+      "task_id": "Y6-T5",
+      "year_group": "Year 6",
+      "key_stage": "Upper KS2",
+      "topic_family": "measurement",
+      "topic": "Area, perimeter and volume connections",
+      "duration_minutes": 60,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["area formulae", "unit conversion"]
+    },
+    {
+      "task_id": "Y6-T6",
+      "year_group": "Year 6",
+      "key_stage": "Upper KS2",
+      "topic_family": "reasoning_problem_solving",
+      "topic": "SATs-style mixed reasoning and justification",
+      "duration_minutes": 60,
+      "class_profile": "mixed attainment",
+      "prior_learning": ["multi-step arithmetic", "reasoning sentence stems"]
+    }
+  ]
+}

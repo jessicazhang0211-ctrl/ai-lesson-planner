@@ -1,0 +1,289 @@
+task_id,provider,model,http_code,status,latency_ms,json_parse_ok,judge_status,content_completeness,age_appropriateness,teaching_design_quality,json_structure_usability,low_age_support_strategy,resource_recommendation_quality,ai_intelligence,total_score,brief_reason
+Y1-T1,OpenAI,gpt-5.4,200,OK,21634.18,False,ok,0,0,0,0,0,0,0,0,候选教案缺失，未提供任何内容，无法依据评分维度评分。
+Y1-T2,OpenAI,gpt-5.4,200,OK,17076.09,False,ok,0,0,0,0,0,0,0,0,候选教案缺失或为空，未提供任何教学信息，无法评分
+Y1-T3,OpenAI,gpt-5.4,200,OK,17148.99,False,ok,0,0,0,0,0,0,0,0,未提供候选教案内容，无法依据评分细则给分。
+Y1-T4,OpenAI,gpt-5.4,200,OK,20068.13,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，输出为空，无法评分。
+Y1-T5,OpenAI,gpt-5.4,200,OK,16236.19,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法评分
+Y1-T6,OpenAI,gpt-5.4,200,OK,19455.61,False,ok,0,0,0,0,0,0,0,0,候选教案缺失，未提供任何内容，无法评分。
+Y2-T1,OpenAI,gpt-5.4,200,OK,38256.08,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法依据标准进行评分
+Y2-T2,OpenAI,gpt-5.4,200,OK,21462.49,False,ok,0,0,0,0,0,0,0,0,候选教案缺失或非有效JSON，无法进行评审
+Y2-T3,OpenAI,gpt-5.4,200,OK,29074.2,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法评审。
+Y2-T4,OpenAI,gpt-5.4,200,OK,19066.59,False,ok,0,0,0,0,0,0,0,0,候选教案缺失或格式无效，无法评审。
+Y2-T5,OpenAI,gpt-5.4,200,OK,20856.28,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法依据评分细则评分。
+Y2-T6,OpenAI,gpt-5.4,200,OK,20658.09,False,ok,0,0,0,0,0,0,0,0,候选教案未提供或输出无效，无法评分
+Y3-T1,OpenAI,gpt-5.4,200,OK,18166.34,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法进行有效评审。
+Y3-T2,OpenAI,gpt-5.4,200,OK,22873.38,False,ok,0,0,0,0,0,0,0,0,未提供候选教案内容，无法进行评分
+Y3-T3,OpenAI,gpt-5.4,200,OK,23769.16,False,ok,0,0,0,0,0,0,0,0,未提供可解析的教案输出，无法进行评分。
+Y3-T4,OpenAI,gpt-5.4,200,OK,22235.36,False,ok,0,0,0,0,0,0,0,0,未提供任何教案内容，无法评审。
+Y3-T5,OpenAI,gpt-5.4,200,OK,19098.78,False,ok,0,0,0,0,0,0,0,0,未提供候选教案内容，无法评审
+Y3-T6,OpenAI,gpt-5.4,200,OK,21733.74,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，所有维度无法评估
+Y4-T1,OpenAI,gpt-5.4,200,OK,28721.22,False,ok,0,0,0,0,0,0,0,0,未提供候选教案内容，无法依据评分维度评估。
+Y4-T2,OpenAI,gpt-5.4,200,OK,17927.17,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法评审评分。
+Y4-T3,OpenAI,gpt-5.4,200,OK,19915.54,False,ok,0,0,0,0,0,0,0,0,未提供候选教案内容，无法按维度评审。
+Y4-T4,OpenAI,gpt-5.4,200,OK,21479.04,False,ok,0,0,0,0,0,0,0,0,未提供教案或输出非有效JSON，无法评审。
+Y4-T5,OpenAI,gpt-5.4,200,OK,20090.97,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法进行评价
+Y4-T6,OpenAI,gpt-5.4,200,OK,19645.8,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，缺少目标、流程、评价与资源
+Y5-T1,OpenAI,gpt-5.4,200,OK,18916.32,False,ok,0,0,0,0,0,0,0,0,未提供有效教案，输出为空或非JSON。
+Y5-T2,OpenAI,gpt-5.4,200,OK,15710.91,False,ok,0,0,0,0,0,0,0,0,无候选教案内容，关键要素缺失，无法评分。
+Y5-T3,OpenAI,gpt-5.4,200,OK,14124.96,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法按维度评审。
+Y5-T4,OpenAI,gpt-5.4,200,OK,26026.97,False,ok,0,0,0,0,0,0,0,0,候选教案未提供，无法依据评分细则进行评审。
+Y5-T5,OpenAI,gpt-5.4,200,OK,16693.6,False,ok,0,0,0,0,0,0,0,0,候选教案缺失，未提供任何教学内容或结构信息
+Y5-T6,OpenAI,gpt-5.4,200,OK,27303.47,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法评分。
+Y6-T1,OpenAI,gpt-5.4,200,OK,21792.14,False,ok,0,0,0,0,0,0,0,0,候选教案缺失或格式错误，无法评审
+Y6-T2,OpenAI,gpt-5.4,200,OK,22836.12,False,ok,0,0,0,0,0,0,0,0,未提供教案内容或解析，无法依据标准评分。
+Y6-T3,OpenAI,gpt-5.4,200,OK,31889.33,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法按维度评分
+Y6-T4,OpenAI,gpt-5.4,200,OK,20991.13,False,ok,0,0,0,0,0,0,0,0,候选教案未提供，无法评审打分
+Y6-T5,OpenAI,gpt-5.4,200,OK,22878.56,False,ok,0,0,0,0,0,0,0,0,未提供候选教案内容，无法评审各项指标
+Y6-T6,OpenAI,gpt-5.4,200,OK,18002.8,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法依据评分维度进行评审。
+Y1-T1,OpenAI,gpt-5-mini,200,OK,10662.75,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法评审
+Y1-T2,OpenAI,gpt-5-mini,200,OK,10013.55,False,ok,0,0,0,0,0,0,0,0,未提供候选教案，无法评分。
+Y1-T3,OpenAI,gpt-5-mini,200,OK,9928.73,False,ok,0,0,0,0,0,0,0,0,候选教案缺失或无法解析，未提供任何教学内容。
+Y1-T4,OpenAI,gpt-5-mini,200,OK,15020.71,False,ok,0,0,0,0,0,0,0,0,候选教案缺失，未提供任何内容。
+Y1-T5,OpenAI,gpt-5-mini,200,OK,11246.65,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法评审。
+Y1-T6,OpenAI,gpt-5-mini,200,OK,10783.5,False,ok,0,0,0,0,0,0,0,0,候选教案缺失或未提供，无法评分。
+Y2-T1,OpenAI,gpt-5-mini,200,OK,11109.07,False,ok,0,0,0,0,0,0,0,0,未提供任何教案内容，无法进行评审
+Y2-T2,OpenAI,gpt-5-mini,200,OK,9823.48,False,ok,0,0,0,0,0,0,0,0,候选教案未提供任何内容，无法依据评分维度评估
+Y2-T3,OpenAI,gpt-5-mini,200,OK,9529.98,False,ok,0,0,0,0,0,0,0,0,候选教案缺失或JSON格式错误，无法评审
+Y2-T4,OpenAI,gpt-5-mini,200,OK,10386.63,False,ok,0,0,0,0,0,0,0,0,未提供教案内容或输出无效，无法评审
+Y2-T5,OpenAI,gpt-5-mini,200,OK,9521.1,False,ok,0,0,0,0,0,0,0,0,未提供有效教案内容或解析失败，无法评分
+Y2-T6,OpenAI,gpt-5-mini,200,OK,10516.09,False,ok,0,0,0,0,0,0,0,0,候选教案缺失或格式无效，未提供可评估内容
+Y3-T1,OpenAI,gpt-5-mini,200,OK,11310.15,False,ok,0,0,0,0,0,0,0,0,候选教案缺失或格式错误，未提供任何教学内容
+Y3-T2,OpenAI,gpt-5-mini,200,OK,9930.06,False,ok,0,0,0,0,0,0,0,0,候选教案缺失，无法评审，各项得分为零。
+Y3-T3,OpenAI,gpt-5-mini,200,OK,18967.0,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法评分。
+Y3-T4,OpenAI,gpt-5-mini,200,OK,10252.6,False,ok,0,0,0,0,0,0,0,0,教案缺失或格式错误，未包含目标、流程、资源等关键要素
+Y3-T5,OpenAI,gpt-5-mini,200,OK,14836.92,False,ok,0,0,0,0,0,0,0,0,未提供候选教案内容，无法评估各项要素。
+Y3-T6,OpenAI,gpt-5-mini,200,OK,14417.64,False,ok,0,0,0,0,0,0,0,0,无候选教案内容，无法评审
+Y4-T1,OpenAI,gpt-5-mini,200,OK,14089.18,False,ok,0,0,0,0,0,0,0,0,未提供候选教案，所有评分项均无法评估。
+Y4-T2,OpenAI,gpt-5-mini,200,OK,15757.5,False,ok,0,0,0,0,0,0,0,0,教案内容缺失或未提供，无法依据评分维度评价。
+Y4-T3,OpenAI,gpt-5-mini,200,OK,11020.04,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法依据评分细则进行评审。
+Y4-T4,OpenAI,gpt-5-mini,200,OK,12245.72,False,ok,0,0,0,0,0,0,0,0,未提交教案，缺少所有必要要素
+Y4-T5,OpenAI,gpt-5-mini,200,OK,12878.32,False,ok,0,0,0,0,0,0,0,0,未提供候选教案，缺少目标、流程、资源与评价等内容。
+Y4-T6,OpenAI,gpt-5-mini,200,OK,13670.87,False,ok,0,0,0,0,0,0,0,0,提交内容缺失或格式错误，未包含可评审的教案信息
+Y5-T1,OpenAI,gpt-5-mini,200,OK,13656.73,False,ok,0,0,0,0,0,0,0,0,未提交教案，无法评审。
+Y5-T2,OpenAI,gpt-5-mini,200,OK,13617.77,False,ok,0,0,0,0,0,0,0,0,候选教案缺失或格式无效，无法进行有效评审。
+Y5-T3,OpenAI,gpt-5-mini,200,OK,13227.54,False,ok,0,0,0,0,0,0,0,0,候选教案缺失，无法依据评分标准进行评价。
+Y5-T4,OpenAI,gpt-5-mini,200,OK,13264.42,False,ok,0,0,0,0,0,0,0,0,候选教案缺失，无法评分
+Y5-T5,OpenAI,gpt-5-mini,200,OK,13761.84,False,ok,0,0,0,0,0,0,0,0,候选教案缺失或未提供有效JSON，无法评分
+Y5-T6,OpenAI,gpt-5-mini,200,OK,13617.42,False,ok,0,0,0,0,0,0,0,0,候选教案为空，缺少所有关键要素与细节
+Y6-T1,OpenAI,gpt-5-mini,200,OK,17203.94,False,ok,0,0,0,0,0,0,0,0,候选教案缺失，无法评分。
+Y6-T2,OpenAI,gpt-5-mini,200,OK,12850.53,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法依据评分细则进行评分。
+Y6-T3,OpenAI,gpt-5-mini,200,OK,36343.8,False,ok,0,0,0,0,0,0,0,0,候选教案内容缺失，无法评审，所有维度得0分
+Y6-T4,OpenAI,gpt-5-mini,200,OK,14901.64,False,ok,0,0,0,0,0,0,0,0,未提供教案内容或结构，无法评审
+Y6-T5,OpenAI,gpt-5-mini,200,OK,16305.59,False,ok,0,0,0,0,0,0,0,0,无有效教案内容，未输出或格式错误
+Y6-T6,OpenAI,gpt-5-mini,200,OK,15349.79,False,ok,0,0,0,0,0,0,0,0,候选教案缺失，未提供任何教学内容或结构，无法评分
+Y1-T1,Anthropic,Claude Opus 4.6,200,OK,22829.56,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T2,Anthropic,Claude Opus 4.6,200,OK,24883.0,False,ok,14,17,15,13,9,7,4,79,结构与认知支架清晰，年龄匹配好；缺少具体环节时间表与详细资源清单。
+Y1-T3,Anthropic,Claude Opus 4.6,200,OK,21706.6,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T4,Anthropic,Claude Opus 4.6,200,OK,22521.82,False,ok,15,19,15,8,9,7,3,76,内容详实且适龄，教学与低龄支持清晰，但评估与结构细节不足。
+Y1-T5,Anthropic,Claude Opus 4.6,200,OK,23015.24,False,ok,14,17,15,8,9,7,4,74,贴合低龄教学、活动设计合理，但缺少明确学习目标、评价与完整资源清单
+Y1-T6,Anthropic,Claude Opus 4.6,200,OK,24125.62,False,ok,15,6,16,8,9,8,3,65,内容详实且有低龄支持，目标与评估不够明确，JSON输出不完整
+Y2-T1,Anthropic,Claude Opus 4.6,200,OK,23346.91,False,ok,13,18,15,11,8,6,4,75,内容较详实并符合年龄，但教案不完整，评估与资源细节不足。
+Y2-T2,Anthropic,Claude Opus 4.6,200,OK,26384.63,False,ok,12,18,13,12,9,8,3,75,内容较详但被截断，缺明确学习目标与评价，教学与低龄支持设计较好。
+Y2-T3,Anthropic,Claude Opus 4.6,200,OK,22796.11,False,ok,13,17,15,12,9,6,3,75,有清晰教学脉络与支架，贴近低龄；但缺少明确学习目标、评估细则与详尽资源清单。
+Y2-T4,Anthropic,Claude Opus 4.6,200,OK,26202.5,False,ok,14,18,15,12,9,6,4,78,内容较完整但缺评估与资源清单，教学设计贴合低龄
+Y2-T5,Anthropic,Claude Opus 4.6,200,OK,22244.69,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T6,Anthropic,Claude Opus 4.6,200,OK,21712.71,False,judge_http_0,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T1,Anthropic,Claude Opus 4.6,200,OK,22768.41,False,ok,12,17,13,12,9,8,4,75,内容详实且贴合低龄需求，但教学习程被截断，缺少具体时间分配与评估细则。
+Y3-T2,Anthropic,Claude Opus 4.6,200,OK,22292.41,False,ok,12,18,14,3,9,7,3,66,内容详实但不完整，年龄适配佳；教学有脉络但缺细节，JSON无效。
+Y3-T3,Anthropic,Claude Opus 4.6,200,OK,23105.17,False,ok,14,18,15,12,8,7,4,78,内容较详细但中断遗漏步骤与评价细节，符合低龄设计，资源与结构实用性尚可。
+Y3-T4,Anthropic,Claude Opus 4.6,200,OK,21411.91,False,ok,12,18,13,8,9,6,4,70,内容较完整、适龄并有低龄支持；缺少明确学习目标、评估与完整资源清单，且JSON不完整。
+Y3-T5,Anthropic,Claude Opus 4.6,200,OK,21210.05,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T6,Anthropic,Claude Opus 4.6,200,OK,22739.26,False,ok,13,18,14,12,8,6,3,74,结构与年龄适配性良好，但缺具体环节、评估与资源细节
+Y4-T1,Anthropic,Claude Opus 4.6,200,OK,21866.97,False,ok,12,18,14,9,9,6,3,71,内容详实但缺明确目标、评价与完整资源；结构较好，适龄设计明显。
+Y4-T2,Anthropic,Claude Opus 4.6,200,OK,24572.48,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T3,Anthropic,Claude Opus 4.6,200,OK,29490.61,False,ok,12,18,14,5,8,7,3,67,内容具体、适龄性强；缺少明确教学目标与评估，JSON截断不可解析。
+Y4-T4,Anthropic,Claude Opus 4.6,200,OK,21970.82,False,ok,13,18,14,5,9,7,4,70,内容较全面且符合低龄认知，缺少明确目标/评估与作业，JSON被截断影响可用性。
+Y4-T5,Anthropic,Claude Opus 4.6,200,OK,21196.07,False,ok,12,18,15,9,9,6,3,72,内容较完整但JSON截断，教学与资源评估不够具体
+Y4-T6,Anthropic,Claude Opus 4.6,200,OK,23932.07,False,ok,13,18,15,6,9,6,3,70,内容详实且贴合年龄，教学支架明确，但资源与评估细节欠缺，JSON不完整。
+Y5-T1,Anthropic,Claude Opus 4.6,200,OK,21300.48,False,ok,10,6,11,4,6,5,3,45,内容有亮点但不完整、JSON截断且与7-8岁不匹配，细节与评估不足
+Y5-T2,Anthropic,Claude Opus 4.6,200,OK,24774.67,False,ok,11,17,12,8,8,5,3,64,内容较完整但文档中断，教学有支架与递进，资源与评估细节不足。
+Y5-T3,Anthropic,Claude Opus 4.6,200,OK,21810.05,False,ok,8,17,14,6,8,6,3,62,教案信息较详尽但中途截断，缺少具体流程与评估细节。
+Y5-T4,Anthropic,Claude Opus 4.6,200,OK,21400.92,False,ok,12,18,14,10,7,6,3,70,内容较详实但文本中断，教学有支架与探究，资源与步骤不够完整
+Y5-T5,Anthropic,Claude Opus 4.6,200,OK,23347.7,False,ok,12,17,14,2,8,6,4,63,内容较详实有分层与支架，但JSON不完整影响可用性与部分环节缺失。
+Y5-T6,Anthropic,Claude Opus 4.6,200,OK,22220.51,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T1,Anthropic,Claude Opus 4.6,200,OK,23581.19,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T2,Anthropic,Claude Opus 4.6,200,OK,25814.97,False,ok,15,18,16,12,7,5,4,77,内容详实但截断，教学设计强，资源与作业不够具体
+Y6-T3,Anthropic,Claude Opus 4.6,200,OK,21631.08,False,ok,12,17,14,12,8,6,4,73,规划清晰、有可视化与分层设计，但缺少逐步课堂流程、评价与资源清单。
+Y6-T4,Anthropic,Claude Opus 4.6,200,OK,25249.18,False,ok,14,18,15,13,9,7,4,80,内容较完整、适龄且有实物支架，但缺少明确步骤与评价细则
+Y6-T5,Anthropic,Claude Opus 4.6,200,OK,21927.04,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T6,Anthropic,Claude Opus 4.6,200,OK,23148.48,False,ok,13,18,15,6,8,6,4,70,内容较全面但缺少明确目标/评估与资源细节，结构适龄且有支架，JSON输出被截断影响可用性。
+Y1-T1,Anthropic,Claude Sonnet 4.6,200,OK,21986.53,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T2,Anthropic,Claude Sonnet 4.6,200,OK,22378.26,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T3,Anthropic,Claude Sonnet 4.6,200,OK,23057.42,False,ok,12,18,14,4,9,6,3,66,内容较完整但非完整方案，JSON截断，教学设计有亮点缺细节
+Y1-T4,Anthropic,Claude Sonnet 4.6,200,OK,21593.91,False,ok,15,18,15,12,9,8,4,81,操作性强、语言亲切；缺少具体评估、时序与作业细节。
+Y1-T5,Anthropic,Claude Sonnet 4.6,200,OK,21844.31,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T6,Anthropic,Claude Sonnet 4.6,200,OK,22941.96,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T1,Anthropic,Claude Sonnet 4.6,200,OK,21501.89,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T2,Anthropic,Claude Sonnet 4.6,200,OK,22473.17,False,ok,12,18,14,9,9,7,3,72,内容具体且适龄但JSON不完整，缺少评估与资源清单。
+Y2-T3,Anthropic,Claude Sonnet 4.6,200,OK,21393.64,False,ok,8,17,14,6,9,6,3,63,内容部分缺失且JSON截断，教学设计与低龄支持较好，资源与评估需补充。
+Y2-T4,Anthropic,Claude Sonnet 4.6,200,OK,22438.78,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T5,Anthropic,Claude Sonnet 4.6,200,OK,22365.37,False,ok,12,18,14,2,9,6,4,65,内容较详，符合低年级认知与支架策略，但JSON截断且评估/资源细节不足。
+Y2-T6,Anthropic,Claude Sonnet 4.6,200,OK,23253.77,False,ok,12,17,13,8,9,6,3,68,内容较完整且符合低龄需求，但缺少具体资源、评估与完整步骤，JSON截断需修正
+Y3-T1,Anthropic,Claude Sonnet 4.6,200,OK,21037.72,False,ok,12,18,15,6,9,7,4,71,内容详实、符合7-8岁设计；教学渐进有支架，但JSON不完整影响可用性。
+Y3-T2,Anthropic,Claude Sonnet 4.6,200,OK,21941.84,False,ok,12,18,14,7,9,7,4,71,内容详实但未完整收尾；适龄并有CPA设计，资源与差异化需更具体。
+Y3-T3,Anthropic,Claude Sonnet 4.6,200,OK,21316.35,False,ok,12,17,13,8,9,6,3,68,内容详实但未完结，教学与低龄支持到位，资源、评估及JSON不完整
+Y3-T4,Anthropic,Claude Sonnet 4.6,200,OK,22673.05,False,ok,14,18,15,7,9,6,4,73,内容较完整、年龄适切，教学有序但评估与资源不够详尽，JSON被截断影响可用性
+Y3-T5,Anthropic,Claude Sonnet 4.6,200,OK,22453.14,False,ok,12,17,14,4,9,7,3,66,内容详实但JSON不完整，缺少明确学习目标与评估细节
+Y3-T6,Anthropic,Claude Sonnet 4.6,200,OK,21714.02,False,ok,12,18,14,12,9,6,4,75,内容较完整、符合年龄；缺少具体教学步骤、目标与资源清单，评价不够详细。
+Y4-T1,Anthropic,Claude Sonnet 4.6,200,OK,23688.5,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T2,Anthropic,Claude Sonnet 4.6,200,OK,21616.19,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T3,Anthropic,Claude Sonnet 4.6,200,OK,23072.41,False,ok,8,17,13,6,8,7,3,62,内容不完整且JSON截断，教学设计有亮点但细节不足
+Y4-T4,Anthropic,Claude Sonnet 4.6,200,OK,21716.35,False,ok,13,18,16,3,9,6,4,69,内容细节丰富有教学设计，缺明确目标、评估与资源清单；JSON被截断影响可用性。
+Y4-T5,Anthropic,Claude Sonnet 4.6,200,OK,23080.15,False,ok,12,18,14,10,9,6,4,73,内容与年龄贴合、教学思路清晰，但资源与流程细节不足且文档截断。
+Y4-T6,Anthropic,Claude Sonnet 4.6,200,OK,22390.87,False,ok,12,17,13,6,8,4,4,64,内容较详但截断缺失，适龄与支架思路明确，教学细节与资源不够，JSON不完整。
+Y5-T1,Anthropic,Claude Sonnet 4.6,200,OK,22465.34,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T2,Anthropic,Claude Sonnet 4.6,200,OK,23059.42,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T3,Anthropic,Claude Sonnet 4.6,200,OK,21168.27,False,ok,11,17,14,4,9,6,3,64,教学思路与支架明确，但缺少具体环节、资源清单与评估，且JSON不完整
+Y5-T4,Anthropic,Claude Sonnet 4.6,200,OK,21058.04,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T5,Anthropic,Claude Sonnet 4.6,200,OK,22756.95,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T6,Anthropic,Claude Sonnet 4.6,200,OK,21627.13,False,ok,12,17,15,13,7,6,3,73,内容详略不均，教学设计合理但缺资源与评估细节
+Y6-T1,Anthropic,Claude Sonnet 4.6,200,OK,21322.59,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T2,Anthropic,Claude Sonnet 4.6,200,OK,26214.86,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T3,Anthropic,Claude Sonnet 4.6,200,OK,22260.62,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T4,Anthropic,Claude Sonnet 4.6,200,OK,22764.12,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T5,Anthropic,Claude Sonnet 4.6,200,OK,23592.85,False,ok,11,17,15,6,8,6,4,67,理念与支架清晰、适龄；但教案不完整且JSON截断，缺少具体环节与资源。
+Y6-T6,Anthropic,Claude Sonnet 4.6,200,OK,22713.8,False,ok,12,18,14,7,7,4,3,65,内容详实但不完整，年龄匹配好，JSON截断影响可用性
+Y1-T1,Google,Gemini 2.5 Pro,200,OK,13114.61,False,ok,0,0,0,0,0,0,0,0,教案缺失，未提供任何内容
+Y1-T2,Google,Gemini 2.5 Pro,200,OK,12818.34,False,ok,0,0,0,0,0,0,0,0,候选教案缺失，未提供任何内容或结构
+Y1-T3,Google,Gemini 2.5 Pro,200,OK,12130.89,False,ok,0,0,0,0,0,0,0,0,候选教案未提供，所有评估项无法判定。
+Y1-T4,Google,Gemini 2.5 Pro,200,OK,11233.82,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法评审，所有项得0分
+Y1-T5,Google,Gemini 2.5 Pro,200,OK,11169.7,False,ok,0,0,0,0,0,0,0,0,候选教案为空，未提供任何内容，无法评分
+Y1-T6,Google,Gemini 2.5 Pro,200,OK,9775.78,False,ok,0,0,0,0,0,0,0,0,无候选教案输出，无法评估各维度
+Y2-T1,Google,Gemini 2.5 Pro,200,OK,11093.74,False,ok,0,0,0,0,0,0,0,0,未提供候选教案内容，关键要素缺失，无法评分。
+Y2-T2,Google,Gemini 2.5 Pro,200,OK,10444.6,False,ok,0,0,0,0,0,0,0,0,未提交教案，无法评估各项内容
+Y2-T3,Google,Gemini 2.5 Pro,200,OK,11013.58,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法评分。
+Y2-T4,Google,Gemini 2.5 Pro,200,OK,10682.4,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法评分
+Y2-T5,Google,Gemini 2.5 Pro,200,OK,10251.11,False,ok,0,0,0,0,0,0,0,0,候选教案缺失或未提供，无法评审，故各项得0分。
+Y2-T6,Google,Gemini 2.5 Pro,200,OK,11843.42,False,ok,0,0,0,0,0,0,0,0,未提交有效教案内容且JSON解析失败，无法评分
+Y3-T1,Google,Gemini 2.5 Pro,200,OK,10917.57,False,ok,0,0,0,0,0,0,0,0,未提供教案内容或输出解析失败
+Y3-T2,Google,Gemini 2.5 Pro,200,OK,13168.3,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法进行评审。
+Y3-T3,Google,Gemini 2.5 Pro,200,OK,10911.37,False,ok,0,0,0,0,0,0,0,0,未提供候选教案，无法进行评审与评分。
+Y3-T4,Google,Gemini 2.5 Pro,200,OK,11723.16,False,ok,0,0,0,0,0,0,0,0,教案内容缺失，无法进行评审。
+Y3-T5,Google,Gemini 2.5 Pro,200,OK,13825.05,False,ok,0,0,0,0,0,0,0,0,教案缺失，未提供任何可评要素，无法评分
+Y3-T6,Google,Gemini 2.5 Pro,200,OK,12920.95,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法依据评分标准进行评审
+Y4-T1,Google,Gemini 2.5 Pro,200,OK,13899.02,False,ok,0,0,0,0,0,0,0,0,未提供候选教案内容，无法依据评分标准打分
+Y4-T2,Google,Gemini 2.5 Pro,200,OK,12273.47,False,ok,0,0,0,0,0,0,0,0,未提供有效教案内容且JSON无效，无法评分
+Y4-T3,Google,Gemini 2.5 Pro,200,OK,13346.73,False,ok,1,1,1,0,0,0,0,3,教案缺失关键内容，仅有元数据，无法评审。
+Y4-T4,Google,Gemini 2.5 Pro,200,OK,11913.48,False,ok,0,0,0,0,0,0,0,0,未提交教案，关键要素缺失，无法评分。
+Y4-T5,Google,Gemini 2.5 Pro,200,OK,11505.97,False,ok,0,0,0,0,0,0,0,0,未提交教案内容，缺乏目标、流程、资源与评价信息
+Y4-T6,Google,Gemini 2.5 Pro,200,OK,12133.09,False,ok,0,0,0,0,0,0,0,0,未提供有效教案内容，无法评分。
+Y5-T1,Google,Gemini 2.5 Pro,200,OK,10365.94,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法评分
+Y5-T2,Google,Gemini 2.5 Pro,200,OK,10538.44,False,ok,0,0,0,0,0,0,0,0,候选教案未提供内容，无法评分。
+Y5-T3,Google,Gemini 2.5 Pro,200,OK,12137.37,False,ok,0,0,0,0,0,0,0,0,未提供有效教案输出，无法评审
+Y5-T4,Google,Gemini 2.5 Pro,200,OK,11125.77,False,ok,0,0,0,0,0,0,0,0,教案缺失，未提供目标、流程、资源或支架，无法评分
+Y5-T5,Google,Gemini 2.5 Pro,200,OK,12207.89,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法评分。
+Y5-T6,Google,Gemini 2.5 Pro,200,OK,13532.68,False,ok,0,0,0,0,0,0,0,0,候选教案缺失或不可解析，未提供任何有效内容，无法评分
+Y6-T1,Google,Gemini 2.5 Pro,200,OK,11447.13,False,ok,0,0,0,0,0,0,0,0,教案未提供任何内容，无法依据标准评分
+Y6-T2,Google,Gemini 2.5 Pro,200,OK,12954.07,False,ok,0,0,0,0,0,0,0,0,未提供任何教案内容，无法依据评分维度打分。
+Y6-T3,Google,Gemini 2.5 Pro,200,OK,33775.92,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法评分
+Y6-T4,Google,Gemini 2.5 Pro,200,OK,29933.56,False,ok,0,0,0,0,0,0,0,0,教案缺失，未提供任何内容，无法评分。
+Y6-T5,Google,Gemini 2.5 Pro,200,OK,11544.43,False,ok,0,0,0,0,0,0,0,0,候选教案缺失，无法按维度评估。
+Y6-T6,Google,Gemini 2.5 Pro,200,OK,10798.44,False,ok,0,0,0,0,0,0,0,0,教案缺失且JSON解析失败，无法评审
+Y1-T1,Google,Gemini 2.5 Flash,200,OK,5538.07,False,ok,2,2,1,1,1,1,1,9,内容严重缺失且JSON格式错误，无法评估教学环节与资源。
+Y1-T2,Google,Gemini 2.5 Flash,200,OK,5712.2,False,ok,3,6,2,2,1,1,1,16,输出被截断，缺少教学流程、评价与资源，结构不完整
+Y1-T3,Google,Gemini 2.5 Flash,200,OK,5547.72,False,ok,2,3,1,2,0,0,0,8,输出严重不完整，仅含两字段，缺目标与教学环节等关键内容
+Y1-T4,Google,Gemini 2.5 Flash,200,OK,5651.75,False,ok,3,4,2,3,1,1,1,15,JSON截断且信息严重缺失，缺少教学目标、流程与资源，难以直接使用。
+Y1-T5,Google,Gemini 2.5 Flash,200,OK,5653.31,False,ok,2,4,2,3,1,1,1,14,内容严重不全，仅有标识字段，教学细节和资源缺失
+Y1-T6,Google,Gemini 2.5 Flash,200,OK,5616.34,False,ok,2,2,2,0,1,1,1,9,输出不完整且JSON被截断，缺少目标、环节与资源等关键内容
+Y2-T1,Google,Gemini 2.5 Flash,200,OK,5374.0,False,ok,3,6,2,0,0,0,0,11,教案严重不完整，JSON无效，缺少目标、流程、资源与评价
+Y2-T2,Google,Gemini 2.5 Flash,200,OK,5487.4,False,ok,3,3,2,0,0,0,0,8,教案内容严重不完整，JSON截断，缺少教学环节与资源。
+Y2-T3,Google,Gemini 2.5 Flash,200,OK,5649.76,False,ok,3,4,2,0,0,0,0,9,教案内容严重缺失，JSON 无效，无法评估细节
+Y2-T4,Google,Gemini 2.5 Flash,200,OK,5822.08,False,ok,2,3,1,1,0,0,0,7,文本被截断且非有效JSON，教学要素严重缺失，无法评估教学设计与资源。
+Y2-T5,Google,Gemini 2.5 Flash,200,OK,5547.49,False,ok,2,2,1,0,0,0,0,5,输出不完整且非JSON，缺少教学目标、流程、评价与资源等关键信息
+Y2-T6,Google,Gemini 2.5 Flash,200,OK,5449.09,False,ok,2,2,1,1,0,0,0,6,教案严重不完整，缺目标流程评价与资源，且 JSON 无法解析。
+Y3-T1,Google,Gemini 2.5 Flash,200,OK,5967.24,False,ok,2,3,2,3,1,1,0,12,输出不完整且无法解析，缺少目标、流程、资源与评估要点
+Y3-T2,Google,Gemini 2.5 Flash,200,OK,5555.2,False,ok,2,2,1,1,0,0,0,6,内容严重缺失，JSON 不完整，缺乏教学目标与活动细节。
+Y3-T3,Google,Gemini 2.5 Flash,200,OK,5152.52,False,ok,2,2,1,3,0,0,0,8,内容严重缺失，仅有不完整元数据，无法评价教学细节。
+Y3-T4,Google,Gemini 2.5 Flash,200,OK,6059.03,False,ok,2,3,2,4,1,1,1,14,内容严重缺失，结构不完整，仅有文件头信息，缺少教学要素与学龄适配细节。
+Y3-T5,Google,Gemini 2.5 Flash,200,OK,6294.24,False,ok,2,2,1,4,0,0,0,9,教案内容严重不完整，JSON被截断，缺少教学要素与可执行环节。
+Y3-T6,Google,Gemini 2.5 Flash,200,OK,6565.76,False,ok,2,3,2,0,0,0,1,8,内容残缺且非有效JSON，缺教学目标与活动，难以使用
+Y4-T1,Google,Gemini 2.5 Flash,200,OK,5513.08,False,ok,3,5,2,2,0,0,1,13,缺少目标、流程、评价与资源；JSON不完整，无法解析
+Y4-T2,Google,Gemini 2.5 Flash,200,OK,5474.69,False,ok,2,2,1,1,0,0,0,6,内容与教学设计严重缺失，JSON格式残缺，无法使用
+Y4-T3,Google,Gemini 2.5 Flash,200,OK,5908.02,False,ok,2,3,2,1,0,0,1,9,输出不完整且JSON格式错误，缺少教学要素与细节
+Y4-T4,Google,Gemini 2.5 Flash,200,OK,5337.08,False,ok,2,2,1,1,0,0,1,7,JSON被截断，缺乏目标、流程、资源与低龄支持，难以评审使用。
+Y4-T5,Google,Gemini 2.5 Flash,200,OK,5306.12,False,ok,1,0,0,0,0,0,0,1,教案内容严重缺失且JSON不完整，无法评估各环节
+Y4-T6,Google,Gemini 2.5 Flash,200,OK,5584.61,False,ok,2,2,1,0,0,0,0,5,JSON被截断不完整，缺少教学目标、流程、评价与资源等关键要素
+Y5-T1,Google,Gemini 2.5 Flash,200,OK,5380.25,False,ok,2,3,2,3,0,0,1,11,教案JSON被截断，核心要素（目标、流程、评估、资源）缺失
+Y5-T2,Google,Gemini 2.5 Flash,200,OK,5824.44,False,ok,4,6,3,2,1,1,1,18,输出为不完整/无效JSON，缺少目标与教学环节等关键信息
+Y5-T3,Google,Gemini 2.5 Flash,200,OK,5342.43,False,ok,2,1,1,2,0,0,0,6,教案内容严重不完整，结构截断，缺少教学环节与资源等关键信息。
+Y5-T4,Google,Gemini 2.5 Flash,200,OK,5916.11,False,ok,2,1,0,0,0,0,0,3,输出为不完整且非法JSON，缺少教学目标、流程、评价与资源，缺乏教学设计与低龄支持。
+Y5-T5,Google,Gemini 2.5 Flash,200,OK,5538.18,False,ok,4,6,3,1,0,0,1,15,内容严重不完整，JSON截断，缺少教学要素与支持策略。
+Y5-T6,Google,Gemini 2.5 Flash,200,OK,5665.59,False,ok,2,2,1,0,0,0,1,6,输出不完整，缺少目标、流程、评价与资源，JSON被截断不可用。
+Y6-T1,Google,Gemini 2.5 Flash,200,OK,5601.14,False,ok,1,0,0,0,0,0,0,1,内容严重缺失且JSON无效，未体现教学要素与年龄适配
+Y6-T2,Google,Gemini 2.5 Flash,200,OK,5758.47,False,ok,3,2,1,0,0,0,0,6,输出不完整且JSON截断，缺少教学目标、流程、评价与资源等关键要素
+Y6-T3,Google,Gemini 2.5 Flash,200,OK,5579.4,False,ok,2,1,1,2,0,0,0,6,JSON不完整，缺教学目标、流程、评估与资源等关键信息
+Y6-T4,Google,Gemini 2.5 Flash,200,OK,5951.42,False,ok,2,2,1,0,0,0,0,5,教案严重不完整且JSON截断，缺目标、流程、资源与评价，无法使用。
+Y6-T5,Google,Gemini 2.5 Flash,200,OK,5976.52,False,ok,3,2,2,1,1,1,1,11,教案内容严重缺失，结构不全，缺乏适龄与资源细节
+Y6-T6,Google,Gemini 2.5 Flash,200,OK,6042.36,False,ok,1,1,0,0,0,0,0,2,内容严重缺失且非有效JSON，缺少目标、流程、资源与评价。
+Y1-T1,DeepSeek,deepseek-reasoner,200,OK,30019.93,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法依据评分细则进行评分
+Y1-T2,DeepSeek,deepseek-reasoner,200,OK,29721.3,False,ok,0,0,0,0,0,0,0,0,候选教案未提供，无法进行评分
+Y1-T3,DeepSeek,deepseek-reasoner,200,OK,29396.53,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，所有评分项均无法评估。
+Y1-T4,DeepSeek,deepseek-reasoner,200,OK,27553.8,False,ok,0,0,0,0,0,0,0,0,候选教案缺失，未提供任何内容，无法评分。
+Y1-T5,DeepSeek,deepseek-reasoner,200,OK,25031.41,False,ok,0,0,0,0,0,0,0,0,候选教案未提供内容，无法评审。
+Y1-T6,DeepSeek,deepseek-reasoner,200,OK,24607.22,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法依据评分细则评分。
+Y2-T1,DeepSeek,deepseek-reasoner,200,OK,25887.84,False,ok,0,0,0,0,0,0,0,0,候选教案缺失，未提供任何内容，无法评分
+Y2-T2,DeepSeek,deepseek-reasoner,200,OK,28575.52,False,ok,0,0,0,0,0,0,0,0,未提供候选教案内容，无法评分。
+Y2-T3,DeepSeek,deepseek-reasoner,200,OK,28030.87,False,ok,0,0,0,0,0,0,0,0,候选教案缺失，未提供任何教学内容或结构
+Y2-T4,DeepSeek,deepseek-reasoner,200,OK,29982.63,False,ok,0,0,0,0,0,0,0,0,候选教案未提供任何内容，无法评审。
+Y2-T5,DeepSeek,deepseek-reasoner,200,OK,28261.16,False,ok,1,1,1,0,0,0,0,3,候选教案缺失或无法解析，关键要素均未提供，评分极低。
+Y2-T6,DeepSeek,deepseek-reasoner,200,OK,28163.13,False,ok,0,0,0,0,0,0,0,0,候选教案空缺，未提供任何内容，无法评分
+Y3-T1,DeepSeek,deepseek-reasoner,200,OK,26192.26,False,ok,2,4,1,0,0,0,0,7,缺少教学目标、环节、资源与评价，输出非有效JSON，仅有元数据
+Y3-T2,DeepSeek,deepseek-reasoner,200,OK,25620.25,False,ok,0,0,0,0,0,0,0,0,教案缺失，未提供任何内容，无法评分
+Y3-T3,DeepSeek,deepseek-reasoner,200,OK,25932.53,False,ok,0,0,0,0,0,0,0,0,教案内容缺失，无法完成评审
+Y3-T4,DeepSeek,deepseek-reasoner,200,OK,23969.1,False,ok,0,0,0,0,0,0,0,0,候选教案缺失或非JSON，未提供教学内容与结构。
+Y3-T5,DeepSeek,deepseek-reasoner,200,OK,24731.2,False,ok,14,18,15,12,9,7,3,78,有清晰实操与CPA脉络，缺少明确目标、评价与完整环节细节。
+Y3-T6,DeepSeek,deepseek-reasoner,200,OK,22584.34,False,ok,0,0,0,0,0,0,0,0,教案缺失，未提供任何内容，无法评审。
+Y4-T1,DeepSeek,deepseek-reasoner,200,OK,25939.85,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法评审。
+Y4-T2,DeepSeek,deepseek-reasoner,200,OK,21804.5,False,ok,0,0,0,0,0,0,0,0,候选教案缺失或为空，未提供任何教学内容或结构，无法评分。
+Y4-T3,DeepSeek,deepseek-reasoner,200,OK,25151.77,False,ok,0,0,0,0,0,0,0,0,未提交教案内容，无法完成评审。
+Y4-T4,DeepSeek,deepseek-reasoner,200,OK,23947.81,False,ok,0,0,0,0,0,0,0,0,未提交教案或内容缺失，无法依据标准评分
+Y4-T5,DeepSeek,deepseek-reasoner,200,OK,24401.87,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法进行评审
+Y4-T6,DeepSeek,deepseek-reasoner,200,OK,24297.61,False,ok,0,0,0,0,0,0,0,0,候选教案缺失或无法解析，无法评分。
+Y5-T1,DeepSeek,deepseek-reasoner,200,OK,24688.92,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法进行有效评审
+Y5-T2,DeepSeek,deepseek-reasoner,200,OK,24194.14,False,ok,0,0,0,0,0,0,0,0,候选教案缺失，未提供目标、流程、资源与评价，无法评分。
+Y5-T3,DeepSeek,deepseek-reasoner,200,OK,23441.71,False,ok,0,0,0,0,0,0,0,0,未提供有效教案或JSON，无法评审。
+Y5-T4,DeepSeek,deepseek-reasoner,200,OK,23599.11,False,ok,0,0,0,0,0,0,0,0,未提供教案内容或无效JSON，无法按维度评审。
+Y5-T5,DeepSeek,deepseek-reasoner,200,OK,23804.05,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法进行有效评审。
+Y5-T6,DeepSeek,deepseek-reasoner,200,OK,24221.58,False,ok,0,0,0,0,0,0,0,0,候选教案缺失，未提供任何教学内容与结构，无法评分。
+Y6-T1,DeepSeek,deepseek-reasoner,200,OK,24512.72,False,ok,0,0,0,0,0,0,0,0,未提供有效教案内容且JSON格式无效，无法评分
+Y6-T2,DeepSeek,deepseek-reasoner,200,OK,31236.6,False,ok,0,0,0,0,0,0,0,0,未提交教案内容，无法评审，所有维度得0分
+Y6-T3,DeepSeek,deepseek-reasoner,200,OK,31091.89,False,ok,0,0,0,0,0,0,0,0,未提供教案内容，无法依据维度进行评分。
+Y6-T4,DeepSeek,deepseek-reasoner,200,OK,31246.45,False,ok,0,0,0,0,0,0,0,0,教案缺失，未提供任何内容或结构，无法评分
+Y6-T5,DeepSeek,deepseek-reasoner,200,OK,29869.14,False,ok,12,17,13,12,8,6,3,71,内容较丰富但截断，教学流程与评价细节不足，适龄性良好。
+Y6-T6,DeepSeek,deepseek-reasoner,200,OK,30565.85,False,ok,0,0,0,0,0,0,0,0,未提交教案内容，无法按维度评分
+Y1-T1,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,25241.55,False,ok,11,18,12,5,9,7,3,65,内容详实但未完结且JSON被截断不可解析；符合低龄教学特点，资源与策略描述较好。
+Y1-T2,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,25559.41,False,ok,12,18,14,6,9,6,3,68,内容丰富但被截断；适龄且支架到位，结构未完成。
+Y1-T3,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,30893.12,False,ok,12,18,15,12,10,7,4,78,内容详实但截断、缺少评估与完整资源清单
+Y1-T4,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24381.6,False,ok,13,18,14,12,9,6,3,75,内容完整但未包含教学流程与评价细节；年龄适配好，支架与资源建议较实用。
+Y1-T5,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24677.66,False,ok,12,18,14,6,9,6,4,69,内容较完整但被截断，教学适龄支架明确，JSON不完整
+Y1-T6,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24869.49,False,ok,12,18,14,9,8,6,3,70,内容较充实但被截断，缺少完整流程与评估；年龄适配好，支架与资源描述一般。
+Y2-T1,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24343.67,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T2,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24280.52,False,ok,9,18,15,9,9,6,3,69,内容被截断，关键环节与评估细节不足；适龄与教学支架较好。
+Y2-T3,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,25972.4,False,ok,11,18,13,11,9,6,4,72,结构与儿童适配良好，但目标、评估与资源清单不够完整。
+Y2-T4,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24375.11,False,ok,13,19,15,4,9,7,4,71,内容丰富但文本被截断、缺少评估与完整资源清单；设计符合低龄特点，互动性强。
+Y2-T5,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,27475.16,False,ok,15,18,14,12,9,8,4,80,内容较完整、有年龄适配与教学支架，资源与支持明确，但缺少详细流程与评估细节。
+Y2-T6,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24269.76,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T1,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,28037.6,False,ok,15,19,16,12,9,8,4,83,内容较完整、贴合低龄特点，教学设计清晰但缺少评价细则与资源量化信息。
+Y3-T2,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,26088.08,False,ok,12,18,15,8,9,7,4,73,内容详实但未完整截断，适龄与教学支架良好，资源与结构可改进
+Y3-T3,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24540.28,False,ok,12,18,14,11,9,6,3,73,内容较完整、符合年龄，教学有序但缺少详细环节、评估与资源清单。
+Y3-T4,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,26907.07,False,ok,12,17,14,11,8,6,3,71,活动适龄且有支架，但缺少完整教学流程、评估与具体资源清单。
+Y3-T5,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,28128.9,False,ok,12,18,15,6,9,5,4,69,内容具体、适龄且设计合理；缺资源与评估，JSON被截断
+Y3-T6,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,26109.42,False,ok,12,18,13,10,9,6,4,72,内容完整缺目标与评价；设计适龄、有趣但流程与资源不够具体。
+Y4-T1,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,25177.09,False,ok,9,17,13,6,9,6,3,63,儿童导向创意强，但教学流程、评估与资源清单不完整
+Y4-T2,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,26095.99,False,ok,8,18,14,7,9,7,4,67,内容残缺但年龄适配好，教学设计与资源建议较好
+Y4-T3,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,26779.15,False,ok,12,18,14,6,8,6,3,67,内容详实、有趣但部分关键环节与资源清单缺失，JSON不完整。
+Y4-T4,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,27085.55,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T5,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24956.46,False,ok,12,18,14,6,9,7,4,70,信息较丰富但被截断，步骤与成功标准不完整，教学设计与资源适龄且有支架。
+Y4-T6,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24234.7,False,ok,11,17,13,11,9,7,3,71,思路清晰但细节与评估不足；适龄支架好，资源略泛。
+Y5-T1,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,28687.02,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T2,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24554.83,False,ok,12,6,12,8,7,6,4,55,理念与支架清晰，缺少具体目标、步骤与资源，年龄定位有偏差。
+Y5-T3,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,25216.77,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T4,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,25862.19,False,ok,12,18,14,10,9,8,4,75,内容详实但被截断；教学设计与低龄支持良好，资源略少。
+Y5-T5,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,25035.99,False,ok,12,18,15,5,9,7,4,70,内容详实但被截断，缺少明确目标与评估，JSON不完整影响可用性。
+Y5-T6,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,25153.17,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T1,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,28289.98,False,ok,14,17,15,12,9,9,4,80,内容较完整且适龄，设计有支架与资源，流程和评估细节略显不全。
+Y6-T2,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,26102.13,False,ok,14,18,16,8,9,7,4,76,内容详实有教学支架与年龄匹配，但计划截断且缺少具体资源与评估细节。
+Y6-T3,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24489.64,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T4,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,25447.93,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T5,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24947.99,False,ok,12,10,12,5,8,7,4,58,内容有实操与策略，缺少明确目标、分时流程与完整JSON结构。
+Y6-T6,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24554.91,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback

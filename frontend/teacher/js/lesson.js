@@ -25,7 +25,17 @@ const lessonDict = {
     copied: "已复制到剪贴板",
     saved: "已保存",
     saveFail: "保存失败",
-    required: "请至少填写课题"
+    required: "请至少填写课题",
+    generating: "生成中，请稍候...",
+    generateFail: "生成失败",
+    unknownError: "未知错误",
+    networkError: "网络错误",
+    emptyHistory: "(空)",
+    lessonUnit: "节",
+    minuteUnit: "分钟",
+    teacherLabel: "执教者",
+    pdfFontError: "PDF 字体加载失败，中文会乱码。请用本地静态服务器打开前端后重试。\n例如：cd frontend && python -m http.server 8000",
+    defaultPlanTitle: "教案"
   },
   en: {
     lessonTitle: "Lesson Planner",
@@ -53,7 +63,17 @@ const lessonDict = {
     copied: "Copied",
     saved: "Saved",
     saveFail: "Save failed",
-    required: "Please fill in at least the topic"
+    required: "Please fill in at least the topic",
+    generating: "Generating, please wait...",
+    generateFail: "Generation failed",
+    unknownError: "Unknown error",
+    networkError: "Network error",
+    emptyHistory: "(empty)",
+    lessonUnit: " lessons",
+    minuteUnit: " mins",
+    teacherLabel: "Teacher",
+    pdfFontError: "PDF font loading failed. CJK text may be garbled. Please open frontend via a local HTTP server and try again.\nExample: cd frontend && python -m http.server 8000",
+    defaultPlanTitle: "Lesson Plan"
   }
 };
 
@@ -63,6 +83,16 @@ const PDF_FONT_FILE_NORMAL = "SanJiZiHaiSongGBK-2.ttf";
 const PDF_FONT_FILE_BOLD = "SanJiZiHaiSongGBK-2.ttf";
 const PDF_FONT_URL_NORMAL = "../assets/fonts/SanJiZiHaiSongGBK-2.ttf";
 const PDF_FONT_URL_BOLD = "../assets/fonts/SanJiZiHaiSongGBK-2.ttf";
+
+function getFontCandidates(url) {
+  const baseName = "SanJiZiHaiSongGBK-2.ttf";
+  return [
+    url,
+    `../assets/fonts/${baseName}`,
+    `/assets/fonts/${baseName}`,
+    `/frontend/assets/fonts/${baseName}`
+  ];
+}
 
 function getLocale() {
   return localStorage.getItem("locale") || "zh";
@@ -156,6 +186,139 @@ function setOutput(text) {
   empty.style.display = text ? "none" : "flex";
 }
 
+function tryParseJsonObject(raw) {
+  if (!raw || typeof raw !== "string") return null;
+  const s = raw.trim();
+  if (!s.startsWith("{") || !s.endsWith("}")) return null;
+  try {
+    const obj = JSON.parse(s);
+    return (obj && typeof obj === "object" && !Array.isArray(obj)) ? obj : null;
+  } catch {
+    return null;
+  }
+}
+
+function formatKvLine(label, value) {
+  const v = (value === null || value === undefined) ? "" : String(value).trim();
+  return v ? `- ${label}：${v}` : "";
+}
+
+function formatLessonJsonToDocText(obj) {
+  const lines = [];
+  const title = obj.lesson_title || obj.topic || lessonDict[getLocale()].defaultPlanTitle;
+  lines.push(String(title));
+  lines.push(`${lessonDict[getLocale()].teacherLabel}：[您的姓名]`);
+  lines.push("");
+
+  lines.push("一、 基本信息");
+  [
+    formatKvLine("年级", obj.year_group),
+    formatKvLine("学科", obj.subject),
+    formatKvLine("课题", obj.topic),
+    formatKvLine("子课题", obj.subtopic),
+    formatKvLine("课时", obj.duration_minutes ? `${obj.duration_minutes}分钟` : ""),
+    formatKvLine("课程类型", obj.lesson_type),
+    formatKvLine("难度", obj.difficulty_level)
+  ].filter(Boolean).forEach(x => lines.push(x));
+  lines.push("");
+
+  lines.push("二、 教学目标");
+  (obj.learning_objectives || []).forEach((x, i) => lines.push(`${i + 1}. ${x}`));
+  if (!Array.isArray(obj.learning_objectives) || obj.learning_objectives.length === 0) {
+    lines.push("- 无");
+  }
+  lines.push("");
+
+  lines.push("三、 重难点");
+  const misconceptions = Array.isArray(obj.anticipated_misconceptions) ? obj.anticipated_misconceptions : [];
+  if (misconceptions.length) {
+    lines.push("教学难点与易错点：");
+    misconceptions.forEach((m, i) => {
+      const issue = (m && m.issue) ? m.issue : "";
+      const response = (m && m.response) ? m.response : "";
+      if (issue) lines.push(`${i + 1}. ${issue}`);
+      if (response) lines.push(`   - 纠正策略：${response}`);
+    });
+  } else {
+    lines.push("- 无");
+  }
+  lines.push("");
+
+  lines.push("四、 教学过程");
+  const seq = Array.isArray(obj.teaching_sequence) ? obj.teaching_sequence : [];
+  if (seq.length) {
+    seq.forEach((step, idx) => {
+      const phase = step.phase || `环节${idx + 1}`;
+      const mins = step.duration_minutes ? `（${step.duration_minutes}分钟）` : "";
+      lines.push(`${idx + 1}. ${phase}${mins}`);
+      if (step.purpose) lines.push(`- 目标：${step.purpose}`);
+      (step.teacher_actions || []).forEach(x => lines.push(`- 教师活动：${x}`));
+      (step.student_activities || []).forEach(x => lines.push(`- 学生活动：${x}`));
+      (step.assessment_opportunities || []).forEach(x => lines.push(`- 评价点：${x}`));
+    });
+  } else {
+    lines.push("- 无");
+  }
+  lines.push("");
+
+  lines.push("五、 评价与反馈");
+  const afl = obj.assessment_for_learning || {};
+  [
+    formatKvLine("随堂提问", afl.informal_questioning),
+    formatKvLine("可视化检查", afl.live_visual_checks),
+    formatKvLine("课堂观察", afl.observation),
+    formatKvLine("练习证据", afl.worksheet_evidence),
+    formatKvLine("口头表达", afl.spoken_reasoning)
+  ].filter(Boolean).forEach(x => lines.push(x));
+  if (!Object.keys(afl).length) lines.push("- 无");
+  lines.push("");
+
+  lines.push("六、 作业设计");
+  const hw = obj.homework || {};
+  [
+    formatKvLine("基础作业", hw.main_task),
+    formatKvLine("书面反思", hw.written_reflection),
+    formatKvLine("拓展任务", hw.extension)
+  ].filter(Boolean).forEach(x => lines.push(x));
+  if (!Object.keys(hw).length) lines.push("- 无");
+  lines.push("");
+
+  lines.push("七、 教学资源展示");
+  const resources = Array.isArray(obj.resources_summary) ? obj.resources_summary : [];
+  if (resources.length) {
+    lines.push("课堂资源：");
+    resources.forEach((x, i) => lines.push(`${i + 1}. ${x}`));
+  }
+  const ext = Array.isArray(obj.external_resources) ? obj.external_resources : [];
+  if (ext.length) {
+    lines.push("外部资源：");
+    ext.forEach((r, i) => {
+      const titleText = (r && r.title) ? r.title : `资源${i + 1}`;
+      lines.push(`${i + 1}. ${titleText}`);
+      if (r && r.type) lines.push(`   - 类型：${r.type}`);
+      if (r && r.url) lines.push(`   - 链接：${r.url}`);
+      if (r && r.description) lines.push(`   - 说明：${r.description}`);
+      if (r && r.suggested_use) lines.push(`   - 使用建议：${r.suggested_use}`);
+    });
+  }
+  if (!resources.length && !ext.length) lines.push("- 无");
+
+  return lines.join("\n").trim();
+}
+
+function setOutputFromAny(rawText, rawJsonObj) {
+  if (rawJsonObj && typeof rawJsonObj === "object") {
+    setOutput(formatLessonJsonToDocText(rawJsonObj));
+    return;
+  }
+  const parsed = tryParseJsonObject(rawText);
+  if (parsed) {
+    setOutput(formatLessonJsonToDocText(parsed));
+    return;
+  }
+  setOutput(rawText || "");
+}
+
 function getOutputText() {
   const out = document.getElementById("output");
   return out ? (out.textContent || "") : "";
@@ -165,6 +328,41 @@ const API_BASE = "http://127.0.0.1:5000";
 
 function getToken(){
   return localStorage.getItem('auth_token') || '';
+}
+
+function isAuthInvalidResponse(res, data) {
+  if (!res || res.status !== 401) return false;
+  const msg = (data && data.message) ? String(data.message).toLowerCase() : "";
+  return msg.includes("invalid or expired token") || msg.includes("missing token");
+}
+
+function handleAuthExpired() {
+  const locale = getLocale();
+  localStorage.removeItem("auth_token");
+  localStorage.removeItem("login_user");
+  alert(locale === "en" ? "Session expired. Please log in again." : "登录已过期，请重新登录。");
+  window.location.href = "../login.html";
+}
+
+function getCurrentUserName() {
+  const locale = getLocale();
+  try {
+    const user = JSON.parse(localStorage.getItem("login_user") || "{}");
+    return (user.name || user.nickname || user.email || (locale === "en" ? "[Your Name]" : "[您的姓名]")).trim();
+  } catch {
+    return locale === "en" ? "[Your Name]" : "[您的姓名]";
+  }
+}
+
+function buildLessonMainTitle(grade, subject, topic) {
+  const locale = getLocale();
+  const g = (grade || "").trim();
+  const s = (subject || "").trim();
+  const t = (topic || "").trim();
+  if (!t) return lessonDict[locale].defaultPlanTitle;
+  if (locale === "en") return `${g} ${s} ${t} Lesson Plan`.replace(/\s+/g, " ").trim();
+  const topicPart = (t.startsWith("《") && t.endsWith("》")) ? t : `《${t}》`;
+  return `${g}${s}${topicPart}教案`;
 }
 
 async function apiUpdateLesson(lessonId, content, meta) {
@@ -178,11 +376,15 @@ async function apiUpdateLesson(lessonId, content, meta) {
     },
     body: JSON.stringify({
       content,
-      title: meta.topic || "教案",
+      title: meta.topic || lessonDict[getLocale()].defaultPlanTitle,
       meta
     })
   });
   const data = await res.json().catch(()=> ({}));
+  if (isAuthInvalidResponse(res, data)) {
+    handleAuthExpired();
+    throw new Error("auth expired");
+  }
   if (!res.ok || data.code !== 0) throw new Error(data.message || "save failed");
   return data.data;
 }
@@ -191,7 +393,7 @@ function showLoading(){
   const out = document.getElementById('output');
   const empty = document.getElementById('emptyState');
   empty.style.display = 'none';
-  out.innerHTML = '<div class="spinner"></div><div style="margin-top:8px;color:#9aa3ad">生成中，请稍候...</div>';
+  out.innerHTML = `<div class="spinner"></div><div style="margin-top:8px;color:#9aa3ad">${lessonDict[getLocale()].generating}</div>`;
 }
 
 async function ensurePdfFontLoaded(doc) {
@@ -208,8 +410,20 @@ async function ensurePdfFontLoaded(doc) {
     return btoa(binary);
   };
 
-  const normalBase64 = await loadFontFile(PDF_FONT_URL_NORMAL);
-  const boldBase64 = await loadFontFile(PDF_FONT_URL_BOLD);
+  const loadByCandidates = async (candidates) => {
+    let lastError = null;
+    for (const u of candidates) {
+      try {
+        return await loadFontFile(u);
+      } catch (e) {
+        lastError = e;
+      }
+    }
+    throw lastError || new Error("font load failed");
+  };
+
+  const normalBase64 = await loadByCandidates(getFontCandidates(PDF_FONT_URL_NORMAL));
+  const boldBase64 = await loadByCandidates(getFontCandidates(PDF_FONT_URL_BOLD));
   doc.addFileToVFS(PDF_FONT_FILE_NORMAL, normalBase64);
   doc.addFileToVFS(PDF_FONT_FILE_BOLD, boldBase64);
   doc.addFont(PDF_FONT_FILE_NORMAL, PDF_FONT_FAMILY, "normal");
@@ -225,7 +439,8 @@ async function downloadPdf(filename, title, text, headerText = "") {
     await ensurePdfFontLoaded(doc);
     doc.setFont(PDF_FONT_FAMILY, "normal");
   } catch {
-    doc.setFont("helvetica", "normal");
+    alert(lessonDict[getLocale()].pdfFontError);
+    return;
   }
 
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -253,6 +468,7 @@ async function downloadPdf(filename, title, text, headerText = "") {
     .replace(/^#+\s*/gm, "")
     .replace(/^[-*]\s+/gm, "")
     .replace(/\s+$/gm, "")
+    .replace(/^---+$/gm, "")
     .trim();
 
   const cleaned = normalizeText(text);
@@ -292,7 +508,7 @@ async function downloadPdf(filename, title, text, headerText = "") {
 
     const h2Match = textLine.match(/^(\d+)[、.]\s*(.+)$/);
     if (h2Match) {
-      return { level: 3, text: `${h2Match[1]}. ${h2Match[2]}` };
+      return { level: 2, text: `${h2Match[1]}. ${h2Match[2]}` };
     }
 
     const h3Match = textLine.match(/^(\d+\.\d+)\s+(.+)$/);
@@ -305,10 +521,13 @@ async function downloadPdf(filename, title, text, headerText = "") {
       return { level: 3, text: `${alphaMatch[1].toUpperCase()}. ${alphaMatch[2]}` };
     }
 
-    const colonMatch = textLine.match(/^([^：:]{1,12})[：:]\s*(.+)?$/);
+    const colonMatch = textLine.match(/^([^：:]{1,16})[：:]\s*(.+)?$/);
     if (colonMatch) {
       const label = colonMatch[1];
       const rest = colonMatch[2] ? ` ${colonMatch[2]}` : "";
+      if (/教学重点|教学难点|重点|难点|易错点|关键问题|教学方法|教学准备|板书设计/.test(label)) {
+        return { level: 3, text: `${label}${rest}` };
+      }
       return { level: 2, text: `${label}${rest}` };
     }
 
@@ -351,14 +570,32 @@ async function downloadPdf(filename, title, text, headerText = "") {
     });
   };
 
-  if (title) {
-    const titleLine = `《${title}》教学设计`;
-    writeCentered(sizes.title, "bold", titleLine);
-  }
+  const grade = val("grade");
+  const subject = val("subject");
+  const topic = val("topic") || title || "";
+  const mainTitle = buildLessonMainTitle(grade, subject, topic);
+  const teacherName = getCurrentUserName();
+
+  writeCentered(sizes.title, "bold", mainTitle);
+  writeCentered(sizes.body, "normal", `${lessonDict[getLocale()].teacherLabel}: ${teacherName}`);
+  cursorY += 8;
+
+  const shouldSkipLine = (line) => {
+    const cur = (line || "").trim();
+    if (!cur) return false;
+    if (cur === mainTitle || cur === `《${topic}》教学设计`) return true;
+    if (/^(执教者|Teacher)[：:]/i.test(cur)) return true;
+    if (/^根据您提供的信息|^这是一份|^以下是|^教学设计好的/.test(cur)) return true;
+    return false;
+  };
 
   lines.forEach((rawLine) => {
     if (!rawLine.trim()) {
       cursorY += lineHeight(sizes.body) / 2;
+      return;
+    }
+
+    if (shouldSkipLine(rawLine)) {
       return;
     }
 
@@ -461,20 +698,26 @@ function bindLessonEvents() {
           'Content-Type':'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(input)
+        body: JSON.stringify({ ...input, lang: getLocale() })
       });
       const data = await res.json().catch(()=> ({}));
+      if (isAuthInvalidResponse(res, data)) {
+        handleAuthExpired();
+        return;
+      }
       if(res.ok && data.code===0){
-        setOutput(data.data.lesson_plan);
-        localStorage.setItem('last_lesson_plan', data.data.lesson_plan);
+        setOutputFromAny(data.data.lesson_plan, data.data.lesson_plan_json || null);
+        localStorage.setItem('last_lesson_plan', getOutputText());
         currentLessonId = data.data.lesson_id || null;
         await refreshHistory();
       }else{
-        alert('生成失败: ' + (data.message||'未知错误'));
+        const locale = getLocale();
+        const detail = locale === "en" ? lessonDict[locale].unknownError : (data.message || lessonDict[locale].unknownError);
+        alert(`${lessonDict[locale].generateFail}: ${detail}`);
         setOutput('');
       }
     }catch(err){
-      alert('网络错误: ' + err.message);
+      alert(`${lessonDict[getLocale()].networkError}: ${err.message}`);
       setOutput('');
     }
   });
@@ -532,16 +775,9 @@ function bindLessonEvents() {
     if (!text) return;
     const name = (val("topic") || "lesson-plan").replace(/[\\/:*?"<>|]/g, "_");
     const topic = val("topic") || "";
-    await downloadPdf(`${name}.pdf`, topic || "教案", text, topic);
+    await downloadPdf(`${name}.pdf`, topic || lessonDict[getLocale()].defaultPlanTitle, text, topic);
   });
 
-  document.getElementById("downloadWordBtn").addEventListener("click", (e) => {
-    e.preventDefault();
-    const text = getOutputText();
-    if (!text) return;
-    const name = (val("topic") || "lesson-plan").replace(/[\\/:*?"<>|]/g, "_");
-    downloadWord(`${name}.doc`, text);
-  });
 }
 
 function initLesson() {
@@ -558,11 +794,11 @@ function initLesson() {
 function renderHistory(list){
   const box = document.getElementById('historyList');
   if(!box) return;
-  if(!list || list.length===0){ box.innerHTML='<div style="color:#8a8f98;font-size:12px;">(empty)</div>'; return }
+  if(!list || list.length===0){ box.innerHTML=`<div style="color:#8a8f98;font-size:12px;">${lessonDict[getLocale()].emptyHistory}</div>`; return }
   box.innerHTML = list.map(item=>{
     const topic = item.topic || item.title || '-';
-    const lessonCount = item.lesson_count ? `${item.lesson_count}节` : '';
-    const meta = [item.grade||'', item.subject||'', item.duration?`${item.duration}分钟`:'', lessonCount].filter(Boolean).join(' · ');
+    const lessonCount = item.lesson_count ? `${item.lesson_count}${lessonDict[getLocale()].lessonUnit}` : '';
+    const meta = [item.grade||'', item.subject||'', item.duration?`${item.duration}${lessonDict[getLocale()].minuteUnit}`:'', lessonCount].filter(Boolean).join(' · ');
     return `
       <div class="hitem" data-id="${item.id}" data-content="${encodeURIComponent(item.content||'')}">
         <div class="hitem-top">
@@ -577,7 +813,7 @@ function renderHistory(list){
     el.addEventListener('click', ()=>{
       const c = decodeURIComponent(el.getAttribute('data-content')||'');
       currentLessonId = Number(el.getAttribute('data-id')) || null;
-      setOutput(c);
+      setOutputFromAny(c, null);
     });
   });
 }
@@ -588,6 +824,10 @@ async function apiHistory(){
     if(!token) return [];
     const res = await fetch(`${API_BASE}/api/lesson/history`, { headers: { 'Authorization': `Bearer ${token}` } });
     const data = await res.json().catch(()=>({}));
+    if (isAuthInvalidResponse(res, data)) {
+      handleAuthExpired();
+      return [];
+    }
     if(!res.ok || data.code!==0) return [];
     return data.data;
   }catch{ return [] }

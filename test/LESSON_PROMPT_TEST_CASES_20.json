@@ -1,0 +1,360 @@
+{
+  "suite": "lesson_prompt_generation",
+  "api": "/api/lesson/generate",
+  "method": "POST",
+  "count": 20,
+  "cases": [
+    {
+      "case_id": "L001",
+      "name": "grade1_addition_basic",
+      "payload": {
+        "grade": "一年级",
+        "subject": "数学",
+        "topic": "20以内加法",
+        "duration": 40,
+        "lesson_count": 1,
+        "lang": "zh",
+        "objectives": "会用凑十法进行口算",
+        "key_points": "凑十法步骤与算理",
+        "activities": "口算接龙,同桌互讲"
+      },
+      "expected": {
+        "http_status": 200,
+        "must_include_sections_zh": [
+          "一、 基本信息",
+          "二、 教学目标",
+          "三、 重难点",
+          "四、 教学过程",
+          "五、 评价与反馈",
+          "六、 作业设计"
+        ]
+      }
+    },
+    {
+      "case_id": "L002",
+      "name": "grade2_subtraction_word_problem",
+      "payload": {
+        "grade": "二年级",
+        "subject": "数学",
+        "topic": "两位数退位减法应用题",
+        "duration": 40,
+        "lesson_count": 1,
+        "lang": "zh",
+        "objectives": "能提取条件并列式求解",
+        "key_points": "退位算法与审题",
+        "activities": "读题圈词,小组讲解"
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "L003",
+      "name": "grade3_multiplication_table",
+      "payload": {
+        "grade": "三年级",
+        "subject": "数学",
+        "topic": "乘法口诀综合运用",
+        "duration": 45,
+        "lesson_count": 1,
+        "lang": "zh",
+        "objectives": "能用口诀解决乘法口算",
+        "key_points": "口诀迁移与逆向思考",
+        "activities": "闯关游戏,板演纠错"
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "L004",
+      "name": "grade4_area_rectangle_square",
+      "payload": {
+        "grade": "四年级",
+        "subject": "数学",
+        "topic": "长方形与正方形面积",
+        "duration": 45,
+        "lesson_count": 1,
+        "lang": "zh",
+        "objectives": "掌握面积公式并会实际测量",
+        "key_points": "面积单位与换算",
+        "activities": "测量教室物品并汇报"
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "L005",
+      "name": "grade5_fraction_addition",
+      "payload": {
+        "grade": "五年级",
+        "subject": "数学",
+        "topic": "异分母分数加法",
+        "duration": 45,
+        "lesson_count": 1,
+        "lang": "zh",
+        "objectives": "会通分并正确计算",
+        "key_points": "最小公分母选择",
+        "activities": "错例辨析,同伴互评"
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "L006",
+      "name": "grade6_ratio_application",
+      "payload": {
+        "grade": "六年级",
+        "subject": "数学",
+        "topic": "比和比例应用",
+        "duration": 45,
+        "lesson_count": 1,
+        "lang": "zh",
+        "objectives": "能用比例解决实际问题",
+        "key_points": "单位量与比例意义",
+        "activities": "情境建模,分层练习"
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "L007",
+      "name": "double_period_lesson",
+      "payload": {
+        "grade": "六年级",
+        "subject": "数学",
+        "topic": "圆柱体积",
+        "duration": 40,
+        "lesson_count": 2,
+        "lang": "zh",
+        "objectives": "理解体积公式推导",
+        "key_points": "底面积与高的关系",
+        "activities": "操作实验,模型展示"
+      },
+      "expected": {
+        "http_status": 200,
+        "should_contain_keywords": ["第1课时", "第2课时"]
+      }
+    },
+    {
+      "case_id": "L008",
+      "name": "english_mode_basic",
+      "payload": {
+        "grade": "Grade 4",
+        "subject": "Math",
+        "topic": "Equivalent Fractions",
+        "duration": 40,
+        "lesson_count": 1,
+        "lang": "en",
+        "objectives": "Identify and generate equivalent fractions",
+        "key_points": "Visual models and simplification",
+        "activities": "Pair work and mini whiteboards"
+      },
+      "expected": {
+        "http_status": 200,
+        "must_include_sections_en": [
+          "I. Basic Information",
+          "II. Teaching Objectives",
+          "III. Key and Difficult Points",
+          "IV. Teaching Process",
+          "V. Assessment and Feedback",
+          "VI. Homework Design"
+        ]
+      }
+    },
+    {
+      "case_id": "L009",
+      "name": "english_mode_two_lessons",
+      "payload": {
+        "grade": "Grade 6",
+        "subject": "Math",
+        "topic": "Percent and Discount",
+        "duration": 45,
+        "lesson_count": 2,
+        "lang": "en",
+        "objectives": "Apply percentages in shopping contexts",
+        "key_points": "Converting between fractions decimals percentages",
+        "activities": "Market simulation and reflection"
+      },
+      "expected": {
+        "http_status": 200,
+        "should_contain_keywords": ["Lesson 1", "Lesson 2"]
+      }
+    },
+    {
+      "case_id": "L010",
+      "name": "topic_with_special_brackets",
+      "payload": {
+        "grade": "三年级",
+        "subject": "数学",
+        "topic": "《分数的初步认识》",
+        "duration": 40,
+        "lesson_count": 1,
+        "lang": "zh",
+        "objectives": "认识分数单位",
+        "key_points": "分子分母意义",
+        "activities": "折纸表示分数"
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "L011",
+      "name": "long_objectives_text",
+      "payload": {
+        "grade": "五年级",
+        "subject": "数学",
+        "topic": "小数乘法",
+        "duration": 45,
+        "lesson_count": 1,
+        "lang": "zh",
+        "objectives": "能够准确计算小数乘法并解释小数点移动规律,在真实问题中选择合适算法并进行结果估算,培养表达与反思能力",
+        "key_points": "位值系统与估算",
+        "activities": "先估后算,错因归类"
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "L012",
+      "name": "minimal_optional_fields",
+      "payload": {
+        "grade": "二年级",
+        "subject": "数学",
+        "topic": "认识厘米和米",
+        "duration": "",
+        "lesson_count": "",
+        "lang": "zh",
+        "objectives": "",
+        "key_points": "",
+        "activities": ""
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "L013",
+      "name": "missing_topic_should_fail",
+      "payload": {
+        "grade": "三年级",
+        "subject": "数学",
+        "topic": "",
+        "duration": 40,
+        "lesson_count": 1,
+        "lang": "zh",
+        "objectives": "掌握估算方法",
+        "key_points": "估算策略",
+        "activities": "快速口算"
+      },
+      "expected": {
+        "http_status": 400,
+        "error_contains": "topic is required"
+      }
+    },
+    {
+      "case_id": "L014",
+      "name": "invalid_lang_fallback_to_zh",
+      "payload": {
+        "grade": "四年级",
+        "subject": "数学",
+        "topic": "小数的意义",
+        "duration": 40,
+        "lesson_count": 1,
+        "lang": "jp",
+        "objectives": "理解十分位百分位",
+        "key_points": "位值理解",
+        "activities": "数轴定位"
+      },
+      "expected": {
+        "http_status": 200,
+        "should_not_contain": ["I. Basic Information"]
+      }
+    },
+    {
+      "case_id": "L015",
+      "name": "cross_subject_science",
+      "payload": {
+        "grade": "五年级",
+        "subject": "科学",
+        "topic": "杠杆原理",
+        "duration": 40,
+        "lesson_count": 1,
+        "lang": "zh",
+        "objectives": "理解杠杆平衡条件",
+        "key_points": "力臂概念",
+        "activities": "实验探究"
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "L016",
+      "name": "numeric_topic",
+      "payload": {
+        "grade": "一年级",
+        "subject": "数学",
+        "topic": "100以内数的认识",
+        "duration": 35,
+        "lesson_count": 1,
+        "lang": "zh",
+        "objectives": "会读写100以内数",
+        "key_points": "十位个位",
+        "activities": "摆小棒"
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "L017",
+      "name": "topic_with_spaces",
+      "payload": {
+        "grade": "六年级",
+        "subject": "数学",
+        "topic": "  负数的初步认识  ",
+        "duration": 40,
+        "lesson_count": 1,
+        "lang": "zh",
+        "objectives": "理解正负数意义",
+        "key_points": "数轴表示",
+        "activities": "情境讨论"
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "L018",
+      "name": "high_duration_value",
+      "payload": {
+        "grade": "六年级",
+        "subject": "数学",
+        "topic": "统计图综合复习",
+        "duration": 90,
+        "lesson_count": 1,
+        "lang": "zh",
+        "objectives": "能解读条形图折线图扇形图",
+        "key_points": "图表比较",
+        "activities": "数据解读任务"
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "L019",
+      "name": "emoji_and_symbols_in_topic",
+      "payload": {
+        "grade": "三年级",
+        "subject": "数学",
+        "topic": "时间计算 + 应用题 #1",
+        "duration": 40,
+        "lesson_count": 1,
+        "lang": "zh",
+        "objectives": "掌握时分换算",
+        "key_points": "跨小时计算",
+        "activities": "时钟拨盘练习"
+      },
+      "expected": {"http_status": 200}
+    },
+    {
+      "case_id": "L020",
+      "name": "english_subject_math_lowercase",
+      "payload": {
+        "grade": "Grade 3",
+        "subject": "math",
+        "topic": "Perimeter of Rectangles",
+        "duration": 40,
+        "lesson_count": 1,
+        "lang": "en",
+        "objectives": "Find perimeter using side lengths",
+        "key_points": "Add all sides accurately",
+        "activities": "Measure and solve"
+      },
+      "expected": {"http_status": 200}
+    }
+  ]
+}
