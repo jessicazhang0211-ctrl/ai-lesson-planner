@@ -1,6 +1,125 @@
 from .shared import *
 from .shared import _get_uid, _gen_code
 from app.models.user import User
+from app.models.exercise import Exercise
+from app.config import Config
+from app.services.ai_service import ai_service
+from app.utils.json_handlers import extract_json
+
+
+# In-process cache: recompute AI advice only when score signature changes.
+_TEACHER_ADVICE_CACHE = {}
+
+
+def _build_advice_signature(assignments):
+    if not assignments:
+        return (0, 0, 0, 0, "")
+
+    total = len(assignments)
+    completed = 0
+    score_count = 0
+    score_sum = 0
+    latest_ts = ""
+
+    for a in assignments:
+        if a.status == "completed":
+            completed += 1
+        if a.score is not None:
+            score_count += 1
+            score_sum += int(a.score)
+        t = a.completed_at or a.created_at
+        if t:
+            s = t.isoformat()
+            if s > latest_ts:
+                latest_ts = s
+
+    return (total, completed, score_count, score_sum, latest_ts)
+
+
+def _get_cached_teacher_advice(uid, signature):
+    cached = _TEACHER_ADVICE_CACHE.get(uid)
+    if not cached:
+        return None
+    if cached.get("signature") != signature:
+        return None
+    advice = cached.get("advice")
+    if isinstance(advice, list) and advice:
+        return advice
+    return None
+
+
+def _set_cached_teacher_advice(uid, signature, advice):
+    _TEACHER_ADVICE_CACHE[uid] = {
+        "signature": signature,
+        "advice": advice,
+    }
+
+
+def _fallback_teacher_advice(weak_topics, submit_rate, accuracy_avg):
+    advice = []
+    if weak_topics:
+        top = weak_topics[0]
+        advice.append(
+            f"优先加强《{top['topic']}》讲解，当前提交率{top['submit']}%、正确率{top['accuracy']}%。"
+        )
+        if len(weak_topics) > 1:
+            t2 = weak_topics[1]
+            advice.append(
+                f"补充《{t2['topic']}》分层练习，先讲核心概念再做变式巩固。"
+            )
+    else:
+        advice.append("近7天未发现明显薄弱课程，可保持当前教学节奏并做阶段复盘。")
+
+    if submit_rate < 75:
+        advice.append("作业提交率偏低，建议布置课堂当堂小测并设置次日追交机制。")
+    if accuracy_avg < 75:
+        advice.append("整体正确率偏低，建议在新课前加入5-8分钟基础回顾与错因讲评。")
+
+    if not advice:
+        advice.append("保持现有教学安排，持续跟踪每周提交率和正确率变化。")
+    return advice[:4]
+
+
+def _build_teacher_advice(weak_topics, class_rows, overview):
+    submit_rate = int((overview or {}).get("submitRate", 0) or 0)
+    accuracy_avg = int((overview or {}).get("accuracyAvg", 0) or 0)
+    fallback = _fallback_teacher_advice(weak_topics, submit_rate, accuracy_avg)
+
+    if not Config.GEMINI_API_KEY:
+        return fallback
+
+    weak_text = "；".join([
+        f"{x['topic']}（提交率{x['submit']}%，正确率{x['accuracy']}%，班级{x['className']}）"
+        for x in weak_topics[:5]
+    ]) or "暂无明显薄弱课程"
+    class_text = "；".join([
+        f"{c['name']}：提交{int(round((c['submitted'] / c['total']) * 100)) if c['total'] else 0}%/正确{c['accuracy']}%"
+        for c in class_rows[:8]
+    ]) or "暂无班级数据"
+
+    prompt = (
+        "你是小学数学教学督导助手。基于以下学情摘要，输出对任课教师的改进建议。\n"
+        "要求：\n"
+        "1) 重点指出掌握薄弱的课程/题型并说明需要加强讲解；\n"
+        "2) 给出可执行、可落地的课堂策略；\n"
+        "3) 只输出 JSON：{\"advice\":[\"...\",\"...\"]}；\n"
+        "4) advice 返回 3-4 条，每条不超过45字。\n\n"
+        f"近7天总提交率：{submit_rate}%\n"
+        f"近7天平均正确率：{accuracy_avg}%\n"
+        f"薄弱课程/题型：{weak_text}\n"
+        f"班级概览：{class_text}\n"
+    )
+    try:
+        ai_text = ai_service.generate_text(prompt, model_name=Config.EXERCISE_GENERATION_MODEL)
+        data = extract_json(ai_text)
+        if isinstance(data, dict) and isinstance(data.get("advice"), list):
+            advice = [str(x).strip() for x in data.get("advice", []) if str(x).strip()]
+            if advice:
+                return advice[:4]
+    except Exception:
+        pass
+
+    return fallback
 
 @bp.route("/", methods=["GET"])
 def list_classes():
@@ -37,6 +156,8 @@ def teacher_overview():
             "weekly": [],
             "praises": [],
             "risks": [],
+            "teacherAdvice": ["暂无班级数据，建议先发布一次基础练习后再查看 AI 教学建议。"],
+            "weakTopics": [],
             "classes": []
         })
 
@@ -231,6 +352,59 @@ def teacher_overview():
             "pending": pending
         })
 
+    # weak topics for teacher advice (aggregate from last 7 days assignments by exercise title)
+    exercise_ids = list({p.resource_id for p in pubs if p.resource_id})
+    exercise_map = {}
+    if exercise_ids:
+        exercise_rows = Exercise.query.filter(Exercise.id.in_(exercise_ids)).all()
+        exercise_map = {e.id: e.title for e in exercise_rows}
+
+    weak_topic_map = {}
+    for a in week_assignments:
+        pub = pub_map.get(a.publish_id)
+        if not pub:
+            continue
+        topic_name = (exercise_map.get(pub.resource_id) or f"练习#{pub.resource_id}").strip()
+        item = weak_topic_map.setdefault(topic_name, {
+            "topic": topic_name,
+            "class_names": set(),
+            "total": 0,
+            "completed": 0,
+            "scores": []
+        })
+        item["total"] += 1
+        item["class_names"].add(class_name_map.get(pub.class_id, ""))
+        if a.status == "completed":
+            item["completed"] += 1
+        if a.score is not None:
+            item["scores"].append(a.score)
+
+    weak_topics = []
+    for _, item in weak_topic_map.items():
+        submit = int(round((item["completed"] / item["total"]) * 100)) if item["total"] else 0
+        accuracy = int(round(sum(item["scores"]) / len(item["scores"]))) if item["scores"] else 0
+        if submit < 75 or accuracy < 75:
+            weak_topics.append({
+                "topic": item["topic"],
+                "submit": submit,
+                "accuracy": accuracy,
+                "className": "、".join([x for x in sorted(item["class_names"]) if x])
+            })
+    weak_topics = sorted(weak_topics, key=lambda x: (x["accuracy"], x["submit"]))[:5]
+
+    advice_signature = _build_advice_signature(assignments)
+    teacher_advice = _get_cached_teacher_advice(uid, advice_signature)
+    if not teacher_advice:
+        teacher_advice = _build_teacher_advice(
+            weak_topics,
+            class_rows,
+            {
+                "submitRate": submit_rate,
+                "accuracyAvg": accuracy_avg,
+            }
+        )
+        _set_cached_teacher_advice(uid, advice_signature, teacher_advice)
+
     return ok({
         "overview": {
             "students": total_students,
@@ -243,6 +417,8 @@ def teacher_overview():
         "weekly": weekly,
         "praises": praises,
         "risks": risks,
+        "teacherAdvice": teacher_advice,
+        "weakTopics": weak_topics,
         "classes": class_rows
     })
 

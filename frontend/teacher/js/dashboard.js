@@ -7,10 +7,8 @@
       submitRate: "提交率",
       accuracyRate: "正确率",
       noPraise: "暂无表扬",
-      noRisk: "暂无预警",
+      noAdvice: "暂无建议",
       praise: "表扬",
-      highRisk: "高风险",
-      watch: "关注",
       all: "全部",
       loading: "加载中...",
       loadFailed: "加载失败",
@@ -21,10 +19,8 @@
       submitRate: "Submission",
       accuracyRate: "Accuracy",
       noPraise: "No praise yet",
-      noRisk: "No alerts",
+      noAdvice: "No advice",
       praise: "Praise",
-      highRisk: "High Risk",
-      watch: "Watch",
       all: "All",
       loading: "Loading...",
       loadFailed: "Load failed",
@@ -51,7 +47,7 @@
   const monthTrendChart = document.getElementById('monthTrendChart');
   const weekTrendChart = document.getElementById('weekTrendChart');
   const praiseList = document.getElementById('praiseList');
-  const riskList = document.getElementById('riskList');
+  const teacherAdviceList = document.getElementById('teacherAdviceList');
   const classTable = document.querySelector('#classTable tbody');
   const classTabs = document.getElementById('classTabs');
   const btnRefresh = document.getElementById('btnRefresh');
@@ -63,6 +59,7 @@
     weekly: [],
     praises: [],
     risks: [],
+    teacherAdvice: [],
     overview: { students: 0, active: 0, submitRate: 0, accuracyAvg: 0, risk: 0 }
   };
 
@@ -214,24 +211,34 @@
       box.innerHTML = `<div class="muted">${t("noData")}</div>`;
       return;
     }
+
+    const clampPercent = (v) => {
+      const n = Number(v);
+      if (!Number.isFinite(n)) return 0;
+      return Math.min(92, Math.max(0, Math.round(n)));
+    };
+
     items.forEach((item) => {
       const group = document.createElement('div');
       group.className = 'chart-group';
 
+      const submitPct = clampPercent(item.submit);
+      const accPct = clampPercent(item.accuracy);
+
       const submitBar = document.createElement('div');
       submitBar.className = 'chart-bar submit';
-      submitBar.style.height = `${item.submit}%`;
+      submitBar.style.height = `${submitPct}%`;
       const submitVal = document.createElement('div');
       submitVal.className = 'value';
-      submitVal.textContent = `${item.submit}%`;
+      submitVal.textContent = `${submitPct}%`;
       submitBar.appendChild(submitVal);
 
       const accBar = document.createElement('div');
       accBar.className = 'chart-bar accuracy';
-      accBar.style.height = `${item.accuracy}%`;
+      accBar.style.height = `${accPct}%`;
       const accVal = document.createElement('div');
       accVal.className = 'value';
-      accVal.textContent = `${item.accuracy}%`;
+      accVal.textContent = `${accPct}%`;
       accBar.appendChild(accVal);
 
       const label = document.createElement('div');
@@ -245,31 +252,18 @@
     });
   }
 
-  function renderRisks() {
-    riskList.innerHTML = '';
-    if (!state.risks.length) {
-      riskList.innerHTML = `<div class="risk-item"><span class="risk-name">${t("noRisk")}</span></div>`;
+  function renderTeacherAdvice() {
+    if (!teacherAdviceList) return;
+    teacherAdviceList.innerHTML = '';
+    if (!state.teacherAdvice.length) {
+      teacherAdviceList.innerHTML = `<div class="advice-item"><span class="advice-text">${t("noAdvice")}</span></div>`;
       return;
     }
-    state.risks.forEach((r) => {
+    state.teacherAdvice.forEach((line, idx) => {
       const item = document.createElement('div');
-      item.className = 'risk-item';
-      const main = document.createElement('div');
-      main.className = 'risk-main';
-      const name = document.createElement('div');
-      name.className = 'risk-name';
-      name.textContent = r.name;
-      const meta = document.createElement('div');
-      meta.className = 'risk-meta';
-      meta.textContent = `${r.className} · ${t("submitRate")} ${r.submit}% · ${t("accuracyRate")} ${r.accuracy}%`;
-      main.appendChild(name);
-      main.appendChild(meta);
-      const tag = document.createElement('div');
-      tag.className = `tag ${r.tag}`;
-      tag.textContent = r.tag === 'danger' ? t("highRisk") : t("watch");
-      item.appendChild(main);
-      item.appendChild(tag);
-      riskList.appendChild(item);
+      item.className = 'advice-item';
+      item.innerHTML = `<span class="advice-index">${idx + 1}</span><span class="advice-text">${line}</span>`;
+      teacherAdviceList.appendChild(item);
     });
   }
 
@@ -316,7 +310,7 @@
     renderMonthTrendLine(monthTrendChart, state.monthly || []);
     renderTrend(weekTrendChart, state.weekly || []);
     renderPraises();
-    renderRisks();
+    renderTeacherAdvice();
     renderTabs();
     renderTable();
   }
@@ -325,7 +319,7 @@
     if (monthTrendChart) monthTrendChart.innerHTML = `<div class="muted">${t("loading")}</div>`;
     if (weekTrendChart) weekTrendChart.innerHTML = `<div class="muted">${t("loading")}</div>`;
     if (praiseList) praiseList.innerHTML = '';
-    riskList.innerHTML = '';
+    if (teacherAdviceList) teacherAdviceList.innerHTML = '';
     classTable.innerHTML = '';
     classTabs.innerHTML = '';
     try {
@@ -336,6 +330,7 @@
         weekly: data.weekly || [],
         praises: data.praises || [],
         risks: data.risks || [],
+        teacherAdvice: data.teacherAdvice || [],
         overview: data.overview || { students: 0, active: 0, submitRate: 0, accuracyAvg: 0, risk: 0 }
       };
       renderAll();
@@ -343,7 +338,7 @@
       if (monthTrendChart) monthTrendChart.innerHTML = `<div class="muted">${t("loadFailed")}</div>`;
       if (weekTrendChart) weekTrendChart.innerHTML = `<div class="muted">${t("loadFailed")}</div>`;
       if (praiseList) praiseList.innerHTML = `<div class="risk-item"><span class="risk-name">${t("loadFailed")}</span></div>`;
-      riskList.innerHTML = `<div class="risk-item"><span class="risk-name">${t("loadFailed")}</span></div>`;
+      if (teacherAdviceList) teacherAdviceList.innerHTML = `<div class="advice-item"><span class="advice-text">${t("loadFailed")}</span></div>`;
     }
   }
 
