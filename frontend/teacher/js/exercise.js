@@ -68,6 +68,47 @@ function getToken(){
   return localStorage.getItem('auth_token') || '';
 }
 
+function parseJwtPayload(token){
+  if (!token || token.split('.').length < 2) return null;
+  try {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const json = decodeURIComponent(atob(base64).split('').map((c) => {
+      const code = c.charCodeAt(0).toString(16).padStart(2, '0');
+      return `%${code}`;
+    }).join(''));
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
+
+function isTokenExpired(token){
+  const payload = parseJwtPayload(token);
+  if (!payload || !payload.exp) return true;
+  const nowSec = Math.floor(Date.now() / 1000);
+  return Number(payload.exp) <= nowSec;
+}
+
+function ensureAuthOrRedirect(){
+  const token = getToken();
+  if (!token || isTokenExpired(token)) {
+    redirectToLoginOnAuthError("invalid or expired token");
+    return "";
+  }
+  return token;
+}
+
+function redirectToLoginOnAuthError(message){
+  const msg = String(message || "").toLowerCase();
+  const hit = msg.includes("invalid or expired token") || msg.includes("missing token") || msg.includes("401");
+  if (!hit) return false;
+  localStorage.removeItem("auth_token");
+  localStorage.removeItem("login_user");
+  alert(getLocale() === "zh" ? "登录已过期，请重新登录" : "Session expired, please sign in again");
+  window.location.href = "../login.html";
+  return true;
+}
+
 function getLocale(){ return localStorage.getItem("locale") || "zh"; }
 function t(k){ return exerciseDict[getLocale()][k] || k; }
 
@@ -259,7 +300,7 @@ function downloadWord(filename, text) {
 }
 
 async function apiGenerate(payload){
-  const token = getToken();
+  const token = ensureAuthOrRedirect();
   if (!token) throw new Error("missing token");
 
   const res = await fetch(`${API_BASE}/api/exercise/generate`,{
@@ -271,12 +312,16 @@ async function apiGenerate(payload){
     body: JSON.stringify(payload)
   });
   const data = await res.json().catch(()=> ({}));
-  if(!res.ok || data.code !== 0) throw new Error(data.message || "generate failed");
+  if(!res.ok || data.code !== 0) {
+    const msg = data.message || `HTTP ${res.status} generate failed`;
+    if (res.status === 401 || redirectToLoginOnAuthError(msg)) throw new Error(msg);
+    throw new Error(msg);
+  }
   return data.data; // {set_id, content, exercise_id}
 }
 
 async function apiUpdateExercise(exerciseId, content, meta){
-  const token = getToken();
+  const token = ensureAuthOrRedirect();
   if (!token) throw new Error("missing token");
   const res = await fetch(`${API_BASE}/api/exercise/${exerciseId}`, {
     method: "PUT",
@@ -291,12 +336,16 @@ async function apiUpdateExercise(exerciseId, content, meta){
     })
   });
   const data = await res.json().catch(()=> ({}));
-  if (!res.ok || data.code !== 0) throw new Error(data.message || "save failed");
+  if (!res.ok || data.code !== 0) {
+    const msg = data.message || `HTTP ${res.status} save failed`;
+    if (res.status === 401 || redirectToLoginOnAuthError(msg)) throw new Error(msg);
+    throw new Error(msg);
+  }
   return data.data;
 }
 
 async function apiHistory(){
-  const token = getToken();
+  const token = ensureAuthOrRedirect();
   if (!token) throw new Error("missing token");
 
   const res = await fetch(`${API_BASE}/api/exercise/history`,{
@@ -305,7 +354,11 @@ async function apiHistory(){
     }
   });
   const data = await res.json().catch(()=> ({}));
-  if(!res.ok || data.code !== 0) throw new Error(data.message || "history failed");
+  if(!res.ok || data.code !== 0) {
+    const msg = data.message || `HTTP ${res.status} history failed`;
+    if (res.status === 401 || redirectToLoginOnAuthError(msg)) throw new Error(msg);
+    throw new Error(msg);
+  }
   return data.data; // list
 }
 
@@ -451,6 +504,7 @@ async function refreshHistory(){
 }
 
 document.addEventListener("DOMContentLoaded", async ()=>{
+  if (!ensureAuthOrRedirect()) return;
   applyExerciseLang();
 
   const cache = localStorage.getItem("last_exercise");
