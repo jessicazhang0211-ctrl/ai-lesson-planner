@@ -52,8 +52,9 @@ function getLocale() {
 
 // 安全赋值（避免元素不存在时报错）
 function setText(selector, text) {
-  const el = document.querySelector(selector);
-  if (el) el.textContent = text;
+  document.querySelectorAll(selector).forEach((el) => {
+    el.textContent = text;
+  });
 }
 
 // ========== 应用系统设置：语言 + 字体 ==========
@@ -86,12 +87,13 @@ function applyTeacherLang() {
   setText("[data-i18n='classInfo']", t.classInfo);
   setText("[data-i18n='logout']", t.logout);
 
-  // 页面标题（不同页面可能不同）
-  const pageTitleEl = document.querySelector("[data-i18n-page]");
-  if (pageTitleEl) {
-    // 主页默认显示 dashboard；设置页自己会在 settings.js 里覆盖
-    pageTitleEl.textContent = t.dashboard;
-  }
+  // 仅处理未指定 key 的页面标题，避免覆盖各页面自有 i18n-page 逻辑
+  document.querySelectorAll("[data-i18n-page]").forEach((el) => {
+    const key = (el.getAttribute("data-i18n-page") || "").trim();
+    if (!key || key === "dashboard") {
+      el.textContent = t.dashboard;
+    }
+  });
 }
 
 // ========== 登录校验：未登录不能进入教师端 ==========

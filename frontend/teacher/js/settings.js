@@ -24,6 +24,8 @@ const settingsDict = {
     school: "学校名称",
     major: "专业",
     jobTitle: "职位名称",
+    phone: "手机号",
+    email: "邮箱",
 
     // panels titles
     panelProfileTitle: "个人资料",
@@ -86,6 +88,8 @@ const settingsDict = {
     school: "School",
     major: "Major",
     jobTitle: "Job Title",
+    phone: "Phone",
+    email: "Email",
 
     panelProfileTitle: "Profile",
     panelProfileDesc: "Avatar + nickname (hover to edit).",
@@ -256,18 +260,29 @@ function renderProfilePanel(panel) {
 }
 
 function renderWorkPanel(panel) {
+  const locale = getLocale();
+  const schoolOptions = locale === "en"
+    ? ["Tsinghua University", "Peking University", "Fudan University", "Shanghai Jiao Tong University", "Zhejiang University", "Nanjing University", "University of Science and Technology of China", "Harbin Institute of Technology", "Xi'an Jiaotong University", "Tongji University"]
+    : ["清华大学", "北京大学", "复旦大学", "上海交通大学", "浙江大学", "南京大学", "中国科学技术大学", "哈尔滨工业大学", "西安交通大学", "同济大学"];
+  const majorOptions = locale === "en"
+    ? ["Computer Science", "Education", "Mathematics", "Physics", "Chemistry", "Biology", "History", "Geography", "Chinese", "English"]
+    : ["计算机科学", "教育学", "数学", "物理", "化学", "生物", "历史", "地理", "语文", "英语"];
+  const titleOptions = locale === "en"
+    ? ["Teacher", "Professor", "Lecturer", "Teaching Assistant", "Homeroom Teacher", "Teaching Researcher", "Principal", "Vice Principal", "Director", "Deputy Director"]
+    : ["教师", "教授", "讲师", "助教", "班主任", "教研员", "校长", "副校长", "主任", "副主任"];
+
   panel.innerHTML = `
     <div class="panel-title">${t("panelWorkTitle")}</div>
     <div class="panel-desc">${t("panelWorkDesc")}</div>
 
     ${rowSelect("school", t("school"), escapeHtml(me?.school || "—"), [
-      "清华大学", "北京大学", "复旦大学", "上海交通大学", "浙江大学", "南京大学", "中国科学技术大学", "哈尔滨工业大学", "西安交通大学", "同济大学"
+      ...schoolOptions
     ])}
     ${rowSelect("major", t("major"), escapeHtml(me?.major || "—"), [
-      "计算机科学", "教育学", "数学", "物理", "化学", "生物", "历史", "地理", "语文", "英语"
+      ...majorOptions
     ])}
     ${rowSelect("job_title", t("jobTitle"), escapeHtml(me?.job_title || "—"), [
-      "教师", "教授", "讲师", "助教", "班主任", "教研员", "校长", "副校长", "主任", "副主任"
+      ...titleOptions
     ])}
   `;
   bindRowEditors(panel);

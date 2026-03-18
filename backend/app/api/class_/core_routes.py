@@ -36,8 +36,9 @@ def _build_advice_signature(assignments):
     return (total, completed, score_count, score_sum, latest_ts)
 
 
-def _get_cached_teacher_advice(uid, signature):
-    cached = _TEACHER_ADVICE_CACHE.get(uid)
+def _get_cached_teacher_advice(uid, signature, lang):
+    cache_key = f"{uid}:{lang}"
+    cached = _TEACHER_ADVICE_CACHE.get(cache_key)
     if not cached:
         return None
     if cached.get("signature") != signature:
@@ -48,14 +49,39 @@ def _get_cached_teacher_advice(uid, signature):
     return None
 
 
-def _set_cached_teacher_advice(uid, signature, advice):
-    _TEACHER_ADVICE_CACHE[uid] = {
+def _set_cached_teacher_advice(uid, signature, advice, lang):
+    cache_key = f"{uid}:{lang}"
+    _TEACHER_ADVICE_CACHE[cache_key] = {
         "signature": signature,
         "advice": advice,
     }
 
 
-def _fallback_teacher_advice(weak_topics, submit_rate, accuracy_avg):
+def _fallback_teacher_advice(weak_topics, submit_rate, accuracy_avg, lang="zh"):
+    if lang == "en":
+        advice = []
+        if weak_topics:
+            top = weak_topics[0]
+            advice.append(
+                f"Prioritize {top['topic']}: submission {top['submit']}%, accuracy {top['accuracy']}%."
+            )
+            if len(weak_topics) > 1:
+                t2 = weak_topics[1]
+                advice.append(
+                    f"Add tiered practice for {t2['topic']} with concept-first reinforcement."
+                )
+        else:
+            advice.append("No obvious weak topics in the last 7 days; keep the current pace and review weekly.")
+
+        if submit_rate < 75:
+            advice.append("Submission is low. Use short in-class checks and next-day catch-up submission.")
+        if accuracy_avg < 75:
+            advice.append("Accuracy is low. Add 5-8 minutes of prerequisite review before new content.")
+
+        if not advice:
+            advice.append("Keep the current teaching plan and track submission and accuracy trends weekly.")
+        return advice[:4]
+
     advice = []
     if weak_topics:
         top = weak_topics[0]
@@ -80,10 +106,10 @@ def _fallback_teacher_advice(weak_topics, submit_rate, accuracy_avg):
     return advice[:4]
 
 
-def _build_teacher_advice(weak_topics, class_rows, overview):
+def _build_teacher_advice(weak_topics, class_rows, overview, lang="zh"):
     submit_rate = int((overview or {}).get("submitRate", 0) or 0)
     accuracy_avg = int((overview or {}).get("accuracyAvg", 0) or 0)
-    fallback = _fallback_teacher_advice(weak_topics, submit_rate, accuracy_avg)
+    fallback = _fallback_teacher_advice(weak_topics, submit_rate, accuracy_avg, lang)
 
     if not Config.GEMINI_API_KEY:
         return fallback
@@ -97,18 +123,32 @@ def _build_teacher_advice(weak_topics, class_rows, overview):
         for c in class_rows[:8]
     ]) or "暂无班级数据"
 
-    prompt = (
-        "你是小学数学教学督导助手。基于以下学情摘要，输出对任课教师的改进建议。\n"
-        "要求：\n"
-        "1) 重点指出掌握薄弱的课程/题型并说明需要加强讲解；\n"
-        "2) 给出可执行、可落地的课堂策略；\n"
-        "3) 只输出 JSON：{\"advice\":[\"...\",\"...\"]}；\n"
-        "4) advice 返回 3-4 条，每条不超过45字。\n\n"
-        f"近7天总提交率：{submit_rate}%\n"
-        f"近7天平均正确率：{accuracy_avg}%\n"
-        f"薄弱课程/题型：{weak_text}\n"
-        f"班级概览：{class_text}\n"
-    )
+    if lang == "en":
+        prompt = (
+            "You are a primary-school math teaching coach. Based on the learning summary, provide actionable advice for the teacher.\n"
+            "Requirements:\n"
+            "1) Highlight weak topics/types that need reinforcement;\n"
+            "2) Provide practical, classroom-ready strategies;\n"
+            "3) Output JSON only: {\"advice\":[\"...\",\"...\"]};\n"
+            "4) Return 3-4 advice items, each under 20 words.\n\n"
+            f"Submission rate in last 7 days: {submit_rate}%\n"
+            f"Average accuracy in last 7 days: {accuracy_avg}%\n"
+            f"Weak topics/types: {weak_text}\n"
+            f"Class overview: {class_text}\n"
+        )
+    else:
+        prompt = (
+            "你是小学数学教学督导助手。基于以下学情摘要，输出对任课教师的改进建议。\n"
+            "要求：\n"
+            "1) 重点指出掌握薄弱的课程/题型并说明需要加强讲解；\n"
+            "2) 给出可执行、可落地的课堂策略；\n"
+            "3) 只输出 JSON：{\"advice\":[\"...\",\"...\"]}；\n"
+            "4) advice 返回 3-4 条，每条不超过45字。\n\n"
+            f"近7天总提交率：{submit_rate}%\n"
+            f"近7天平均正确率：{accuracy_avg}%\n"
+            f"薄弱课程/题型：{weak_text}\n"
+            f"班级概览：{class_text}\n"
+        )
     try:
         ai_text = ai_service.generate_text(prompt, model_name=Config.EXERCISE_GENERATION_MODEL)
         data = extract_json(ai_text)
@@ -148,15 +188,24 @@ def teacher_overview():
     if not uid:
         return err("missing user", http_status=401)
 
+    lang = (request.args.get("lang") or "zh").strip().lower()
+    if lang not in ("zh", "en"):
+        lang = "zh"
+
     classes = Classroom.query.filter_by(created_by=uid).order_by(Classroom.created_at.desc()).all()
     if not classes:
+        empty_advice = [
+            "No class data yet. Publish a baseline exercise first, then check AI teaching advice."
+        ] if lang == "en" else [
+            "暂无班级数据，建议先发布一次基础练习后再查看 AI 教学建议。"
+        ]
         return ok({
             "overview": {"students": 0, "active": 0, "submitRate": 0, "accuracyAvg": 0, "risk": 0},
             "monthly": [],
             "weekly": [],
             "praises": [],
             "risks": [],
-            "teacherAdvice": ["暂无班级数据，建议先发布一次基础练习后再查看 AI 教学建议。"],
+            "teacherAdvice": empty_advice,
             "weakTopics": [],
             "classes": []
         })
@@ -393,7 +442,7 @@ def teacher_overview():
     weak_topics = sorted(weak_topics, key=lambda x: (x["accuracy"], x["submit"]))[:5]
 
     advice_signature = _build_advice_signature(assignments)
-    teacher_advice = _get_cached_teacher_advice(uid, advice_signature)
+    teacher_advice = _get_cached_teacher_advice(uid, advice_signature, lang)
     if not teacher_advice:
         teacher_advice = _build_teacher_advice(
             weak_topics,
@@ -401,9 +450,10 @@ def teacher_overview():
             {
                 "submitRate": submit_rate,
                 "accuracyAvg": accuracy_avg,
-            }
+            },
+            lang
         )
-        _set_cached_teacher_advice(uid, advice_signature, teacher_advice)
+        _set_cached_teacher_advice(uid, advice_signature, teacher_advice, lang)
 
     return ok({
         "overview": {

@@ -106,6 +106,43 @@ function applyLessonLang() {
     const key = el.getAttribute("data-i18n-page");
     if (t[key]) el.textContent = t[key];
   });
+
+  const gradeSel = document.getElementById("grade");
+  if (gradeSel) {
+    const zhGrades = ["小学一年级", "小学二年级", "小学三年级", "小学四年级", "小学五年级", "小学六年级"];
+    const enGrades = ["Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"];
+    Array.from(gradeSel.options).forEach((opt, idx) => {
+      if (idx < zhGrades.length) opt.textContent = lang === "en" ? enGrades[idx] : zhGrades[idx];
+    });
+  }
+
+  const subjectSel = document.getElementById("subject");
+  if (subjectSel) {
+    const zhMap = { "语文": "语文", "数学": "数学", "英语": "英语", "科学": "科学" };
+    const enMap = { "语文": "Chinese", "数学": "Math", "英语": "English", "科学": "Science" };
+    Array.from(subjectSel.options).forEach((opt) => {
+      opt.textContent = lang === "en" ? (enMap[opt.value] || opt.value) : (zhMap[opt.value] || opt.value);
+    });
+  }
+
+  const durationSel = document.getElementById("duration");
+  if (durationSel) {
+    Array.from(durationSel.options).forEach((opt) => {
+      opt.textContent = lang === "en" ? `${opt.value} min` : `${opt.value} 分钟`;
+    });
+  }
+
+  const topicInput = document.getElementById("topic");
+  if (topicInput) topicInput.placeholder = lang === "en" ? "e.g. Introduction to Fractions" : "例如：分数的初步认识";
+
+  const objectivesInput = document.getElementById("objectives");
+  if (objectivesInput) objectivesInput.placeholder = lang === "en" ? "Knowledge / skills / affective goals (brief)" : "知识目标/能力目标/情感目标（可简写）";
+
+  const keyPointsInput = document.getElementById("keyPoints");
+  if (keyPointsInput) keyPointsInput.placeholder = lang === "en" ? "What are the key points and difficulties?" : "重点、难点分别是什么？";
+
+  const activitiesInput = document.getElementById("activities");
+  if (activitiesInput) activitiesInput.placeholder = lang === "en" ? "e.g. Warm-up - Teaching - Practice - Summary - Homework" : "例如：导入—新授—练习—总结—作业";
 }
 
 function val(id) {
@@ -204,104 +241,106 @@ function formatKvLine(label, value) {
 }
 
 function formatLessonJsonToDocText(obj) {
+  const locale = getLocale();
+  const isEn = locale === "en";
   const lines = [];
   const title = obj.lesson_title || obj.topic || lessonDict[getLocale()].defaultPlanTitle;
   lines.push(String(title));
-  lines.push(`${lessonDict[getLocale()].teacherLabel}：[您的姓名]`);
+  lines.push(`${lessonDict[getLocale()].teacherLabel}: ${isEn ? "[Your Name]" : "[您的姓名]"}`);
   lines.push("");
 
-  lines.push("一、 基本信息");
+  lines.push(isEn ? "I. Basic Information" : "一、 基本信息");
   [
-    formatKvLine("年级", obj.year_group),
-    formatKvLine("学科", obj.subject),
-    formatKvLine("课题", obj.topic),
-    formatKvLine("子课题", obj.subtopic),
-    formatKvLine("课时", obj.duration_minutes ? `${obj.duration_minutes}分钟` : ""),
-    formatKvLine("课程类型", obj.lesson_type),
-    formatKvLine("难度", obj.difficulty_level)
+    formatKvLine(isEn ? "Grade" : "年级", obj.year_group),
+    formatKvLine(isEn ? "Subject" : "学科", obj.subject),
+    formatKvLine(isEn ? "Topic" : "课题", obj.topic),
+    formatKvLine(isEn ? "Subtopic" : "子课题", obj.subtopic),
+    formatKvLine(isEn ? "Duration" : "课时", obj.duration_minutes ? `${obj.duration_minutes}${isEn ? " min" : "分钟"}` : ""),
+    formatKvLine(isEn ? "Lesson type" : "课程类型", obj.lesson_type),
+    formatKvLine(isEn ? "Difficulty" : "难度", obj.difficulty_level)
   ].filter(Boolean).forEach(x => lines.push(x));
   lines.push("");
 
-  lines.push("二、 教学目标");
+  lines.push(isEn ? "II. Teaching Objectives" : "二、 教学目标");
   (obj.learning_objectives || []).forEach((x, i) => lines.push(`${i + 1}. ${x}`));
   if (!Array.isArray(obj.learning_objectives) || obj.learning_objectives.length === 0) {
-    lines.push("- 无");
+    lines.push(isEn ? "- N/A" : "- 无");
   }
   lines.push("");
 
-  lines.push("三、 重难点");
+  lines.push(isEn ? "III. Key and Difficult Points" : "三、 重难点");
   const misconceptions = Array.isArray(obj.anticipated_misconceptions) ? obj.anticipated_misconceptions : [];
   if (misconceptions.length) {
-    lines.push("教学难点与易错点：");
+    lines.push(isEn ? "Common misconceptions and corrections:" : "教学难点与易错点：");
     misconceptions.forEach((m, i) => {
       const issue = (m && m.issue) ? m.issue : "";
       const response = (m && m.response) ? m.response : "";
       if (issue) lines.push(`${i + 1}. ${issue}`);
-      if (response) lines.push(`   - 纠正策略：${response}`);
+      if (response) lines.push(`   - ${isEn ? "Correction" : "纠正策略"}: ${response}`);
     });
   } else {
-    lines.push("- 无");
+    lines.push(isEn ? "- N/A" : "- 无");
   }
   lines.push("");
 
-  lines.push("四、 教学过程");
+  lines.push(isEn ? "IV. Teaching Process" : "四、 教学过程");
   const seq = Array.isArray(obj.teaching_sequence) ? obj.teaching_sequence : [];
   if (seq.length) {
     seq.forEach((step, idx) => {
-      const phase = step.phase || `环节${idx + 1}`;
-      const mins = step.duration_minutes ? `（${step.duration_minutes}分钟）` : "";
+      const phase = step.phase || (isEn ? `Step ${idx + 1}` : `环节${idx + 1}`);
+      const mins = step.duration_minutes ? (isEn ? ` (${step.duration_minutes} min)` : `（${step.duration_minutes}分钟）`) : "";
       lines.push(`${idx + 1}. ${phase}${mins}`);
-      if (step.purpose) lines.push(`- 目标：${step.purpose}`);
-      (step.teacher_actions || []).forEach(x => lines.push(`- 教师活动：${x}`));
-      (step.student_activities || []).forEach(x => lines.push(`- 学生活动：${x}`));
-      (step.assessment_opportunities || []).forEach(x => lines.push(`- 评价点：${x}`));
+      if (step.purpose) lines.push(`- ${isEn ? "Purpose" : "目标"}: ${step.purpose}`);
+      (step.teacher_actions || []).forEach(x => lines.push(`- ${isEn ? "Teacher action" : "教师活动"}: ${x}`));
+      (step.student_activities || []).forEach(x => lines.push(`- ${isEn ? "Student activity" : "学生活动"}: ${x}`));
+      (step.assessment_opportunities || []).forEach(x => lines.push(`- ${isEn ? "Assessment" : "评价点"}: ${x}`));
     });
   } else {
-    lines.push("- 无");
+    lines.push(isEn ? "- N/A" : "- 无");
   }
   lines.push("");
 
-  lines.push("五、 评价与反馈");
+  lines.push(isEn ? "V. Assessment and Feedback" : "五、 评价与反馈");
   const afl = obj.assessment_for_learning || {};
   [
-    formatKvLine("随堂提问", afl.informal_questioning),
-    formatKvLine("可视化检查", afl.live_visual_checks),
-    formatKvLine("课堂观察", afl.observation),
-    formatKvLine("练习证据", afl.worksheet_evidence),
-    formatKvLine("口头表达", afl.spoken_reasoning)
+    formatKvLine(isEn ? "Questioning" : "随堂提问", afl.informal_questioning),
+    formatKvLine(isEn ? "Visual checks" : "可视化检查", afl.live_visual_checks),
+    formatKvLine(isEn ? "Observation" : "课堂观察", afl.observation),
+    formatKvLine(isEn ? "Worksheet evidence" : "练习证据", afl.worksheet_evidence),
+    formatKvLine(isEn ? "Spoken reasoning" : "口头表达", afl.spoken_reasoning)
   ].filter(Boolean).forEach(x => lines.push(x));
-  if (!Object.keys(afl).length) lines.push("- 无");
+  if (!Object.keys(afl).length) lines.push(isEn ? "- N/A" : "- 无");
   lines.push("");
 
-  lines.push("六、 作业设计");
+  lines.push(isEn ? "VI. Homework Design" : "六、 作业设计");
   const hw = obj.homework || {};
   [
-    formatKvLine("基础作业", hw.main_task),
-    formatKvLine("书面反思", hw.written_reflection),
-    formatKvLine("拓展任务", hw.extension)
+    formatKvLine(isEn ? "Core task" : "基础作业", hw.main_task),
+    formatKvLine(isEn ? "Written reflection" : "书面反思", hw.written_reflection),
+    formatKvLine(isEn ? "Extension task" : "拓展任务", hw.extension)
   ].filter(Boolean).forEach(x => lines.push(x));
-  if (!Object.keys(hw).length) lines.push("- 无");
+  if (!Object.keys(hw).length) lines.push(isEn ? "- N/A" : "- 无");
   lines.push("");
 
-  lines.push("七、 教学资源展示");
+  lines.push(isEn ? "VII. Teaching Resources" : "七、 教学资源展示");
   const resources = Array.isArray(obj.resources_summary) ? obj.resources_summary : [];
   if (resources.length) {
-    lines.push("课堂资源：");
+    lines.push(isEn ? "Classroom resources:" : "课堂资源：");
     resources.forEach((x, i) => lines.push(`${i + 1}. ${x}`));
   }
   const ext = Array.isArray(obj.external_resources) ? obj.external_resources : [];
   if (ext.length) {
-    lines.push("外部资源：");
+    lines.push(isEn ? "External resources:" : "外部资源：");
     ext.forEach((r, i) => {
-      const titleText = (r && r.title) ? r.title : `资源${i + 1}`;
+      const titleText = (r && r.title) ? r.title : (isEn ? `Resource ${i + 1}` : `资源${i + 1}`);
       lines.push(`${i + 1}. ${titleText}`);
-      if (r && r.type) lines.push(`   - 类型：${r.type}`);
-      if (r && r.url) lines.push(`   - 链接：${r.url}`);
-      if (r && r.description) lines.push(`   - 说明：${r.description}`);
-      if (r && r.suggested_use) lines.push(`   - 使用建议：${r.suggested_use}`);
+      if (r && r.type) lines.push(`   - ${isEn ? "Type" : "类型"}: ${r.type}`);
+      if (r && r.url) lines.push(`   - ${isEn ? "URL" : "链接"}: ${r.url}`);
+      if (r && r.description) lines.push(`   - ${isEn ? "Description" : "说明"}: ${r.description}`);
+      if (r && r.suggested_use) lines.push(`   - ${isEn ? "Suggested use" : "使用建议"}: ${r.suggested_use}`);
     });
   }
-  if (!resources.length && !ext.length) lines.push("- 无");
+  if (!resources.length && !ext.length) lines.push(isEn ? "- N/A" : "- 无");
 
   return lines.join("\n").trim();
 }

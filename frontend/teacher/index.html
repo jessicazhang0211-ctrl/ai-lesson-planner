@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>教师端 · AI 辅助备课系统</title>
+  <title>Teacher · AI Lesson Planner</title>
   <link rel="stylesheet" href="./css/teacher.css" />
   <link rel="stylesheet" href="./css/dashboard.css" />
 </head>
@@ -12,15 +12,15 @@
 <header class="topbar">
   <div class="topbar-left" onclick="goHome()">
     <img src="../assets/logo.png" class="logo" />
-    <span class="system-name" id="appName">AI 辅助备课系统</span>
+    <span class="system-name" id="appName">AI Lesson Planner</span>
   </div>
 
   <div class="topbar-right" onclick="toggleUserMenu()">
-    <span class="username">张老师</span>
+    <span class="username">Teacher</span>
     <img src="../assets/avatar.png" class="avatar" />
     <div class="user-menu" id="userMenu">
-      <div class="menu-item" data-i18n="settings" onclick="location.href='./settings.html'">设置</div>
-      <div class="menu-item logout" data-i18n="logout" onclick="logout()">退出登录</div>
+      <div class="menu-item" data-i18n="settings" onclick="location.href='./settings.html'">Settings</div>
+      <div class="menu-item logout" data-i18n="logout" onclick="logout()">Sign out</div>
     </div>
   </div>
 </header>
@@ -33,14 +33,14 @@
     <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
 
     <nav class="menu">
-      <div class="menu-item active" data-i18n="dashboard">📊 学情分析</div>
-      <div class="menu-item" data-i18n="lesson" onclick="location.href='./lesson.html'">📝 教案生成</div>
-      <div class="menu-item" data-i18n="ppt">📽 PPT 生成</div>
-      <div class="menu-item" data-i18n="exercise" onclick="location.href='./exercise.html'">✏️ 习题设计</div>
-      <div class="menu-item" data-i18n="resource" onclick="location.href='./resource.html'">📚 资源管理</div>
-      <div class="menu-item" data-i18n="review" onclick="location.href='./review.html'">✅ 作业批改</div>
-      <div class="menu-item" data-i18n="class" onclick="location.href='./class_management.html'">🏫 班级管理</div>
-      <div class="menu-item" data-i18n="settings" onclick="location.href='./settings.html'">设置</div>
+      <div class="menu-item active" data-i18n="dashboard">📊 Learning Analytics</div>
+      <div class="menu-item" data-i18n="lesson" onclick="location.href='./lesson.html'">📝 Lesson Planner</div>
+      <div class="menu-item" data-i18n="ppt">📽 PPT Generator</div>
+      <div class="menu-item" data-i18n="exercise" onclick="location.href='./exercise.html'">✏️ Exercise Builder</div>
+      <div class="menu-item" data-i18n="resource" onclick="location.href='./resource.html'">📚 Resource Manager</div>
+      <div class="menu-item" data-i18n="review" onclick="location.href='./review.html'">✅ Review</div>
+      <div class="menu-item" data-i18n="class" onclick="location.href='./class_management.html'">🏫 Class Management</div>
+      <div class="menu-item" data-i18n="settings" onclick="location.href='./settings.html'">Settings</div>
     </nav>
   </aside>
 
@@ -48,50 +48,50 @@
   <main class="content">
     <div class="dash-head">
       <div>
-        <h1 class="dash-title" data-i18n-page>学情分析</h1>
-        <div class="dash-sub">班级整体表现、作业完成度与 Gemini 教学建议一览。</div>
+        <h1 class="dash-title" data-i18n-page="dashboardTitle">Learning Analytics</h1>
+        <div class="dash-sub" data-i18n-page="dashboardSub">Overview of class performance, submissions, and Gemini teaching recommendations.</div>
       </div>
       <div class="dash-actions">
-        <button class="btn ghost" id="btnRefresh">刷新</button>
-        <button class="btn primary" id="btnExport">导出概览</button>
+        <button class="btn ghost" id="btnRefresh" data-i18n-page="refresh">Refresh</button>
+        <button class="btn primary" id="btnExport" data-i18n-page="export">Export Overview</button>
       </div>
     </div>
 
     <section class="dash-grid stats">
       <div class="card kpi">
-        <div class="kpi-label">在册学生</div>
+        <div class="kpi-label" data-i18n-page="kpiStudentsLabel">Students Enrolled</div>
         <div class="kpi-value" id="kpiStudents">--</div>
-        <div class="kpi-hint" id="kpiActiveHint">活跃/总数</div>
+        <div class="kpi-hint" id="kpiActiveHint">--</div>
       </div>
       <div class="card kpi">
-        <div class="kpi-label">本周提交</div>
+        <div class="kpi-label" data-i18n-page="kpiSubmitLabel">Weekly Submission</div>
         <div class="kpi-value" id="kpiSubmit">--</div>
-        <div class="kpi-hint">作业提交率</div>
+        <div class="kpi-hint" data-i18n-page="kpiSubmitHint">Homework submission rate</div>
       </div>
       <div class="card kpi">
-        <div class="kpi-label">平均正确率</div>
+        <div class="kpi-label" data-i18n-page="kpiAccuracyLabel">Average Accuracy</div>
         <div class="kpi-value" id="kpiAccuracy">--</div>
-        <div class="kpi-hint">近 7 天</div>
+        <div class="kpi-hint" data-i18n-page="kpiAccuracyHint">Last 7 days</div>
       </div>
       <div class="card kpi">
-        <div class="kpi-label">待处理</div>
+        <div class="kpi-label" data-i18n-page="kpiRiskLabel">Pending</div>
         <div class="kpi-value" id="kpiRisk">--</div>
-        <div class="kpi-hint">预警 / 异常</div>
+        <div class="kpi-hint" data-i18n-page="kpiRiskHint">Alerts / Exceptions</div>
       </div>
     </section>
 
     <section class="dash-grid two-cols">
       <div class="card">
         <div class="card-head">
-          <div class="card-title">月趋势</div>
-          <div class="card-sub">提交率 & 正确率</div>
+          <div class="card-title" data-i18n-page="monthTrendTitle">Monthly Trend</div>
+          <div class="card-sub" data-i18n-page="trendSub">Submission & Accuracy</div>
         </div>
         <div class="chart" id="monthTrendChart"></div>
       </div>
       <div class="card">
         <div class="card-head">
-          <div class="card-title">周趋势</div>
-          <div class="card-sub">提交率 & 正确率</div>
+          <div class="card-title" data-i18n-page="weekTrendTitle">Weekly Trend</div>
+          <div class="card-sub" data-i18n-page="trendSub">Submission & Accuracy</div>
         </div>
         <div class="chart" id="weekTrendChart"></div>
       </div>
@@ -100,15 +100,15 @@
     <section class="dash-grid two-cols">
       <div class="card">
         <div class="card-head">
-          <div class="card-title">奖励名单</div>
-          <div class="card-sub">提交率/正确率/进步表现</div>
+          <div class="card-title" data-i18n-page="rewardTitle">Reward List</div>
+          <div class="card-sub" data-i18n-page="rewardSub">Submission / Accuracy / Progress</div>
         </div>
         <div class="list" id="praiseList"></div>
       </div>
       <div class="card">
         <div class="card-head">
-          <div class="card-title">AI 教学建议（Gemini）</div>
-          <div class="card-sub">聚焦薄弱课程与讲解强化策略</div>
+          <div class="card-title" data-i18n-page="adviceTitle">AI Teaching Advice (Gemini)</div>
+          <div class="card-sub" data-i18n-page="adviceSub">Focus on weak topics and reinforcement strategy</div>
         </div>
         <div class="list" id="teacherAdviceList"></div>
       </div>
@@ -117,15 +117,21 @@
     <section class="card table-card">
       <div class="card-head">
         <div>
-          <div class="card-title">班级概览</div>
-          <div class="card-sub">各班提交率与正确率</div>
+          <div class="card-title" data-i18n-page="classOverviewTitle">Class Overview</div>
+          <div class="card-sub" data-i18n-page="classOverviewSub">Submission and accuracy by class</div>
         </div>
         <div class="seg" id="classTabs"></div>
       </div>
       <div class="table-wrap">
         <table class="table" id="classTable">
           <thead>
-            <tr><th>班级</th><th>学生数</th><th>提交率</th><th>正确率</th><th>待处理</th></tr>
+            <tr>
+              <th data-i18n-page="tableClass">Class</th>
+              <th data-i18n-page="tableStudents">Students</th>
+              <th data-i18n-page="tableSubmit">Submission</th>
+              <th data-i18n-page="tableAccuracy">Accuracy</th>
+              <th data-i18n-page="tablePending">Pending</th>
+            </tr>
           </thead>
           <tbody></tbody>
         </table>

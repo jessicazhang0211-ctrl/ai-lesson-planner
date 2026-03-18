@@ -3,6 +3,31 @@
   const API_BASE = "http://127.0.0.1:5000";
   const dashboardDict = {
     zh: {
+      dashboardTitle: "学情分析",
+      dashboardSub: "班级整体表现、作业完成度与 Gemini 教学建议一览。",
+      refresh: "刷新",
+      export: "导出概览",
+      kpiStudentsLabel: "在册学生",
+      kpiSubmitLabel: "本周提交",
+      kpiSubmitHint: "作业提交率",
+      kpiAccuracyLabel: "平均正确率",
+      kpiAccuracyHint: "近 7 天",
+      kpiRiskLabel: "待处理",
+      kpiRiskHint: "预警 / 异常",
+      monthTrendTitle: "月趋势",
+      weekTrendTitle: "周趋势",
+      trendSub: "提交率 & 正确率",
+      rewardTitle: "奖励名单",
+      rewardSub: "提交率/正确率/进步表现",
+      adviceTitle: "AI 教学建议（Gemini）",
+      adviceSub: "聚焦薄弱课程与讲解强化策略",
+      classOverviewTitle: "班级概览",
+      classOverviewSub: "各班提交率与正确率",
+      tableClass: "班级",
+      tableStudents: "学生数",
+      tableSubmit: "提交率",
+      tableAccuracy: "正确率",
+      tablePending: "待处理",
       noData: "暂无数据",
       submitRate: "提交率",
       accuracyRate: "正确率",
@@ -15,6 +40,31 @@
       exportHint: "导出功能可接入后端生成 PDF/Excel，这里仅为示例。"
     },
     en: {
+      dashboardTitle: "Learning Analytics",
+      dashboardSub: "Overview of class performance, submissions, and Gemini teaching recommendations.",
+      refresh: "Refresh",
+      export: "Export Overview",
+      kpiStudentsLabel: "Students Enrolled",
+      kpiSubmitLabel: "Weekly Submission",
+      kpiSubmitHint: "Homework submission rate",
+      kpiAccuracyLabel: "Average Accuracy",
+      kpiAccuracyHint: "Last 7 days",
+      kpiRiskLabel: "Pending",
+      kpiRiskHint: "Alerts / Exceptions",
+      monthTrendTitle: "Monthly Trend",
+      weekTrendTitle: "Weekly Trend",
+      trendSub: "Submission & Accuracy",
+      rewardTitle: "Reward List",
+      rewardSub: "Submission / Accuracy / Progress",
+      adviceTitle: "AI Teaching Advice (Gemini)",
+      adviceSub: "Focus on weak topics and reinforcement strategy",
+      classOverviewTitle: "Class Overview",
+      classOverviewSub: "Submission and accuracy by class",
+      tableClass: "Class",
+      tableStudents: "Students",
+      tableSubmit: "Submission",
+      tableAccuracy: "Accuracy",
+      tablePending: "Pending",
       noData: "No data",
       submitRate: "Submission",
       accuracyRate: "Accuracy",
@@ -88,6 +138,14 @@
     kpiSubmit.textContent = `${state.overview.submitRate}%`;
     kpiAccuracy.textContent = `${state.overview.accuracyAvg}%`;
     kpiRisk.textContent = state.overview.risk;
+  }
+
+  function renderStaticTexts() {
+    document.querySelectorAll('[data-i18n-page]').forEach((el) => {
+      const key = (el.getAttribute('data-i18n-page') || '').trim();
+      if (!key) return;
+      el.textContent = t(key);
+    });
   }
 
   function renderMonthTrendLine(box, items) {
@@ -215,7 +273,8 @@
     const clampPercent = (v) => {
       const n = Number(v);
       if (!Number.isFinite(n)) return 0;
-      return Math.min(92, Math.max(0, Math.round(n)));
+      // Keep bars inside chart area and leave space for value labels.
+      return Math.min(82, Math.max(0, Math.round(n)));
     };
 
     items.forEach((item) => {
@@ -306,6 +365,7 @@
   }
 
   function renderAll() {
+    renderStaticTexts();
     renderKpi();
     renderMonthTrendLine(monthTrendChart, state.monthly || []);
     renderTrend(weekTrendChart, state.weekly || []);
@@ -323,7 +383,8 @@
     classTable.innerHTML = '';
     classTabs.innerHTML = '';
     try {
-      const data = await apiGet('/api/class/overview');
+      const lang = encodeURIComponent(getLocale());
+      const data = await apiGet(`/api/class/overview?lang=${lang}`);
       state = {
         classData: data.classes || [],
         monthly: data.monthly || [],
@@ -348,7 +409,8 @@
   });
 
   window.addEventListener("app:locale-changed", () => {
-    renderAll();
+    // Advice text is generated server-side, so re-fetch with locale.
+    refresh();
   });
 
   refresh();

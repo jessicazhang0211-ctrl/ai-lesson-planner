@@ -117,6 +117,30 @@ function applyExerciseLang(){
     const key = el.getAttribute("data-i18n-page");
     if (exerciseDict[getLocale()][key]) el.textContent = exerciseDict[getLocale()][key];
   });
+
+  const locale = getLocale();
+  const gradeSel = document.getElementById("grade");
+  if (gradeSel) {
+    const zh = ["小学一年级", "小学二年级", "小学三年级", "初一"];
+    const en = ["Year 1", "Year 2", "Year 3", "Year 7"];
+    Array.from(gradeSel.options).forEach((opt, idx) => {
+      if (idx < zh.length) opt.textContent = locale === "en" ? en[idx] : zh[idx];
+    });
+  }
+
+  const subjectSel = document.getElementById("subject");
+  if (subjectSel) {
+    const enMap = { "数学": "Math", "语文": "Chinese", "英语": "English" };
+    const zhMap = { "数学": "数学", "语文": "语文", "英语": "英语" };
+    Array.from(subjectSel.options).forEach((opt) => {
+      opt.textContent = locale === "en" ? (enMap[opt.value] || opt.value) : (zhMap[opt.value] || opt.value);
+    });
+  }
+
+  const topicInput = document.getElementById("topic");
+  if (topicInput) {
+    topicInput.placeholder = locale === "en" ? "e.g. addition within 10 / fraction comparison" : "例如：10以内加法 / 分数比较";
+  }
 }
 
 function getUserId(){

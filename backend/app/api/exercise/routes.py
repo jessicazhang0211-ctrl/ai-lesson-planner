@@ -17,11 +17,12 @@ def generate_exercise():
         return ok({"msg": "CORS preflight ok"})
     try:
         data = request.get_json()
+        lang = (data.get("lang") or "zh").strip().lower()
         user_id = getattr(g, 'current_user_id', None)
         if not user_id:
-            return err("缺少用户ID", http_status=400)
-        # 构建AI prompt
-        prompt = f"""
+            return err("missing user id", http_status=400)
+
+        prompt_zh = f"""
 请根据以下信息生成{data.get('count', 10)}道{data.get('difficulty', '中等')}难度的{data.get('subject', '数学')}习题，题型包括{','.join(data.get('types', []))}，知识点/主题为：{data.get('topic', '')}。
 
 请输出 JSON，结构如下：
@@ -45,6 +46,34 @@ def generate_exercise():
 
 仅输出 JSON，不要包含代码块或额外解释。
 """
+
+        prompt_en = f"""
+Generate {data.get('count', 10)} {data.get('difficulty', 'medium')} {data.get('subject', 'math')} questions.
+Question types: {','.join(data.get('types', []))}. Topic: {data.get('topic', '')}.
+
+Return JSON in this format:
+{{
+    "title": "...",
+    "subject": "...",
+    "grade": "...",
+    "topic": "...",
+    "questions": [
+        {{
+            "id": "q1",
+            "type": "single|multi|true_false|fill|short",
+            "stem": "question stem",
+            "options": ["A...","B..."],
+            "answer": "A" or ["A","C"] or "true" or ["blank1","blank2"],
+            "analysis": "explanation",
+            "score": 5
+        }}
+    ]
+}}
+
+Output JSON only. Do not include markdown code fences or extra text.
+"""
+        prompt = prompt_en if lang == "en" else prompt_zh
+
         content = ai_service.generate_text(prompt)
         structured = extract_json(content)
         # 存档到数据库，前端参数信息一并序列化进description前缀
@@ -78,7 +107,7 @@ def generate_exercise():
         db.session.commit()
         return ok({"content": content, "exercise_id": exercise.id})
     except Exception as e:
-        return err(f"AI 生成失败: {str(e)}", http_status=500)
+        return err(f"AI generation failed: {str(e)}", http_status=500)
 
 
 @bp.route("/history", methods=["GET"])
@@ -87,7 +116,7 @@ def exercise_history():
     try:
         user_id = getattr(g, 'current_user_id', None)
         if not user_id:
-            return err("缺少用户ID", http_status=400)
+            return err("missing user id", http_status=400)
         # 查询最近生成的习题（按时间倒序，最多20条）
         exercises = Exercise.query.filter_by(created_by=int(user_id)).order_by(Exercise.created_at.desc()).limit(20).all()
         # 解析description前缀的meta
@@ -107,7 +136,7 @@ def exercise_history():
             result.append(d)
         return ok(result)
     except Exception as e:
-        return err(f"历史获取失败: {str(e)}", http_status=500)
+        return err(f"history fetch failed: {str(e)}", http_status=500)
 
 
 @bp.route('/<int:exercise_id>', methods=['DELETE'])
@@ -116,7 +145,7 @@ def delete_exercise(exercise_id: int):
     try:
         user_id = getattr(g, 'current_user_id', None)
         if not user_id:
-            return err("缺少用户ID", http_status=400)
+            return err("missing user id", http_status=400)
         exercise = Exercise.query.get(exercise_id)
         if not exercise or exercise.created_by != int(user_id):
             return err("exercise not found", http_status=404)
@@ -125,7 +154,7 @@ def delete_exercise(exercise_id: int):
         db.session.commit()
         return ok({"deleted": True})
     except Exception as e:
-        return err(f"删除失败: {str(e)}", http_status=500)
+        return err(f"delete failed: {str(e)}", http_status=500)
 
 
 @bp.route('/<int:exercise_id>', methods=['PUT'])
@@ -134,7 +163,7 @@ def update_exercise(exercise_id: int):
     try:
         user_id = getattr(g, 'current_user_id', None)
         if not user_id:
-            return err("缺少用户ID", http_status=400)
+            return err("missing user id", http_status=400)
         exercise = Exercise.query.get(exercise_id)
         if not exercise or exercise.created_by != int(user_id):
             return err("exercise not found", http_status=404)
@@ -156,4 +185,4 @@ def update_exercise(exercise_id: int):
         db.session.commit()
         return ok({"updated": True})
     except Exception as e:
-        return err(f"保存失败: {str(e)}", http_status=500)
+        return err(f"save failed: {str(e)}", http_status=500)

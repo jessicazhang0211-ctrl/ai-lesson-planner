@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>教案生成 · AI 辅助备课系统</title>
+  <title>Lesson Planner · AI Lesson Planner</title>
 
   <!-- 全局统一样式 -->
   <link rel="stylesheet" href="./css/teacher.css" />
@@ -16,7 +16,7 @@
 <header class="topbar">
   <div class="topbar-left" onclick="goHome()">
     <img src="../assets/logo.png" class="logo" alt="logo" />
-    <span class="system-name" id="appName">AI 辅助备课系统</span>
+    <span class="system-name" id="appName">AI Lesson Planner</span>
   </div>
 
   <div class="topbar-right">
@@ -24,8 +24,8 @@
     <img src="../assets/avatar.png" class="avatar" alt="avatar" onclick="toggleUserMenu()" />
 
     <div class="user-menu" id="userMenu">
-      <div class="menu-item" data-i18n="settings" onclick="goSettings()">设置</div>
-      <div class="menu-item logout" data-i18n="logout" onclick="logout()">退出登录</div>
+      <div class="menu-item" data-i18n="settings" onclick="goSettings()">Settings</div>
+      <div class="menu-item logout" data-i18n="logout" onclick="logout()">Sign out</div>
     </div>
   </div>
 </header>
@@ -36,69 +36,69 @@
     <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
 
     <nav class="menu">
-      <a class="menu-item" href="./index.html" data-i18n="dashboard">学情分析</a>
-      <a class="menu-item active" href="./lesson.html" data-i18n="lesson">教案生成</a>
-      <a class="menu-item" href="./ppt.html" data-i18n="ppt">PPT 生成</a>
-      <a class="menu-item" href="./exercise.html" data-i18n="exercise">习题设计</a>
-      <a class="menu-item" href="./resource.html" data-i18n="resource">资源管理</a>
-      <a class="menu-item" href="./review.html" data-i18n="review">作业批改</a>
-      <a class="menu-item" href="./class_management.html" data-i18n="class">班级管理</a>
-      <a class="menu-item" href="./settings.html" data-i18n="settings">设置</a>
+      <a class="menu-item" href="./index.html" data-i18n="dashboard">Dashboard</a>
+      <a class="menu-item active" href="./lesson.html" data-i18n="lesson">Lesson Plan</a>
+      <a class="menu-item" href="./ppt.html" data-i18n="ppt">PPT Generator</a>
+      <a class="menu-item" href="./exercise.html" data-i18n="exercise">Exercise Design</a>
+      <a class="menu-item" href="./resource.html" data-i18n="resource">Resource Manager</a>
+      <a class="menu-item" href="./review.html" data-i18n="review">Assignment Review</a>
+      <a class="menu-item" href="./class_management.html" data-i18n="class">Class Management</a>
+      <a class="menu-item" href="./settings.html" data-i18n="settings">Settings</a>
     </nav>
   </aside>
 
   <!-- 主内容区 -->
   <main class="content">
     <div class="page-head">
-      <h1 class="page-title" data-i18n-page="lessonTitle">教案生成</h1>
+      <h1 class="page-title" data-i18n-page="lessonTitle">Lesson Planner</h1>
       <div class="page-sub" data-i18n-page="lessonSub">
-        选择课程信息，填写目标与重点，生成结构化教案。
+        Select course info, fill goals and key points, then generate a structured lesson plan.
       </div>
     </div>
 
     <div class="lesson-grid">
       <!-- 左侧：输入配置 -->
       <section class="card lesson-form">
-        <div class="card-title" data-i18n-page="basicInfo">基本信息</div>
+        <div class="card-title" data-i18n-page="basicInfo">Basic Information</div>
 
         <div class="form-row">
-          <label data-i18n-page="grade">年级</label>
+          <label data-i18n-page="grade">Grade</label>
           <select id="grade">
-            <option value="小学一年级">小学一年级</option>
-            <option value="小学二年级">小学二年级</option>
-            <option value="小学三年级">小学三年级</option>
-            <option value="小学四年级">小学四年级</option>
-            <option value="小学五年级">小学五年级</option>
-            <option value="小学六年级">小学六年级</option>
+            <option value="小学一年级">Year 1</option>
+            <option value="小学二年级">Year 2</option>
+            <option value="小学三年级">Year 3</option>
+            <option value="小学四年级">Year 4</option>
+            <option value="小学五年级">Year 5</option>
+            <option value="小学六年级">Year 6</option>
           </select>
         </div>
 
         <div class="form-row">
-          <label data-i18n-page="subject">学科</label>
+          <label data-i18n-page="subject">Subject</label>
           <select id="subject">
-            <option value="语文">语文</option>
-            <option value="数学" selected>数学</option>
-            <option value="英语">英语</option>
-            <option value="科学">科学</option>
+            <option value="语文">Chinese</option>
+            <option value="数学" selected>Math</option>
+            <option value="英语">English</option>
+            <option value="科学">Science</option>
           </select>
         </div>
 
         <div class="form-row">
-          <label data-i18n-page="topic">课题</label>
-          <input id="topic" placeholder="例如：分数的初步认识" />
+          <label data-i18n-page="topic">Topic</label>
+          <input id="topic" placeholder="e.g. Introduction to fractions" />
         </div>
 
         <div class="form-row">
-          <label data-i18n-page="duration">课时</label>
+          <label data-i18n-page="duration">Duration</label>
           <select id="duration">
-            <option value="40">40 分钟</option>
-            <option value="45">45 分钟</option>
-            <option value="60">60 分钟</option>
+            <option value="40">40 min</option>
+            <option value="45">45 min</option>
+            <option value="60">60 min</option>
           </select>
         </div>
 
         <div class="form-row">
-          <label data-i18n-page="lessonCount">节数</label>
+          <label data-i18n-page="lessonCount">Sessions</label>
           <select id="lessonCount">
             <option value="1" selected>1</option>
             <option value="2">2</option>
@@ -109,36 +109,36 @@
           </select>
         </div>
 
-        <div class="card-title mt" data-i18n-page="teachingDesign">教学设计</div>
+        <div class="card-title mt" data-i18n-page="teachingDesign">Teaching Design</div>
 
         <div class="form-row">
-          <label data-i18n-page="objectives">教学目标</label>
-          <textarea id="objectives" placeholder="知识目标/能力目标/情感目标（可简写）"></textarea>
+          <label data-i18n-page="objectives">Objectives</label>
+          <textarea id="objectives" placeholder="Knowledge / skills / affective goals (brief)"></textarea>
         </div>
 
         <div class="form-row">
-          <label data-i18n-page="keyPoints">重难点</label>
-          <textarea id="keyPoints" placeholder="重点、难点分别是什么？"></textarea>
+          <label data-i18n-page="keyPoints">Key and Difficult Points</label>
+          <textarea id="keyPoints" placeholder="What are the key points and difficulties?"></textarea>
         </div>
 
         <div class="form-row">
-          <label data-i18n-page="activities">教学活动</label>
-          <textarea id="activities" placeholder="例如：导入—新授—练习—总结—作业"></textarea>
+          <label data-i18n-page="activities">Activities</label>
+          <textarea id="activities" placeholder="e.g. Warm-up - Teaching - Practice - Summary - Homework"></textarea>
         </div>
 
         <div class="actions">
-          <a href="#" id="genBtn" class="primary-link" data-i18n-page="generate">生成教案</a>
-          <a href="#" id="clearBtn" class="ghost-link" data-i18n-page="clear">清空</a>
+          <a href="#" id="genBtn" class="primary-link" data-i18n-page="generate">Generate</a>
+          <a href="#" id="clearBtn" class="ghost-link" data-i18n-page="clear">Clear</a>
         </div>
 
         <div class="hint" data-i18n-page="hint">
-          小提示：先用“模板生成”，后续接入后端 AI 接口即可一键产出。
+          Tip: start with template generation, then plug in the backend AI API for one-click output.
         </div>
         <!-- 最近生成教案 -->
         <div class="history" style="margin-top:18px;">
           <div class="history-head">
-            <div class="history-title" data-i18n-page="history">最近生成</div>
-            <a href="#" id="refreshHistory" class="link" data-i18n-page="refresh">刷新</a>
+            <div class="history-title" data-i18n-page="history">Recent</div>
+            <a href="#" id="refreshHistory" class="link" data-i18n-page="refresh">Refresh</a>
           </div>
           <div id="historyList" class="history-list" style="margin-top:10px;"></div>
         </div>
@@ -147,19 +147,19 @@
       <!-- 右侧：输出预览 -->
       <section class="card lesson-preview">
         <div class="preview-head">
-          <div class="card-title" data-i18n-page="preview">预览</div>
+          <div class="card-title" data-i18n-page="preview">Preview</div>
           <div class="preview-actions">
-            <a href="#" id="copyBtn" class="link" data-i18n-page="copy">复制</a>
-            <a href="#" id="saveBtn" class="link" data-i18n-page="save">保存</a>
-            <a href="#" id="downloadPdfBtn" class="link" data-i18n-page="downloadPdf">下载 PDF</a>
+            <a href="#" id="copyBtn" class="link" data-i18n-page="copy">Copy</a>
+            <a href="#" id="saveBtn" class="link" data-i18n-page="save">Save</a>
+            <a href="#" id="downloadPdfBtn" class="link" data-i18n-page="downloadPdf">Download PDF</a>
           </div>
         </div>
 
         <div id="output" class="output" contenteditable="true" spellcheck="false"></div>
 
         <div class="empty" id="emptyState">
-          <div class="empty-title" data-i18n-page="emptyTitle">还没有内容</div>
-          <div class="empty-sub" data-i18n-page="emptySub">填写左侧信息并点击“生成教案”。</div>
+          <div class="empty-title" data-i18n-page="emptyTitle">No Content Yet</div>
+          <div class="empty-sub" data-i18n-page="emptySub">Fill the form and click Generate.</div>
         </div>
       </section>
     </div>

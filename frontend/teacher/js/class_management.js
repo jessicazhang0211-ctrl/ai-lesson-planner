@@ -110,6 +110,7 @@ const cmDict = {
     setStage: "学段",
     setJoin: "允许学生自助加入",
     setNote: "备注",
+    setNotePh: "可选：如课程进度、注意事项…",
     saveSettings: "保存设置",
 
     // Status
@@ -134,18 +135,25 @@ const cmDict = {
     classModalTitleNew: "新建班级",
     classModalTitleEdit: "编辑班级",
     mClassName: "班级名称",
+    mClassNamePh: "例如：一年级（1）班",
     mClassDesc: "描述（可选）",
+    mClassDescPh: "例如：数学强化 / 期中复习",
     cancel: "取消",
     save: "保存",
 
     stuModalTitleNew: "添加学生",
     stuModalTitleEdit: "编辑学生",
     mStuName: "姓名",
+    mStuNamePh: "例如：林小雨",
     mStuId: "学号",
+    mStuIdPh: "例如：202601001",
     mStuStatus: "状态",
     mParent: "家长电话",
+    mParentPh: "例如：13812348801",
     mAcc: "正确率(%)",
+    mAccPh: "例如：86",
     mSubmit: "提交率(%)",
+    mSubmitPh: "例如：92",
 
     drawerTitle: "学生详情",
     drawerEdit: "编辑",
@@ -241,6 +249,7 @@ const cmDict = {
     setStage: "Stage",
     setJoin: "Allow self-join",
     setNote: "Note",
+    setNotePh: "Optional: progress, notes, etc.",
     saveSettings: "Save settings",
 
     status_active: "Active",
@@ -262,18 +271,25 @@ const cmDict = {
     classModalTitleNew: "New class",
     classModalTitleEdit: "Edit class",
     mClassName: "Class name",
+    mClassNamePh: "Example: Grade 1 Class 1",
     mClassDesc: "Description (optional)",
+    mClassDescPh: "Example: Math reinforcement / midterm review",
     cancel: "Cancel",
     save: "Save",
 
     stuModalTitleNew: "Add student",
     stuModalTitleEdit: "Edit student",
     mStuName: "Name",
+    mStuNamePh: "Example: Alex Lin",
     mStuId: "Student ID",
+    mStuIdPh: "Example: 202601001",
     mStuStatus: "Status",
     mParent: "Parent phone",
+    mParentPh: "Example: 13812348801",
     mAcc: "Accuracy(%)",
+    mAccPh: "Example: 86",
     mSubmit: "Submission(%)",
+    mSubmitPh: "Example: 92",
 
     drawerTitle: "Student details",
     drawerEdit: "Edit",
@@ -440,20 +456,28 @@ function applyText() {
   if ($("setStageLabel")) $("setStageLabel").textContent = t("setStage");
   if ($("setJoinLabel")) $("setJoinLabel").textContent = t("setJoin");
   if ($("setNoteLabel")) $("setNoteLabel").textContent = t("setNote");
+  if ($("setNote")) $("setNote").placeholder = t("setNotePh");
   if ($("saveSettingsBtn")) $("saveSettingsBtn").textContent = t("saveSettings");
 
   // modals
   if ($("mClassNameLabel")) $("mClassNameLabel").textContent = t("mClassName");
+  if ($("mClassName")) $("mClassName").placeholder = t("mClassNamePh");
   if ($("mClassDescLabel")) $("mClassDescLabel").textContent = t("mClassDesc");
+  if ($("mClassDesc")) $("mClassDesc").placeholder = t("mClassDescPh");
   if ($("cancelClassModal")) $("cancelClassModal").textContent = t("cancel");
   if ($("saveClassModal")) $("saveClassModal").textContent = t("save");
 
   if ($("mStuNameLabel")) $("mStuNameLabel").textContent = t("mStuName");
+  if ($("mStuName")) $("mStuName").placeholder = t("mStuNamePh");
   if ($("mStuIdLabel")) $("mStuIdLabel").textContent = t("mStuId");
+  if ($("mStuId")) $("mStuId").placeholder = t("mStuIdPh");
   if ($("mStuStatusLabel")) $("mStuStatusLabel").textContent = t("mStuStatus");
   if ($("mParentLabel")) $("mParentLabel").textContent = t("mParent");
+  if ($("mParentPhone")) $("mParentPhone").placeholder = t("mParentPh");
   if ($("mAccLabel")) $("mAccLabel").textContent = t("mAcc");
+  if ($("mAccuracy")) $("mAccuracy").placeholder = t("mAccPh");
   if ($("mSubmitLabel")) $("mSubmitLabel").textContent = t("mSubmit");
+  if ($("mSubmit")) $("mSubmit").placeholder = t("mSubmitPh");
   if ($("cancelStuModal")) $("cancelStuModal").textContent = t("cancel");
   if ($("saveStuModal")) $("saveStuModal").textContent = t("save");
 

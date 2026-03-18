@@ -8,6 +8,7 @@ const resourceDict = {
 		typeLesson: "教案",
 		typeExercise: "习题",
 		keyword: "关键词",
+		keywordPlaceholder: "输入标题/主题",
 		sort: "排序",
 		sortNew: "最新优先",
 		sortOld: "最早优先",
@@ -37,6 +38,9 @@ const resourceDict = {
 		statsAnswered: "作答数",
 		statsMax: "满分",
 		statsChart: "成绩趋势",
+		statsClassLabel: "班级",
+		minuteUnit: "分钟",
+		questionCountPrefix: "题量",
 		publishTitle: "发布资源",
 		class: "班级",
 		mode: "发布方式",
@@ -68,6 +72,7 @@ const resourceDict = {
 		typeLesson: "Lesson",
 		typeExercise: "Exercise",
 		keyword: "Keyword",
+		keywordPlaceholder: "Enter title/topic",
 		sort: "Sort",
 		sortNew: "Newest",
 		sortOld: "Oldest",
@@ -97,6 +102,9 @@ const resourceDict = {
 		statsAnswered: "Answered",
 		statsMax: "Max",
 		statsChart: "Trend",
+		statsClassLabel: "Class",
+		minuteUnit: "min",
+		questionCountPrefix: "Q",
 		publishTitle: "Publish Resource",
 		class: "Class",
 		mode: "Publish mode",
@@ -146,6 +154,10 @@ function applyResourceLang() {
 		const key = el.getAttribute("data-i18n-page");
 		if (resourceDict[getLocale()][key]) el.textContent = resourceDict[getLocale()][key];
 	});
+	document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+		const key = el.getAttribute("data-i18n-placeholder");
+		if (resourceDict[getLocale()][key]) el.placeholder = resourceDict[getLocale()][key];
+	});
 }
 
 function getToken() {
@@ -167,12 +179,12 @@ function parseTime(s) {
 
 function metaForItem(item) {
 	if (item.type === "lesson") {
-		return [item.grade || "", item.subject || "", item.duration ? `${item.duration}分钟` : ""]
+		return [item.grade || "", item.subject || "", item.duration ? `${item.duration}${t("minuteUnit")}` : ""]
 			.filter(Boolean)
 			.join(" · ");
 	}
 	const types = item.types ? (Array.isArray(item.types) ? item.types.join("/") : item.types) : "";
-	return [item.grade || "", item.subject || "", types, item.difficulty || "", item.count ? `题量${item.count}` : ""]
+	return [item.grade || "", item.subject || "", types, item.difficulty || "", item.count ? `${t("questionCountPrefix")}${item.count}` : ""]
 		.filter(Boolean)
 		.join(" · ");
 }
@@ -330,9 +342,9 @@ function renderPublishedSection(items, listId, emptyId) {
 				</div>
 				<div class="res-pub-tags">
 					<span class="tag blue">${typeLabel}</span>
-					<span class="tag">${t("pubClass")}：${className}</span>
-					<span class="tag">${t("pubStudents")}：${studentCount}</span>
-					<span class="tag">${t("pubMode")}：${item.mode || "-"}</span>
+					<span class="tag">${t("pubClass")}: ${className}</span>
+					<span class="tag">${t("pubStudents")}: ${studentCount}</span>
+					<span class="tag">${t("pubMode")}: ${item.mode || "-"}</span>
 				</div>
 				<div class="res-pub-actions">
 					<button class="btn" data-action="detail">${t("pubDetail")}</button>

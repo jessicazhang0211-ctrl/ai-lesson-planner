@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>班级管理</title>
+  <title>Class Management · AI Lesson Planner</title>
 
   <!-- 复用 teacher 统一样式 -->
   <link rel="stylesheet" href="./css/teacher.css" />
@@ -17,15 +17,15 @@
 <header class="topbar">
   <div class="topbar-left" onclick="goHome()">
     <img src="../assets/logo.png" class="logo" alt="logo" />
-    <span class="system-name" id="appName">AI 辅助备课系统</span>
+    <span class="system-name" id="appName">AI Lesson Planner</span>
   </div>
 
   <div class="topbar-right" id="userArea" onclick="toggleUserMenu()">
     <span class="username">User</span>
     <img src="../assets/avatar.png" class="avatar" alt="avatar" />
     <div class="user-menu" id="userMenu">
-      <div class="menu-item" onclick="goSettings()">设置</div>
-      <div class="menu-item logout" onclick="logout()">退出登录</div>
+      <div class="menu-item" data-i18n="settings" onclick="goSettings()">Settings</div>
+      <div class="menu-item logout" data-i18n="logout" onclick="logout()">Sign out</div>
     </div>
   </div>
 </header>
@@ -63,9 +63,9 @@
           </div>
 
           <div class="cm-filter" id="classStatusFilter">
-            <button class="cm-chip cm-chip--active" data-status="all">全部</button>
-            <button class="cm-chip" data-status="active">进行中</button>
-            <button class="cm-chip" data-status="archived">已归档</button>
+            <button class="cm-chip cm-chip--active" data-status="all">All</button>
+            <button class="cm-chip" data-status="active">Active</button>
+            <button class="cm-chip" data-status="archived">Archived</button>
           </div>
 
           <div class="cm-classlist" id="classList"></div>
@@ -242,7 +242,7 @@
                 </div>
                 <div class="cm-field">
                   <div class="cm-label" id="setNoteLabel">备注</div>
-                  <input class="cm-input" id="setNote" placeholder="可选：如课程进度、注意事项…" />
+                  <input class="cm-input" id="setNote" placeholder="Optional: progress, notes, etc." />
                 </div>
               </div>
               <div class="cm-panel__footer">
@@ -267,11 +267,11 @@
     <div class="cm-modalbody">
       <div class="cm-field">
         <div class="cm-label" id="mClassNameLabel">班级名称</div>
-        <input class="cm-input" id="mClassName" placeholder="例如：一年级（1）班" />
+        <input class="cm-input" id="mClassName" placeholder="Example: Grade 1 Class 1" />
       </div>
       <div class="cm-field">
         <div class="cm-label" id="mClassDescLabel">描述（可选）</div>
-        <input class="cm-input" id="mClassDesc" placeholder="例如：数学强化 / 期中复习" />
+        <input class="cm-input" id="mClassDesc" placeholder="Example: Math reinforcement / midterm review" />
       </div>
     </div>
     <div class="cm-modalfoot">
@@ -291,11 +291,11 @@
     <div class="cm-modalbody cm-grid2">
       <div class="cm-field">
         <div class="cm-label" id="mStuNameLabel">姓名</div>
-        <input class="cm-input" id="mStuName" placeholder="例如：林小雨" />
+        <input class="cm-input" id="mStuName" placeholder="Example: Alex Lin" />
       </div>
       <div class="cm-field">
         <div class="cm-label" id="mStuIdLabel">学号</div>
-        <input class="cm-input" id="mStuId" placeholder="例如：202601001" />
+        <input class="cm-input" id="mStuId" placeholder="Example: 202601001" />
       </div>
       <div class="cm-field">
         <div class="cm-label" id="mStuStatusLabel">状态</div>
@@ -307,15 +307,15 @@
       </div>
       <div class="cm-field">
         <div class="cm-label" id="mParentLabel">家长电话</div>
-        <input class="cm-input" id="mParentPhone" placeholder="例如：13812348801" />
+        <input class="cm-input" id="mParentPhone" placeholder="Example: 13812348801" />
       </div>
       <div class="cm-field">
         <div class="cm-label" id="mAccLabel">正确率(%)</div>
-        <input class="cm-input" id="mAccuracy" placeholder="例如：86" />
+        <input class="cm-input" id="mAccuracy" placeholder="Example: 86" />
       </div>
       <div class="cm-field">
         <div class="cm-label" id="mSubmitLabel">提交率(%)</div>
-        <input class="cm-input" id="mSubmit" placeholder="例如：92" />
+        <input class="cm-input" id="mSubmit" placeholder="Example: 92" />
       </div>
     </div>
     <div class="cm-modalfoot">

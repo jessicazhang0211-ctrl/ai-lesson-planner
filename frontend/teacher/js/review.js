@@ -2,6 +2,22 @@ const API_BASE = "http://127.0.0.1:5000";
 
 const reviewDict = {
   zh: {
+    pageTitle: "作业批改",
+    pageSub: "主观题人工批改，客观题已自动判分。",
+    tabPending: "待批改",
+    tabHistory: "历史批改",
+    refresh: "刷新",
+    classLabel: "班级",
+    studentLabel: "学生姓名",
+    studentPlaceholder: "输入学生姓名",
+    titleLabel: "作业名称",
+    titlePlaceholder: "输入作业名称",
+    search: "搜索",
+    subjectiveTotal: "主观题总分",
+    commentLabel: "评语",
+    commentPlaceholder: "写下点评或建议",
+    submitScore: "提交评分",
+    detailEmpty: "选择左侧作业查看详情",
     empty: "(空)",
     autoScore: "自动得分",
     totalScore: "总分",
@@ -18,6 +34,22 @@ const reviewDict = {
     submitFailed: "提交失败"
   },
   en: {
+    pageTitle: "Assignment Review",
+    pageSub: "Subjective questions require manual review, objective questions are auto-scored.",
+    tabPending: "Pending",
+    tabHistory: "History",
+    refresh: "Refresh",
+    classLabel: "Class",
+    studentLabel: "Student Name",
+    studentPlaceholder: "Enter student name",
+    titleLabel: "Assignment Title",
+    titlePlaceholder: "Enter assignment title",
+    search: "Search",
+    subjectiveTotal: "Subjective Total",
+    commentLabel: "Comment",
+    commentPlaceholder: "Write comments or suggestions",
+    submitScore: "Submit Score",
+    detailEmpty: "Select an assignment on the left to view details",
     empty: "(empty)",
     autoScore: "Auto score",
     totalScore: "Total score",
@@ -45,6 +77,17 @@ function t(key) {
   if (i18n) return i18n.t("teacherReview", key, key);
   const locale = getLocale();
   return (reviewDict[locale] && reviewDict[locale][key]) || reviewDict.zh[key] || key;
+}
+
+function applyStaticTexts() {
+  document.querySelectorAll("[data-r-i18n]").forEach(el => {
+    const key = el.getAttribute("data-r-i18n");
+    if (key) el.textContent = t(key);
+  });
+  document.querySelectorAll("[data-r-i18n-placeholder]").forEach(el => {
+    const key = el.getAttribute("data-r-i18n-placeholder");
+    if (key) el.placeholder = t(key);
+  });
 }
 
 let selectedSubmissionId = null;
@@ -291,12 +334,15 @@ function bindEvents() {
 }
 
 window.addEventListener("app:locale-changed", () => {
+  applyStaticTexts();
+  loadClasses();
   renderList();
-  if (currentDetail) renderDetail();
+  if (selectedSubmissionId) selectSubmission(selectedSubmissionId);
   setViewMode(viewMode);
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+  applyStaticTexts();
   bindEvents();
   loadClasses();
   setViewMode("pending");

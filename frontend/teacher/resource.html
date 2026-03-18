@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>资源管理 · AI 辅助备课系统</title>
+	<title>Resource Manager · AI Lesson Planner</title>
 
 	<link rel="stylesheet" href="./css/teacher.css" />
 	<link rel="stylesheet" href="./css/resource.css" />
@@ -13,15 +13,15 @@
 <header class="topbar">
 	<div class="topbar-left" onclick="goHome()">
 		<img src="../assets/logo.png" class="logo" alt="logo" />
-		<span class="system-name" id="appName">AI 辅助备课系统</span>
+		<span class="system-name" id="appName">AI Lesson Planner</span>
 	</div>
 
 	<div class="topbar-right" onclick="toggleUserMenu()">
 		<span class="username">User</span>
 		<img src="../assets/avatar.png" class="avatar" alt="avatar" />
 		<div class="user-menu" id="userMenu">
-			<div class="menu-item" data-i18n="settings" onclick="goSettings()">设置</div>
-			<div class="menu-item logout" data-i18n="logout" onclick="logout()">退出登录</div>
+			<div class="menu-item" data-i18n="settings" onclick="goSettings()">Settings</div>
+			<div class="menu-item logout" data-i18n="logout" onclick="logout()">Sign out</div>
 		</div>
 	</div>
 </header>
@@ -30,22 +30,22 @@
 	<aside class="sidebar" id="sidebar">
 		<div class="toggle-btn" onclick="toggleSidebar()">☰</div>
 		<nav class="menu">
-			<a class="menu-item" href="./index.html" data-i18n="dashboard">学情分析</a>
-			<a class="menu-item" href="./lesson.html" data-i18n="lesson">教案生成</a>
-			<a class="menu-item" href="./ppt.html" data-i18n="ppt">PPT 生成</a>
-			<a class="menu-item" href="./exercise.html" data-i18n="exercise">习题设计</a>
-			<a class="menu-item active" href="./resource.html" data-i18n="resource">资源管理</a>
-			<a class="menu-item" href="./review.html" data-i18n="review">作业批改</a>
-			<a class="menu-item" href="./class_management.html" data-i18n="class">班级管理</a>
-			<a class="menu-item" href="./settings.html" data-i18n="settings">设置</a>
+			<a class="menu-item" href="./index.html" data-i18n="dashboard">Dashboard</a>
+			<a class="menu-item" href="./lesson.html" data-i18n="lesson">Lesson Plan</a>
+			<a class="menu-item" href="./ppt.html" data-i18n="ppt">PPT Generator</a>
+			<a class="menu-item" href="./exercise.html" data-i18n="exercise">Exercise Design</a>
+			<a class="menu-item active" href="./resource.html" data-i18n="resource">Resource Manager</a>
+			<a class="menu-item" href="./review.html" data-i18n="review">Assignment Review</a>
+			<a class="menu-item" href="./class_management.html" data-i18n="class">Class Management</a>
+			<a class="menu-item" href="./settings.html" data-i18n="settings">Settings</a>
 		</nav>
 	</aside>
 
 	<main class="content">
 		<div class="res-head">
 			<div>
-				<h1 class="res-title" data-i18n-page="title">资源管理</h1>
-				<div class="res-sub" data-i18n-page="sub">集中查看教案与习题，可发布给班级或按正确率筛选发布。</div>
+				<h1 class="res-title" data-i18n-page="title">Resource Manager</h1>
+				<div class="res-sub" data-i18n-page="sub">View lessons and exercises, publish to classes or by accuracy filters.</div>
 			</div>
 			<div class="res-actions">
 				<button class="btn ghost" id="btnRefresh" data-i18n-page="refresh">刷新</button>
@@ -62,8 +62,8 @@
 				</select>
 			</div>
 			<div class="res-filter">
-				<label data-i18n-page="keyword">关键词</label>
-				<input id="filterKeyword" placeholder="输入标题/主题" />
+				<label data-i18n-page="keyword">Keyword</label>
+				<input id="filterKeyword" data-i18n-placeholder="keywordPlaceholder" placeholder="Enter title/topic" />
 			</div>
 			<div class="res-filter">
 				<label data-i18n-page="sort">排序</label>
@@ -189,7 +189,7 @@
 		<div class="modal-body">
 			<div class="stats-summary" id="statsSummary"></div>
 			<div class="stats-filter" id="statsFilter">
-				<label>班级</label>
+				<label data-i18n-page="statsClassLabel">Class</label>
 				<select id="statsClass"></select>
 			</div>
 			<div class="stats-chart" id="statsChart"></div>
