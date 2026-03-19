@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>复习 · 学生端</title>
+  <title data-i18n="pageTitle">复习 · 学生端</title>
   <link rel="stylesheet" href="./css/student.css" />
 </head>
 <body>
@@ -11,15 +11,15 @@
 <header class="topbar">
   <div class="topbar-left" onclick="goHome()">
     <img src="../assets/logo.png" class="logo" alt="logo" />
-    <span class="system-name" id="appName">AI 辅助备课系统</span>
+    <span class="system-name" id="appName" data-i18n="appName">AI 辅助备课系统</span>
   </div>
 
   <div class="topbar-right" onclick="toggleUserMenu()">
     <span class="username" id="studentName">Student</span>
     <img src="../assets/avatar.png" class="avatar" alt="avatar" id="studentAvatar" />
     <div class="user-menu" id="userMenu">
-      <div class="menu-item" onclick="goSettings()">设置</div>
-      <div class="menu-item logout" onclick="logout()">退出登录</div>
+      <div class="menu-item" onclick="goSettings()" data-i18n="menuSettings">设置</div>
+      <div class="menu-item logout" onclick="logout()" data-i18n="menuLogout">退出登录</div>
     </div>
   </div>
 </header>
@@ -28,33 +28,33 @@
   <aside class="sidebar" id="sidebar">
     <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
     <nav class="menu">
-      <a class="menu-item" href="./index.html">学习概览</a>
-      <a class="menu-item" href="./practice.html">练习</a>
-      <a class="menu-item active" href="./review.html">复习</a>
-      <a class="menu-item" href="./lessons.html">教案资源</a>
-      <a class="menu-item" href="./scores.html">成绩与学情</a>
-      <a class="menu-item" href="./settings.html">设置</a>
+      <a class="menu-item" href="./index.html" data-i18n="navOverview">学习概览</a>
+      <a class="menu-item" href="./practice.html" data-i18n="navPractice">练习</a>
+      <a class="menu-item active" href="./review.html" data-i18n="navReview">复习</a>
+      <a class="menu-item" href="./lessons.html" data-i18n="navLessons">教案资源</a>
+      <a class="menu-item" href="./scores.html" data-i18n="navScores">成绩与学情</a>
+      <a class="menu-item" href="./settings.html" data-i18n="navSettings">设置</a>
     </nav>
   </aside>
 
   <main class="content">
     <section class="hero">
       <div>
-        <h1 class="hero-title">复习与错题</h1>
-        <p class="hero-sub">已完成作业自动归档，可查看错题解析。</p>
+        <h1 class="hero-title" data-i18n="heroTitle">复习与错题</h1>
+        <p class="hero-sub" data-i18n="heroSub">已完成作业自动归档，可查看错题解析。</p>
       </div>
       <div class="hero-actions">
-        <button class="btn" id="btnRefreshReview">刷新</button>
+        <button class="btn" id="btnRefreshReview" data-i18n="btnRefresh">刷新</button>
       </div>
     </section>
 
     <section class="card review-filters">
       <div class="review-filter">
-        <label>作业名称</label>
-        <input id="reviewTitleKeyword" placeholder="输入作业名称" />
+        <label data-i18n="filterTitleLabel">作业名称</label>
+        <input id="reviewTitleKeyword" placeholder="输入作业名称" data-i18n-placeholder="filterTitlePlaceholder" />
       </div>
       <div class="review-filter">
-        <button class="btn" id="btnReviewSearch">筛选</button>
+        <button class="btn" id="btnReviewSearch" data-i18n="btnFilter">筛选</button>
       </div>
     </section>
 
@@ -62,8 +62,8 @@
       <div class="card">
         <div class="card-head">
           <div>
-            <div class="card-title">已完成作业</div>
-            <div class="card-sub">点击查看错题与解析</div>
+            <div class="card-title" data-i18n="listTitle">已完成作业</div>
+            <div class="card-sub" data-i18n="listSub">点击查看错题与解析</div>
           </div>
         </div>
         <div class="list" id="reviewList"></div>
@@ -77,7 +77,7 @@
           </div>
           <label class="review-filter">
             <input type="checkbox" id="toggleWrongOnly" checked />
-            只看错题
+            <span data-i18n="toggleWrongOnly">只看错题</span>
           </label>
         </div>
         <div class="review-body" id="reviewBody"></div>

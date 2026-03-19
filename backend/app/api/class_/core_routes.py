@@ -2,9 +2,12 @@ from .shared import *
 from .shared import _get_uid, _gen_code
 from app.models.user import User
 from app.models.exercise import Exercise
+from app.models.exercise_submission import ExerciseSubmission
+from app.models.student_profile import StudentProfile
 from app.config import Config
 from app.services.ai_service import ai_service
 from app.utils.json_handlers import extract_json
+import json
 
 
 # In-process cache: recompute AI advice only when score signature changes.
@@ -716,9 +719,33 @@ def delete_student(cid: int, sid: int):
     s = Student.query.get(sid)
     if not s or s.class_id != cid:
         return err('student not found', http_status=404)
-    db.session.delete(s)
-    db.session.commit()
-    return ok({'deleted': True}, 'deleted')
+    try:
+        # Remove dependent rows first to avoid FK constraint failures.
+        ResourceAssignment.query.filter_by(student_id=sid).delete(synchronize_session=False)
+        ExerciseSubmission.query.filter_by(student_id=sid).delete(synchronize_session=False)
+        StudentProfile.query.filter_by(student_id=sid).delete(synchronize_session=False)
+
+        # Keep publication recipient lists consistent after student removal.
+        pubs = ResourcePublish.query.filter_by(class_id=cid, revoked=False).all()
+        for p in pubs:
+            if not p.student_ids:
+                continue
+            try:
+                ids = json.loads(p.student_ids)
+            except Exception:
+                ids = None
+            if not isinstance(ids, list):
+                continue
+            filtered = [x for x in ids if int(x) != int(sid)]
+            if len(filtered) != len(ids):
+                p.student_ids = json.dumps(filtered, ensure_ascii=False)
+
+        db.session.delete(s)
+        db.session.commit()
+        return ok({'deleted': True}, 'deleted')
+    except Exception as e:
+        db.session.rollback()
+        return err(f'delete student failed: {str(e)}', http_status=500)
 
 
 @bp.route('/<int:cid>/students/<int:sid>', methods=['GET'])

@@ -9,6 +9,10 @@ let reviewMode = false;
 
 const practiceDoDict = {
   zh: {
+    pageTitle: "练习作业 · 学生端",
+    btnBack: "返回",
+    btnSave: "保存",
+    btnSubmit: "提交",
     empty: "(空)",
     correct: "正确",
     wrong: "错误",
@@ -36,6 +40,10 @@ const practiceDoDict = {
     graded: "已批改"
   },
   en: {
+    pageTitle: "Practice Assignment · Student",
+    btnBack: "Back",
+    btnSave: "Save",
+    btnSubmit: "Submit",
     empty: "(empty)",
     correct: "Correct",
     wrong: "Wrong",
@@ -74,6 +82,11 @@ function t(key) {
   if (i18n) return i18n.t("studentPracticeDo", key, key);
   const locale = getLocale();
   return (practiceDoDict[locale] && practiceDoDict[locale][key]) || practiceDoDict.zh[key] || key;
+}
+
+function applyPageI18n() {
+  if (i18n) i18n.applyDataI18n("studentPracticeDo", document);
+  document.title = t("pageTitle");
 }
 
 function getPublishId() {
@@ -347,6 +360,13 @@ document.addEventListener("DOMContentLoaded", () => {
   requireLogin();
   applySystemSettings();
   loadStudentProfile();
+  applyPageI18n();
   bindEvents();
   loadExercise();
+  if (i18n) {
+    i18n.onLocaleChange(() => {
+      applyPageI18n();
+      loadExercise();
+    });
+  }
 });

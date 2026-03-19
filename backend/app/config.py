@@ -36,14 +36,15 @@ class Config:
     JWT_EXP_SECONDS = int(os.getenv("JWT_EXP_SECONDS", "3600"))
     ENABLE_GLOBAL_ERROR_HANDLER = os.getenv("ENABLE_GLOBAL_ERROR_HANDLER", "0") == "1"
 
-    # CORS 白名单，逗号分隔；为空时仅允许本地常见前端端口
+    # CORS 白名单，逗号分隔；即使配置环境变量，也保留本地常见前端端口兜底。
+    _default_cors_origins = [
+        "http://127.0.0.1:8000",
+        "http://localhost:8000",
+        "http://127.0.0.1:5500",
+        "http://localhost:5500",
+        "http://127.0.0.1:5173",
+        "http://localhost:5173",
+    ]
     _cors_raw = os.getenv("CORS_ORIGINS", "").strip()
-    if _cors_raw:
-        CORS_ORIGINS = [x.strip() for x in _cors_raw.split(",") if x.strip()]
-    else:
-        CORS_ORIGINS = [
-            "http://127.0.0.1:8000",
-            "http://localhost:8000",
-            "http://127.0.0.1:5500",
-            "http://localhost:5500",
-        ]
+    _env_origins = [x.strip() for x in _cors_raw.split(",") if x.strip()] if _cors_raw else []
+    CORS_ORIGINS = list(dict.fromkeys(_env_origins + _default_cors_origins))

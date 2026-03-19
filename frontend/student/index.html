@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>学生端 · AI 辅助备课系统</title>
+	<title data-i18n="pageTitle">学生端 · AI 辅助备课系统</title>
 	<link rel="stylesheet" href="./css/student.css" />
 </head>
 <body>
@@ -11,15 +11,15 @@
 <header class="topbar">
 	<div class="topbar-left" onclick="goHome()">
 		<img src="../assets/logo.png" class="logo" alt="logo" />
-		<span class="system-name" id="appName">AI 辅助备课系统</span>
+		<span class="system-name" id="appName" data-i18n="appName">AI 辅助备课系统</span>
 	</div>
 
 	<div class="topbar-right" onclick="toggleUserMenu()">
 		<span class="username" id="studentName">Student</span>
 		<img src="../assets/avatar.png" class="avatar" alt="avatar" id="studentAvatar" />
 		<div class="user-menu" id="userMenu">
-			<div class="menu-item" onclick="goSettings()">设置</div>
-			<div class="menu-item logout" onclick="logout()">退出登录</div>
+			<div class="menu-item" onclick="goSettings()" data-i18n="menuSettings">设置</div>
+			<div class="menu-item logout" onclick="logout()" data-i18n="menuLogout">退出登录</div>
 		</div>
 	</div>
 </header>
@@ -28,47 +28,47 @@
 	<aside class="sidebar" id="sidebar">
 		<div class="toggle-btn" onclick="toggleSidebar()">☰</div>
 		<nav class="menu">
-			<a class="menu-item active" href="./index.html">学习概览</a>
-			<a class="menu-item" href="./practice.html">练习</a>
-			<a class="menu-item" href="./review.html">复习</a>
-			<a class="menu-item" href="./lessons.html">教案资源</a>
-			<a class="menu-item" href="./scores.html">成绩与学情</a>
-			<a class="menu-item" href="./settings.html">设置</a>
+			<a class="menu-item active" href="./index.html" data-i18n="navOverview">学习概览</a>
+			<a class="menu-item" href="./practice.html" data-i18n="navPractice">练习</a>
+			<a class="menu-item" href="./review.html" data-i18n="navReview">复习</a>
+			<a class="menu-item" href="./lessons.html" data-i18n="navLessons">教案资源</a>
+			<a class="menu-item" href="./scores.html" data-i18n="navScores">成绩与学情</a>
+			<a class="menu-item" href="./settings.html" data-i18n="navSettings">设置</a>
 		</nav>
 	</aside>
 
 	<main class="content">
 		<section class="hero">
 			<div>
-				<h1 class="hero-title">你的学习仪表盘</h1>
-				<p class="hero-sub">待办任务和个人学情分析集中展示。</p>
+				<h1 class="hero-title" data-i18n="heroTitle">你的学习仪表盘</h1>
+				<p class="hero-sub" data-i18n="heroSub">待办任务和个人学情分析集中展示。</p>
 			</div>
 			<div class="hero-actions">
-				<button class="btn primary" id="btnQuickPractice">开始练习</button>
-				<button class="btn ghost" id="btnQuickExam">开始复习</button>
+				<button class="btn primary" id="btnQuickPractice" data-i18n="btnQuickPractice">开始练习</button>
+				<button class="btn ghost" id="btnQuickExam" data-i18n="btnQuickReview">开始复习</button>
 			</div>
 		</section>
 
 		<section class="grid kpi">
 			<div class="card kpi-card">
-				<div class="kpi-label">待完成作业</div>
+				<div class="kpi-label" data-i18n="kpiTodoLabel">待完成作业</div>
 				<div class="kpi-value" id="kpiTodo">0</div>
-				<div class="kpi-sub">来自老师发布</div>
+				<div class="kpi-sub" data-i18n="kpiTodoSub">来自老师发布</div>
 			</div>
 			<div class="card kpi-card">
-				<div class="kpi-label">本周练习</div>
+				<div class="kpi-label" data-i18n="kpiPracticeLabel">本周练习</div>
 				<div class="kpi-value" id="kpiPractice">0</div>
-				<div class="kpi-sub">已完成题数</div>
+				<div class="kpi-sub" data-i18n="kpiPracticeSub">已完成题数</div>
 			</div>
 			<div class="card kpi-card">
-				<div class="kpi-label">平均正确率</div>
+				<div class="kpi-label" data-i18n="kpiAccuracyLabel">平均正确率</div>
 				<div class="kpi-value" id="kpiAccuracy">--</div>
-				<div class="kpi-sub">最近 7 天</div>
+				<div class="kpi-sub" data-i18n="kpiAccuracySub">最近 7 天</div>
 			</div>
 			<div class="card kpi-card">
-				<div class="kpi-label">最近考试</div>
+				<div class="kpi-label" data-i18n="kpiExamLabel">最近考试</div>
 				<div class="kpi-value" id="kpiExam">--</div>
-				<div class="kpi-sub">最新成绩</div>
+				<div class="kpi-sub" data-i18n="kpiExamSub">最新成绩</div>
 			</div>
 		</section>
 
@@ -76,10 +76,10 @@
 			<div class="card">
 				<div class="card-head">
 					<div>
-						<div class="card-title">待办任务</div>
-						<div class="card-sub">老师发布的练习题与作业</div>
+						<div class="card-title" data-i18n="taskTitle">待办任务</div>
+						<div class="card-sub" data-i18n="taskSub">老师发布的练习题与作业</div>
 					</div>
-					<button class="btn" id="btnRefreshTasks">刷新</button>
+					<button class="btn" id="btnRefreshTasks" data-i18n="btnRefresh">刷新</button>
 				</div>
 				<div class="list" id="taskList"></div>
 			</div>
@@ -87,21 +87,21 @@
 			<div class="card">
 				<div class="card-head">
 					<div>
-						<div class="card-title">个人学情分析</div>
-						<div class="card-sub">学习趋势与薄弱点提醒</div>
+						<div class="card-title" data-i18n="analysisTitle">个人学情分析</div>
+						<div class="card-sub" data-i18n="analysisSub">学习趋势与薄弱点提醒</div>
 					</div>
 				</div>
 				<div class="analysis" id="analysisPanel">
 					<div class="analysis-item">
-						<div class="analysis-label">薄弱知识点</div>
+						<div class="analysis-label" data-i18n="weakSpotLabel">薄弱知识点</div>
 						<div class="analysis-value" id="weakSpot">--</div>
 					</div>
 					<div class="analysis-item">
-						<div class="analysis-label">学习状态</div>
+						<div class="analysis-label" data-i18n="studyStateLabel">学习状态</div>
 						<div class="analysis-value" id="studyState">--</div>
 					</div>
 					<div class="analysis-item">
-						<div class="analysis-label">建议</div>
+						<div class="analysis-label" data-i18n="studyTipLabel">建议</div>
 						<div class="analysis-value" id="studyTip">--</div>
 					</div>
 				</div>

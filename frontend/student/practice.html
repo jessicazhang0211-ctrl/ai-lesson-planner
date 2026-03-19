@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>练习 · 学生端</title>
+  <title data-i18n="pageTitle">练习 · 学生端</title>
   <link rel="stylesheet" href="./css/student.css" />
 </head>
 <body>
@@ -11,15 +11,15 @@
 <header class="topbar">
   <div class="topbar-left" onclick="goHome()">
     <img src="../assets/logo.png" class="logo" alt="logo" />
-    <span class="system-name" id="appName">AI 辅助备课系统</span>
+    <span class="system-name" id="appName" data-i18n="appName">AI 辅助备课系统</span>
   </div>
 
   <div class="topbar-right" onclick="toggleUserMenu()">
     <span class="username" id="studentName">Student</span>
     <img src="../assets/avatar.png" class="avatar" alt="avatar" id="studentAvatar" />
     <div class="user-menu" id="userMenu">
-      <div class="menu-item" onclick="goSettings()">设置</div>
-      <div class="menu-item logout" onclick="logout()">退出登录</div>
+      <div class="menu-item" onclick="goSettings()" data-i18n="menuSettings">设置</div>
+      <div class="menu-item logout" onclick="logout()" data-i18n="menuLogout">退出登录</div>
     </div>
   </div>
 </header>
@@ -28,33 +28,33 @@
   <aside class="sidebar" id="sidebar">
     <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
     <nav class="menu">
-      <a class="menu-item" href="./index.html">学习概览</a>
-      <a class="menu-item active" href="./practice.html">练习</a>
-      <a class="menu-item" href="./review.html">复习</a>
-      <a class="menu-item" href="./lessons.html">教案资源</a>
-      <a class="menu-item" href="./scores.html">成绩与学情</a>
-      <a class="menu-item" href="./settings.html">设置</a>
+      <a class="menu-item" href="./index.html" data-i18n="navOverview">学习概览</a>
+      <a class="menu-item active" href="./practice.html" data-i18n="navPractice">练习</a>
+      <a class="menu-item" href="./review.html" data-i18n="navReview">复习</a>
+      <a class="menu-item" href="./lessons.html" data-i18n="navLessons">教案资源</a>
+      <a class="menu-item" href="./scores.html" data-i18n="navScores">成绩与学情</a>
+      <a class="menu-item" href="./settings.html" data-i18n="navSettings">设置</a>
     </nav>
   </aside>
 
   <main class="content">
     <section class="hero">
       <div>
-        <h1 class="hero-title">练习任务</h1>
-        <p class="hero-sub">完成老师发布的练习题与作业。</p>
+        <h1 class="hero-title" data-i18n="heroTitle">练习任务</h1>
+        <p class="hero-sub" data-i18n="heroSub">完成老师发布的练习题与作业。</p>
       </div>
       <div class="hero-actions">
-        <button class="btn primary" id="btnQuickPractice">开始练习</button>
+        <button class="btn primary" id="btnQuickPractice" data-i18n="btnQuickPractice">开始练习</button>
       </div>
     </section>
 
     <section class="card">
       <div class="card-head">
         <div>
-          <div class="card-title">待办练习</div>
-          <div class="card-sub">按时完成并提交</div>
+          <div class="card-title" data-i18n="taskTitle">待办练习</div>
+          <div class="card-sub" data-i18n="taskSub">按时完成并提交</div>
         </div>
-        <button class="btn" id="btnRefreshTasks">刷新</button>
+        <button class="btn" id="btnRefreshTasks" data-i18n="btnRefresh">刷新</button>
       </div>
       <div class="list" id="taskList"></div>
     </section>
@@ -65,12 +65,12 @@
   <div class="modal-backdrop" id="practiceClose"></div>
   <div class="modal-panel">
     <div class="modal-head">
-      <div class="modal-title">开始练习</div>
+      <div class="modal-title" data-i18n="modalTitle">开始练习</div>
       <button class="modal-close" id="practiceCloseBtn">×</button>
     </div>
     <div class="modal-body">
       <div class="form-row">
-        <label>题量</label>
+        <label data-i18n="countLabel">题量</label>
         <select id="practiceCount">
           <option value="5">5</option>
           <option value="10" selected>10</option>
@@ -78,24 +78,24 @@
         </select>
       </div>
       <div class="form-row">
-        <label>难度</label>
+        <label data-i18n="levelLabel">难度</label>
         <select id="practiceLevel">
-          <option value="easy">简单</option>
-          <option value="medium" selected>中等</option>
-          <option value="hard">较难</option>
+          <option value="easy" data-i18n="levelEasy">简单</option>
+          <option value="medium" selected data-i18n="levelMedium">中等</option>
+          <option value="hard" data-i18n="levelHard">较难</option>
         </select>
       </div>
       <div class="form-row">
-        <label>模式</label>
+        <label data-i18n="modeLabel">模式</label>
         <select id="practiceMode">
-          <option value="daily">每日练习</option>
-          <option value="review">复习巩固</option>
+          <option value="daily" data-i18n="modeDaily">每日练习</option>
+          <option value="review" data-i18n="modeReview">复习巩固</option>
         </select>
       </div>
     </div>
     <div class="modal-foot">
-      <button class="btn" id="practiceCancel">取消</button>
-      <button class="btn primary" id="practiceStart">开始</button>
+      <button class="btn" id="practiceCancel" data-i18n="btnCancel">取消</button>
+      <button class="btn primary" id="practiceStart" data-i18n="btnStart">开始</button>
     </div>
   </div>
 </div>

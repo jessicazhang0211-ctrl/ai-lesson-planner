@@ -1,11 +1,51 @@
 const scoresDict = {
   zh: {
+    pageTitle: "成绩与学情 · 学生端",
+    heroTitle: "成绩与学情",
+    heroSub: "查看近期成绩与个人学习分析。",
+    kpiSubmissionLabel: "提交率",
+    kpiSubmissionSub: "已提交 / 总作业",
+    kpiAvgAllLabel: "所有作业平均分",
+    kpiAvgAllSub: "累计平均",
+    kpiAvgWeekLabel: "本周平均分",
+    kpiAvgWeekSub: "最近 7 天",
+    kpiLatestLabel: "最新成绩",
+    kpiLatestSub: "最近一次提交",
+    trendTitle: "成绩趋势",
+    trendSub: "最近 10 次作业",
+    recentScoreTitle: "最近成绩",
+    recentScoreSub: "近期练习与考试表现",
+    analysisTitle: "个人学情分析",
+    analysisSub: "学习趋势与薄弱点提醒",
+    weakSpotLabel: "薄弱知识点",
+    studyStateLabel: "学习状态",
+    studyTipLabel: "建议",
     empty: "(空)",
     loading: "加载中...",
     exercise: "练习",
     homework: "作业"
   },
   en: {
+    pageTitle: "Scores & Insights · Student",
+    heroTitle: "Scores & Insights",
+    heroSub: "View recent scores and your personal learning analysis.",
+    kpiSubmissionLabel: "Submission Rate",
+    kpiSubmissionSub: "Submitted / Total assignments",
+    kpiAvgAllLabel: "Average Score (All)",
+    kpiAvgAllSub: "Cumulative average",
+    kpiAvgWeekLabel: "Average Score (Week)",
+    kpiAvgWeekSub: "Last 7 days",
+    kpiLatestLabel: "Latest Score",
+    kpiLatestSub: "Most recent submission",
+    trendTitle: "Score Trend",
+    trendSub: "Last 10 assignments",
+    recentScoreTitle: "Recent Scores",
+    recentScoreSub: "Recent performance in exercises and exams",
+    analysisTitle: "Learning Insights",
+    analysisSub: "Learning trend and weak-point reminders",
+    weakSpotLabel: "Weak Knowledge Point",
+    studyStateLabel: "Study Status",
+    studyTipLabel: "Suggestion",
     empty: "(empty)",
     loading: "Loading...",
     exercise: "Exercise",
@@ -23,6 +63,11 @@ function t(key) {
   if (i18n) return i18n.t("studentScores", key, key);
   const locale = getLocale();
   return (scoresDict[locale] && scoresDict[locale][key]) || scoresDict.zh[key] || key;
+}
+
+function applyPageI18n() {
+  if (i18n) i18n.applyDataI18n("studentScores", document);
+  document.title = t("pageTitle");
 }
 
 async function renderScores() {
@@ -166,5 +211,12 @@ document.addEventListener("DOMContentLoaded", () => {
   requireLogin();
   applySystemSettings();
   loadStudentProfile();
+  applyPageI18n();
   renderScores();
+  if (i18n) {
+    i18n.onLocaleChange(() => {
+      applyPageI18n();
+      renderScores();
+    });
+  }
 });

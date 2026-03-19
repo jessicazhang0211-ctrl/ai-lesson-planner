@@ -98,6 +98,46 @@ function getLocale() {
   return localStorage.getItem("locale") || "zh";
 }
 
+function toEnglishGrade(raw) {
+  const map = {
+    "小学一年级": "Year 1",
+    "小学二年级": "Year 2",
+    "小学三年级": "Year 3",
+    "小学四年级": "Year 4",
+    "小学五年级": "Year 5",
+    "小学六年级": "Year 6"
+  };
+  return map[raw] || raw;
+}
+
+function toEnglishSubject(raw) {
+  const map = {
+    "语文": "Chinese",
+    "数学": "Math",
+    "英语": "English",
+    "科学": "Science"
+  };
+  return map[raw] || raw;
+}
+
+function displayGradeForLocale(raw) {
+  return getLocale() === "en" ? toEnglishGrade(raw || "") : (raw || "");
+}
+
+function displaySubjectForLocale(raw) {
+  return getLocale() === "en" ? toEnglishSubject(raw || "") : (raw || "");
+}
+
+function normalizeLessonInputForLocale(input) {
+  const locale = getLocale();
+  if (locale !== "en") return input;
+  return {
+    ...input,
+    grade: toEnglishGrade(input.grade),
+    subject: toEnglishSubject(input.subject)
+  };
+}
+
 function applyLessonLang() {
   const lang = getLocale();
   const t = lessonDict[lang];
@@ -395,8 +435,8 @@ function getCurrentUserName() {
 
 function buildLessonMainTitle(grade, subject, topic) {
   const locale = getLocale();
-  const g = (grade || "").trim();
-  const s = (subject || "").trim();
+  const g = (locale === "en" ? toEnglishGrade(grade || "") : (grade || "")).trim();
+  const s = (locale === "en" ? toEnglishSubject(subject || "") : (subject || "")).trim();
   const t = (topic || "").trim();
   if (!t) return lessonDict[locale].defaultPlanTitle;
   if (locale === "en") return `${g} ${s} ${t} Lesson Plan`.replace(/\s+/g, " ").trim();
@@ -709,7 +749,7 @@ function bindLessonEvents() {
   document.getElementById("genBtn").addEventListener("click", async (e) => {
     e.preventDefault();
 
-    const input = {
+    const input = normalizeLessonInputForLocale({
       grade: val("grade"),
       subject: val("subject"),
       topic: val("topic"),
@@ -719,7 +759,7 @@ function bindLessonEvents() {
       key_points: val("keyPoints"),
       activities: val("activities"),
       lesson_count: Number(val("lessonCount") || 1)
-    };
+    });
 
     if (!input.topic) {
       alert(lessonDict[getLocale()].required);
@@ -822,12 +862,11 @@ function bindLessonEvents() {
 function initLesson() {
   applyLessonLang();
 
-  const cache = localStorage.getItem("last_lesson_plan");
-  if (cache) setOutput(cache);
-  else setOutput("");
+  // 历史为空时不回退本地缓存，避免显示过期内容。
+  setOutput("");
 
-  // 初始自动拉取最近生成列表（若已登录且有 token）
-  refreshHistory();
+  // 初始自动拉取最近生成列表，并默认展示最近一条
+  refreshHistory({ autoOpenLatest: true });
 }
 
 function renderHistory(list){
@@ -837,9 +876,10 @@ function renderHistory(list){
   box.innerHTML = list.map(item=>{
     const topic = item.topic || item.title || '-';
     const lessonCount = item.lesson_count ? `${item.lesson_count}${lessonDict[getLocale()].lessonUnit}` : '';
-    const meta = [item.grade||'', item.subject||'', item.duration?`${item.duration}${lessonDict[getLocale()].minuteUnit}`:'', lessonCount].filter(Boolean).join(' · ');
+    const meta = [displayGradeForLocale(item.grade), displaySubjectForLocale(item.subject), item.duration?`${item.duration}${lessonDict[getLocale()].minuteUnit}`:'', lessonCount].filter(Boolean).join(' · ');
+    const active = currentLessonId === Number(item.id) ? 'active' : '';
     return `
-      <div class="hitem" data-id="${item.id}" data-content="${encodeURIComponent(item.content||'')}">
+      <div class="hitem ${active}" data-id="${item.id}" data-content="${encodeURIComponent(item.content||'')}">
         <div class="hitem-top">
           <div class="hitem-title">${topic}</div>
           <div class="hitem-meta">${(item.created_at||'').slice(0,19).replace('T',' ')}</div>
@@ -853,6 +893,8 @@ function renderHistory(list){
       const c = decodeURIComponent(el.getAttribute('data-content')||'');
       currentLessonId = Number(el.getAttribute('data-id')) || null;
       setOutputFromAny(c, null);
+      localStorage.setItem('last_lesson_plan', getOutputText());
+      renderHistory(list);
     });
   });
 }
@@ -872,8 +914,21 @@ async function apiHistory(){
   }catch{ return [] }
 }
 
-async function refreshHistory(){
+async function refreshHistory(options = {}){
+  const autoOpenLatest = Boolean(options.autoOpenLatest);
   const list = await apiHistory();
+  if (autoOpenLatest) {
+    if (Array.isArray(list) && list.length > 0) {
+      const latest = list[0];
+      currentLessonId = Number(latest.id) || null;
+      setOutputFromAny(latest.content || "", null);
+      localStorage.setItem('last_lesson_plan', getOutputText());
+    } else {
+      currentLessonId = null;
+      setOutput("");
+      localStorage.removeItem('last_lesson_plan');
+    }
+  }
   renderHistory(list);
 }
 

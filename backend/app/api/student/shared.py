@@ -28,7 +28,16 @@ if genai and Config.GEMINI_API_KEY:
 
 def _load_ids(raw):
     try:
-        return json.loads(raw) if raw else []
+        values = json.loads(raw) if raw else []
+        if not isinstance(values, list):
+            return []
+        normalized = []
+        for v in values:
+            try:
+                normalized.append(int(v))
+            except Exception:
+                continue
+        return normalized
     except Exception:
         return []
 

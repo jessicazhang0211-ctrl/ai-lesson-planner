@@ -401,10 +401,90 @@ body{
 .form-row label{ font-size:12px; color: var(--muted); }
 .form-row select{ height:36px; border:1px solid #e5e6eb; border-radius:10px; padding:0 10px; }
 
-.settings-card .settings-grid{ display:grid; gap:16px; margin-top:10px; }
+.settings-page-title{
+  margin: 0 0 14px;
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.settings-layout{
+  display:grid;
+  grid-template-columns: 300px 1fr;
+  gap:16px;
+  align-items:start;
+}
+
+.settings-group{
+  padding:10px 0;
+}
+
+.settings-group-title{
+  padding: 10px 16px 8px;
+  font-size:13px;
+  color: var(--muted);
+  font-weight:700;
+}
+
+.settings-nav-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:12px 16px;
+  border-top:1px solid #eef0f4;
+  color: var(--text);
+  text-decoration:none;
+}
+
+.settings-nav-item:first-of-type{
+  border-top:none;
+}
+
+.settings-nav-item:hover{
+  background:#f5f7fa;
+}
+
+.settings-nav-item.active{
+  background:#e6f5f2;
+  color: var(--primary);
+}
+
+.settings-nav-item .chev{
+  color:#9aa3ad;
+  font-size:18px;
+  line-height:1;
+}
+
+.settings-panel{
+  min-height: 560px;
+}
+
+.settings-view-panel{
+  display:none;
+}
+
+.settings-view-panel.active{
+  display:block;
+}
+
+.panel-title{
+  font-size:16px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+
+.panel-desc{
+  font-size:13px;
+  color: var(--muted);
+  margin-bottom:12px;
+}
+
+.settings-card .settings-grid,
+.settings-panel .settings-grid{ display:grid; gap:16px; margin-top:10px; }
 .settings-item label{ display:block; font-size:12px; color: var(--muted); margin-bottom:6px; }
 .settings-item textarea{ min-height:90px; border:1px solid #e5e6eb; border-radius:10px; padding:10px; }
-.settings-item input{ height:36px; border:1px solid #e5e6eb; border-radius:10px; padding:0 10px; margin-bottom:8px; }
+.settings-item input,
+.settings-item select{ height:36px; border:1px solid #e5e6eb; border-radius:10px; padding:0 10px; margin-bottom:8px; background:#fff; }
 
 .avatar-box{ display:flex; align-items:center; gap:12px; }
 .avatar-box img{ width:64px; height:64px; border-radius:50%; object-fit:cover; border:2px solid #e5e6eb; }
@@ -415,6 +495,8 @@ body{
 @media (max-width: 1020px){
   .grid.kpi{ grid-template-columns: repeat(2, 1fr); }
   .grid.two-cols{ grid-template-columns: 1fr; }
+  .settings-layout{ grid-template-columns: 1fr; }
+  .settings-panel{ min-height: 0; }
 }
 
 @media (max-width: 720px){

@@ -8,10 +8,16 @@
 </head>
 <body>
   <script>
+    const localeRaw = localStorage.getItem("locale") || "zh";
+    const locale = localeRaw.toLowerCase().startsWith("en") ? "en" : "zh";
+    document.documentElement.lang = locale === "en" ? "en" : "zh-CN";
+    const hint = locale === "en" ? "Redirecting to review page..." : "正在跳转到复习页面...";
+    document.title = locale === "en" ? "Review · Student" : "复习 · 学生端";
     window.location.href = "./review.html";
+    window.__reviewRedirectHint = hint;
   </script>
   <div style="padding:24px;font-family:Arial, sans-serif;">
-    正在跳转到复习页面...
+    <script>document.write(window.__reviewRedirectHint || "正在跳转到复习页面...");</script>
   </div>
 </body>
 </html>

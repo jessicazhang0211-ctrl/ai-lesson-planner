@@ -1,6 +1,11 @@
 # Python
 __pycache__/
 *.pyc
+**/__pycache__/
+**/*.pyc
+*.pyo
+*.pyd
+*$py.class
 
 # Env files
 backend/.env

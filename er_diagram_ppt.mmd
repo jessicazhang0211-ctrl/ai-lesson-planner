@@ -1,0 +1,60 @@
+erDiagram
+    direction LR
+
+    USERS {
+        int id PK
+        string name
+        string email
+    }
+
+    CLASSES {
+        int id PK
+        string name
+        int created_by
+    }
+
+    CLASS_STUDENTS {
+        int id PK
+        string name
+        string stu_id
+        int class_id
+    }
+
+    LESSONS {
+        int id PK
+        string title
+        int created_by
+    }
+
+    EXERCISES {
+        int id PK
+        string title
+        int created_by
+    }
+
+    RESOURCE_PUBLICATIONS {
+        int id PK
+        string resource_type
+        int resource_id
+        int class_id
+        int created_by
+    }
+
+    EXERCISE_SUBMISSIONS {
+        int id PK
+        int publish_id
+        int student_id
+        int total_score
+        string status
+    }
+
+    USERS ||--o{ CLASSES : creates
+    CLASSES ||--o{ CLASS_STUDENTS : contains
+
+    USERS ||--o{ RESOURCE_PUBLICATIONS : publishes
+    CLASSES ||--o{ RESOURCE_PUBLICATIONS : receives
+    LESSONS ||--o{ RESOURCE_PUBLICATIONS : published_as
+    EXERCISES ||--o{ RESOURCE_PUBLICATIONS : published_as
+
+    RESOURCE_PUBLICATIONS ||--o{ EXERCISE_SUBMISSIONS : collects
+    CLASS_STUDENTS ||--o{ EXERCISE_SUBMISSIONS : submits

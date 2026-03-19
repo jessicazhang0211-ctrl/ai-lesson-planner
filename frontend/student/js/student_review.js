@@ -5,6 +5,16 @@ let filteredList = [];
 
 const reviewDict = {
   zh: {
+    pageTitle: "复习 · 学生端",
+    heroTitle: "复习与错题",
+    heroSub: "已完成作业自动归档，可查看错题解析。",
+    btnRefresh: "刷新",
+    filterTitleLabel: "作业名称",
+    filterTitlePlaceholder: "输入作业名称",
+    btnFilter: "筛选",
+    listTitle: "已完成作业",
+    listSub: "点击查看错题与解析",
+    toggleWrongOnly: "只看错题",
     empty: "(空)",
     exercise: "练习",
     view: "查看",
@@ -22,6 +32,16 @@ const reviewDict = {
     pending: "待批改"
   },
   en: {
+    pageTitle: "Review · Student",
+    heroTitle: "Review & Wrong Answers",
+    heroSub: "Completed assignments are archived for reviewing explanations.",
+    btnRefresh: "Refresh",
+    filterTitleLabel: "Assignment Title",
+    filterTitlePlaceholder: "Enter assignment title",
+    btnFilter: "Filter",
+    listTitle: "Completed Assignments",
+    listSub: "Click to view wrong answers and explanations",
+    toggleWrongOnly: "Show wrong answers only",
     empty: "(empty)",
     exercise: "Exercise",
     view: "View",
@@ -50,6 +70,11 @@ function t(key) {
   if (i18n) return i18n.t("studentReview", key, key);
   const locale = getLocale();
   return (reviewDict[locale] && reviewDict[locale][key]) || reviewDict.zh[key] || key;
+}
+
+function applyPageI18n() {
+  if (i18n) i18n.applyDataI18n("studentReview", document);
+  document.title = t("pageTitle");
 }
 
 function renderList() {
@@ -155,7 +180,8 @@ function getDisplayResult(q) {
 
 async function loadList() {
   try {
-    const assignments = await apiGet("/api/student/assignments");
+    const assignmentsResp = await apiGet("/api/student/assignments");
+    const assignments = normalizeAssignments(assignmentsResp);
     reviewList = (assignments || [])
       .filter(a => a.resource_type === "exercise")
       .filter(a => a.status === "completed");
@@ -190,6 +216,14 @@ document.addEventListener("DOMContentLoaded", () => {
   requireLogin();
   applySystemSettings();
   loadStudentProfile();
+  applyPageI18n();
   bindEvents();
   loadList();
+  if (i18n) {
+    i18n.onLocaleChange(() => {
+      applyPageI18n();
+      applyFilters();
+      renderDetail();
+    });
+  }
 });

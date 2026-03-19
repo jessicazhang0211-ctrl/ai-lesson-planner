@@ -236,6 +236,22 @@ def _sanitize_lesson_plan(raw: str, grade: str, subject: str, topic: str, lang: 
     return "\\n".join(cleaned).strip()
 
 
+def _contains_cjk_text(text: str) -> bool:
+    if not text:
+        return False
+    return bool(re.search(r"[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]", text))
+
+
+def _json_contains_cjk_values(value) -> bool:
+    if isinstance(value, str):
+        return _contains_cjk_text(value)
+    if isinstance(value, list):
+        return any(_json_contains_cjk_values(v) for v in value)
+    if isinstance(value, dict):
+        return any(_json_contains_cjk_values(v) for v in value.values())
+    return False
+
+
 @bp.route("/generate", methods=["POST", "OPTIONS"])
 @token_required
 def generate_lesson():
@@ -300,6 +316,7 @@ def generate_lesson():
     prompt_en = f"""
 You are an expert K-12 lesson plan writer. Output only the lesson content in English.
 Do not add any preface, explanation, markdown code block, or phrases like "Based on the information you provided".
+All user-facing text must be English only. Do not output any Chinese characters.
 
 Input:
 - Grade: {grade}
@@ -362,6 +379,7 @@ If lesson_count > 1, split into "Lesson 1, Lesson 2..." while keeping the same h
         prompt_json_en = f"""
 You are an expert K-12 lesson plan writer.
 Return one JSON object only. Do not output explanations, prefixes, or markdown code blocks.
+    All string values must be English only. Do not include Chinese characters in any value.
 
 Input:
 - Grade: {grade}
@@ -494,9 +512,51 @@ Hard requirements:
                     return err(f"AI 资源字段补全失败: {brief}", http_status=500)
                 lesson_plan_json = resource_fixed_json
 
+            if lang == "en" and _json_contains_cjk_values(lesson_plan_json):
+                english_repair_prompt = (
+                    "Return one corrected JSON object only. "
+                    "Translate all Chinese text values to natural English while preserving the exact same JSON keys, nesting, and array structures. "
+                    "Do not add or remove keys. Do not output extra text.\n\n"
+                    "Current JSON:\n"
+                    f"{json.dumps(lesson_plan_json, ensure_ascii=False, indent=2)}"
+                )
+                english_fixed_raw = ai_service.generate_lesson_text(
+                    english_repair_prompt,
+                    max_completion_tokens=max(effective_max_tokens, 12000),
+                )
+                english_fixed_json = extract_json(english_fixed_raw)
+                if not isinstance(english_fixed_json, dict):
+                    return err("AI 英文输出修复失败（返回非 JSON）", http_status=500)
+
+                if example_template is not None:
+                    english_structure_errors = _validate_json_structure_with_template(english_fixed_json, example_template)
+                    if english_structure_errors:
+                        brief = "; ".join(english_structure_errors[:6])
+                        return err(f"AI 英文输出修复失败（结构异常）: {brief}", http_status=500)
+                else:
+                    required_fields = required_json_fields or _default_lesson_json_required_fields(lang=lang)
+                    valid, missing = _validate_required_json_fields(english_fixed_json, required_fields)
+                    if not valid:
+                        return err(f"AI 英文输出修复失败（字段缺失）: {', '.join(missing)}", http_status=500)
+
+                if _json_contains_cjk_values(english_fixed_json):
+                    return err("AI 英文输出修复失败（仍包含中文）", http_status=500)
+                lesson_plan_json = english_fixed_json
+
             lesson_plan = json.dumps(lesson_plan_json, ensure_ascii=False, indent=2)
         else:
             lesson_plan = _sanitize_lesson_plan(lesson_plan_raw, grade, subject, topic, lang=lang)
+            if lang == "en" and _contains_cjk_text(lesson_plan):
+                english_text_prompt = (
+                    "Rewrite the following lesson plan into fully natural English only. "
+                    "Preserve structure and headings. Return plain text only with no extra explanation.\n\n"
+                    f"{lesson_plan}"
+                )
+                lesson_plan_rewritten = ai_service.generate_lesson_text(
+                    english_text_prompt,
+                    max_completion_tokens=max(effective_max_tokens, 12000),
+                )
+                lesson_plan = _sanitize_lesson_plan(lesson_plan_rewritten, grade, subject, topic, lang=lang)
 
         # 存档到数据库，序列化前端参数到 description 前缀
         meta = {
@@ -541,10 +601,10 @@ def lesson_history():
     try:
         user_id = getattr(g, 'current_user_id', None)
         if not user_id:
-            # 如果 token 无用户，返回最近公共记录
-            lessons = Lesson.query.order_by(Lesson.created_at.desc()).limit(20).all()
-        else:
-            lessons = Lesson.query.filter_by(created_by=int(user_id)).order_by(Lesson.created_at.desc()).limit(20).all()
+            return err("missing user id", http_status=401)
+
+        # 仅返回当前登录用户的教案历史，避免混入他人数据
+        lessons = Lesson.query.filter_by(created_by=int(user_id)).order_by(Lesson.created_at.desc()).limit(20).all()
 
         result = []
         for l in lessons:

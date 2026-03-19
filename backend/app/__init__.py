@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from app.config import Config
 from app.extensions import db
@@ -10,7 +10,32 @@ def create_app():
     app.config.from_object(Config)
 
     # 允许跨域（前后端分离必备）
-    CORS(app, resources={r"/api/*": {"origins": app.config.get("CORS_ORIGINS", [])}})
+    allowed_origins = app.config.get("CORS_ORIGINS", []) or []
+    CORS(
+        app,
+        resources={
+            r"/api/*": {
+                "origins": allowed_origins,
+                "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+                "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
+                "supports_credentials": False,
+            }
+        },
+    )
+
+    @app.after_request
+    def add_cors_headers(resp):
+        # Some early-return/error paths may skip flask-cors matching; add a safe fallback for /api/*.
+        if not (request.path or "").startswith("/api/"):
+            return resp
+
+        origin = request.headers.get("Origin", "")
+        if origin and origin in allowed_origins:
+            resp.headers["Access-Control-Allow-Origin"] = origin
+            resp.headers["Vary"] = "Origin"
+            resp.headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+            resp.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization,X-Requested-With"
+        return resp
 
     # 初始化数据库
     db.init_app(app)

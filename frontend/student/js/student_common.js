@@ -1,10 +1,54 @@
+const studentShellDict = {
+  zh: {
+    appName: "AI 辅助备课系统",
+    menuSettings: "设置",
+    menuLogout: "退出登录",
+    navOverview: "学习概览",
+    navPractice: "练习",
+    navReview: "复习",
+    navLessons: "教案资源",
+    navScores: "成绩与学情",
+    navSettings: "设置"
+  },
+  en: {
+    appName: "AI Lesson Planner",
+    menuSettings: "Settings",
+    menuLogout: "Log out",
+    navOverview: "Overview",
+    navPractice: "Practice",
+    navReview: "Review",
+    navLessons: "Lessons",
+    navScores: "Scores & Insights",
+    navSettings: "Settings"
+  }
+};
+
+const commonI18n = window.I18N || null;
+if (commonI18n) commonI18n.registerDict("studentShell", studentShellDict);
+
 function getLocale() {
-  return localStorage.getItem("locale") || "zh";
+  if (commonI18n) return commonI18n.getLocale();
+  return (localStorage.getItem("locale") || "zh").toLowerCase().startsWith("en") ? "en" : "zh";
+}
+
+function applyStudentShellI18n(root) {
+  const locale = getLocale();
+  document.documentElement.lang = locale === "en" ? "en" : "zh-CN";
+  if (commonI18n) {
+    commonI18n.applyDataI18n("studentShell", root || document);
+  }
+}
+
+if (commonI18n) {
+  commonI18n.onLocaleChange(() => {
+    applyStudentShellI18n(document);
+  });
 }
 
 function applySystemSettings() {
   const fontSize = localStorage.getItem("font_size") || "medium";
   document.documentElement.setAttribute("data-font", fontSize);
+  applyStudentShellI18n(document);
 }
 
 function toggleSidebar() {
@@ -84,6 +128,34 @@ async function apiGet(path) {
     headers: { "Authorization": `Bearer ${token}` }
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok || data.code !== 0) throw new Error(data.message || "api error");
+  if (!res.ok || data.code !== 0) {
+    const mustChangePassword = !!(data && data.data && data.data.must_change_password);
+    const msg = String(data.message || "api error");
+    if (mustChangePassword || msg.includes("password reset required")) {
+      localStorage.setItem("must_change_password", "1");
+      const locale = getLocale();
+      const notice = locale === "en"
+        ? "Please change your initial password in Settings before accessing assignments."
+        : "请先在设置中修改初始密码后再使用作业功能。";
+      const inSettings = window.location.pathname.toLowerCase().endsWith("/settings.html");
+      if (!inSettings) {
+        alert(notice);
+        window.location.href = "./settings.html";
+      }
+    }
+    throw new Error(msg);
+  }
   return data.data;
+}
+
+function normalizeAssignments(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (!payload || typeof payload !== "object") return [];
+
+  if (Array.isArray(payload.assignments)) return payload.assignments;
+  if (Array.isArray(payload.items)) return payload.items;
+  if (Array.isArray(payload.list)) return payload.list;
+  if (Array.isArray(payload.rows)) return payload.rows;
+
+  return [];
 }

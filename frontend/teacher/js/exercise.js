@@ -112,6 +112,61 @@ function redirectToLoginOnAuthError(message){
 function getLocale(){ return localStorage.getItem("locale") || "zh"; }
 function t(k){ return exerciseDict[getLocale()][k] || k; }
 
+function toEnglishGrade(raw) {
+  const map = {
+    "小学一年级": "Year 1",
+    "小学二年级": "Year 2",
+    "小学三年级": "Year 3",
+    "初一": "Year 7"
+  };
+  return map[raw] || raw;
+}
+
+function toEnglishSubject(raw) {
+  const map = {
+    "数学": "Math",
+    "语文": "Chinese",
+    "英语": "English"
+  };
+  return map[raw] || raw;
+}
+
+function normalizeExercisePayloadForLocale(payload) {
+  if (getLocale() !== "en") return payload;
+  return {
+    ...payload,
+    grade: toEnglishGrade(payload.grade),
+    subject: toEnglishSubject(payload.subject)
+  };
+}
+
+function normalizeOptionText(text) {
+  const s = String(text || "").trim();
+  return s.replace(/^[A-Da-d][\.)\u3001]\s+/, "");
+}
+
+function displayGradeForLocale(raw) {
+  return getLocale() === "en" ? toEnglishGrade(raw || "") : (raw || "");
+}
+
+function displaySubjectForLocale(raw) {
+  return getLocale() === "en" ? toEnglishSubject(raw || "") : (raw || "");
+}
+
+function displayDifficultyForLocale(raw) {
+  if (getLocale() !== "en") return raw || "";
+  const map = { easy: "Easy", medium: "Medium", hard: "Hard", 简单: "Easy", 中等: "Medium", 较难: "Hard" };
+  return map[raw] || raw || "";
+}
+
+function displayTypesForLocale(types) {
+  const arr = Array.isArray(types) ? types : (types ? String(types).split(/[\/,]/) : []);
+  const clean = arr.map(x => String(x || "").trim()).filter(Boolean);
+  if (getLocale() !== "en") return clean.join(",");
+  const map = { single: "single", fill: "fill", short: "short", 单选: "single", 填空: "fill", 简答: "short" };
+  return clean.map(x => map[x] || x).join(",");
+}
+
 function applyExerciseLang(){
   document.querySelectorAll("[data-i18n-page]").forEach(el=>{
     const key = el.getAttribute("data-i18n-page");
@@ -207,7 +262,7 @@ function formatExerciseContent(raw, meta){
     if (Array.isArray(q.options) && q.options.length) {
       q.options.forEach((opt, optIdx) => {
         const letter = String.fromCharCode(65 + optIdx);
-        lines.push(`   ${letter}. ${opt}`);
+        lines.push(`   ${letter}. ${normalizeOptionText(opt)}`);
       });
     }
     if (includeAnswer === "yes") {
@@ -395,16 +450,17 @@ function renderHistory(list){
   }
   box.innerHTML = list.map(item=>{
     // 兼容老数据
-    const types = item.types ? (Array.isArray(item.types) ? item.types.join(',') : item.types) : '';
-    const difficulty = item.difficulty || '';
+    const types = displayTypesForLocale(item.types);
+    const difficulty = displayDifficultyForLocale(item.difficulty || '');
     const count = item.count || '';
     const includeAnswer = item.includeAnswer ? (item.includeAnswer==='yes'?t('withAnalysis'):t('noAnalysis')) : '';
-    const grade = item.grade || '';
-    const subject = item.subject || '';
+    const grade = displayGradeForLocale(item.grade || '');
+    const subject = displaySubjectForLocale(item.subject || '');
     const topic = item.topic || item.title || '-';
     const sub = [grade, subject, types, difficulty, count?`${t('questionCount')} ${count}`:'', includeAnswer].filter(Boolean).join(' · ');
+    const active = currentExerciseId === Number(item.id) ? "active" : "";
     return `
-    <div class="hitem" data-id="${item.id}" data-content="${encodeURIComponent(item.content||item.description||'')}">
+    <div class="hitem ${active}" data-id="${item.id}" data-content="${encodeURIComponent(item.content||item.description||'')}">
       <div class="hitem-top">
         <div class="hitem-title">${topic}</div>
         <div class="hitem-meta">${(item.created_at||"").slice(0,19).replace("T"," ")}</div>
@@ -422,12 +478,14 @@ function renderHistory(list){
       currentExerciseId = id;
       const item = list.find(i => Number(i.id) === id) || {};
       setOutput(formatExerciseContent(content, item));
+      localStorage.setItem("last_exercise", getOutputText());
+      renderHistory(list);
     });
   });
 }
 
 function payloadFromForm(){
-  return {
+  const payload = {
     lang: getLocale(),
     grade: val("grade"),
     subject: val("subject"),
@@ -437,6 +495,7 @@ function payloadFromForm(){
     types: checkedTypes(),
     includeAnswer: val("includeAnswer")
   };
+  return normalizeExercisePayloadForLocale(payload);
 }
 
 let currentExerciseId = null;
@@ -517,12 +576,30 @@ function bindEvents(){
   });
 }
 
-async function refreshHistory(){
+async function refreshHistory(options = {}){
+  const autoOpenLatest = Boolean(options.autoOpenLatest);
   try{
     const list = await apiHistory();
+    if (autoOpenLatest) {
+      if (Array.isArray(list) && list.length > 0) {
+        const latest = list[0];
+        currentExerciseId = Number(latest.id) || null;
+        setOutput(formatExerciseContent(latest.content || latest.description || "", latest));
+        localStorage.setItem("last_exercise", getOutputText());
+      } else {
+        currentExerciseId = null;
+        setOutput("");
+        localStorage.removeItem("last_exercise");
+      }
+    }
     renderHistory(list);
   }catch(err){
     console.error(err);
+    if (autoOpenLatest) {
+      currentExerciseId = null;
+      setOutput("");
+      localStorage.removeItem("last_exercise");
+    }
     renderHistory([]);
   }
 }
@@ -531,11 +608,11 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   if (!ensureAuthOrRedirect()) return;
   applyExerciseLang();
 
-  const cache = localStorage.getItem("last_exercise");
-  if(cache) setOutput(cache); else setOutput("");
+  // 历史为空时不回退本地缓存，避免显示过期内容。
+  setOutput("");
 
   bindEvents();
-  await refreshHistory();
+  await refreshHistory({ autoOpenLatest: true });
 
   const out = document.getElementById("output");
   if (out) {

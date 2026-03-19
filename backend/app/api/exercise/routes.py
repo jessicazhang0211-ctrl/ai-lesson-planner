@@ -6,8 +6,25 @@ from app.utils.auth import token_required
 from app.services.ai_service import ai_service
 from app.utils.json_handlers import extract_json
 import json
+import re
 
 bp = Blueprint("exercise", __name__, url_prefix="/api/exercise")
+
+
+def _contains_cjk_text(text: str) -> bool:
+    if not text:
+        return False
+    return bool(re.search(r"[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]", text))
+
+
+def _json_contains_cjk_values(value) -> bool:
+    if isinstance(value, str):
+        return _contains_cjk_text(value)
+    if isinstance(value, list):
+        return any(_json_contains_cjk_values(v) for v in value)
+    if isinstance(value, dict):
+        return any(_json_contains_cjk_values(v) for v in value.values())
+    return False
 
 
 @bp.route("/generate", methods=["POST", "OPTIONS"])
@@ -50,6 +67,7 @@ def generate_exercise():
         prompt_en = f"""
 Generate {data.get('count', 10)} {data.get('difficulty', 'medium')} {data.get('subject', 'math')} questions.
 Question types: {','.join(data.get('types', []))}. Topic: {data.get('topic', '')}.
+    All user-facing text must be English only. Do not output any Chinese characters.
 
 Return JSON in this format:
 {{
@@ -76,6 +94,32 @@ Output JSON only. Do not include markdown code fences or extra text.
 
         content = ai_service.generate_text(prompt)
         structured = extract_json(content)
+
+        if lang == "en":
+            if isinstance(structured, dict) and _json_contains_cjk_values(structured):
+                repair_prompt = (
+                    "Return one corrected JSON object only. "
+                    "Translate all Chinese text values to natural English while preserving the same keys, nesting, and array structures. "
+                    "Do not add extra text.\n\n"
+                    f"Current JSON:\n{json.dumps(structured, ensure_ascii=False, indent=2)}"
+                )
+                repaired_raw = ai_service.generate_text(repair_prompt)
+                repaired_json = extract_json(repaired_raw)
+                if isinstance(repaired_json, dict) and not _json_contains_cjk_values(repaired_json):
+                    structured = repaired_json
+                    content = json.dumps(repaired_json, ensure_ascii=False)
+            elif structured is None and _contains_cjk_text(content):
+                rewrite_prompt = (
+                    "Rewrite the following exercise output into natural English only. "
+                    "Preserve the original meaning and structure.\n\n"
+                    f"{content}"
+                )
+                rewritten = ai_service.generate_text(rewrite_prompt)
+                content = rewritten
+                parsed = extract_json(rewritten)
+                if isinstance(parsed, dict):
+                    structured = parsed
+
         # 存档到数据库，前端参数信息一并序列化进description前缀
         from app.extensions import db
         import datetime, json

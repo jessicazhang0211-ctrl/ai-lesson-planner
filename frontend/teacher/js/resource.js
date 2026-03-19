@@ -164,9 +164,36 @@ function getToken() {
 	return localStorage.getItem("auth_token") || "";
 }
 
+function getUidFromToken(token) {
+	if (!token || token.split(".").length < 2) return "";
+	try {
+		const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+		const json = decodeURIComponent(atob(base64).split("").map((c) => {
+			const code = c.charCodeAt(0).toString(16).padStart(2, "0");
+			return `%${code}`;
+		}).join(""));
+		const payload = JSON.parse(json);
+		return payload && payload.user_id ? String(payload.user_id) : "";
+	} catch {
+		return "";
+	}
+}
+
+function buildAuthHeaders() {
+	const user = getLoginUser();
+	const token = getToken();
+	const uid = user && (user.id || user.user_id) ? String(user.id || user.user_id) : getUidFromToken(token);
+	const headers = {};
+	if (uid) headers["X-User-Id"] = uid;
+	if (token) headers["Authorization"] = `Bearer ${token}`;
+	return headers;
+}
+
 function getLoginUser() {
 	try {
-		return JSON.parse(localStorage.getItem("login_user") || "{}");
+		const u = JSON.parse(localStorage.getItem("login_user") || "{}");
+		if (u && !u.id && u.user_id) u.id = u.user_id;
+		return u || {};
 	} catch {
 		return {};
 	}
@@ -177,14 +204,154 @@ function parseTime(s) {
 	return isNaN(d.getTime()) ? 0 : d.getTime();
 }
 
+function parseMaybeJson(raw) {
+	if (!raw || typeof raw !== "string") return null;
+	let text = raw.trim();
+	if (!text) return null;
+	if (text.startsWith("```")) {
+		text = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+	}
+	try {
+		return JSON.parse(text);
+	} catch {
+		return null;
+	}
+}
+
+function toEnglishGrade(raw) {
+	const map = {
+		"小学一年级": "Year 1",
+		"小学二年级": "Year 2",
+		"小学三年级": "Year 3",
+		"小学四年级": "Year 4",
+		"小学五年级": "Year 5",
+		"小学六年级": "Year 6",
+		"初一": "Year 7"
+	};
+	return map[raw] || raw;
+}
+
+function toEnglishSubject(raw) {
+	const map = {
+		"数学": "Math",
+		"语文": "Chinese",
+		"英语": "English",
+		"科学": "Science"
+	};
+	return map[raw] || raw;
+}
+
+function displayGrade(raw) {
+	return getLocale() === "en" ? toEnglishGrade(raw) : raw;
+}
+
+function displaySubject(raw) {
+	return getLocale() === "en" ? toEnglishSubject(raw) : raw;
+}
+
+function displayDifficulty(raw) {
+	if (getLocale() !== "en") return raw;
+	const map = { easy: "Easy", medium: "Medium", hard: "Hard", 简单: "Easy", 中等: "Medium", 较难: "Hard" };
+	return map[raw] || raw;
+}
+
+function displayExerciseTypes(types) {
+	if (Array.isArray(types)) {
+		const arr = types.map(x => String(x || "")).filter(Boolean);
+		if (getLocale() !== "en") return arr.join("/");
+		const m = { single: "single", fill: "fill", short: "short", 单选: "single", 填空: "fill", 简答: "short" };
+		return arr.map(x => m[x] || x).join("/");
+	}
+	return types || "";
+}
+
+function formatExercisePreview(obj, item) {
+	const isEn = getLocale() === "en";
+	const lines = [];
+	const title = obj.title || item.topic || item.title || "-";
+	lines.push(String(title));
+	const info = [displayGrade(obj.grade || item.grade), displaySubject(obj.subject || item.subject), obj.topic || item.topic]
+		.filter(Boolean)
+		.join(" · ");
+	if (info) lines.push(info);
+	lines.push("");
+	const qs = Array.isArray(obj.questions) ? obj.questions : [];
+	qs.forEach((q, idx) => {
+		lines.push(`${idx + 1}. ${q.stem || ""}`.trim());
+		if (Array.isArray(q.options) && q.options.length) {
+			q.options.forEach((opt, i) => {
+				const letter = String.fromCharCode(65 + i);
+				const clean = String(opt || "").replace(/^[A-Da-d][\.)\u3001]\s+/, "");
+				lines.push(`   ${letter}. ${clean}`);
+			});
+		}
+		if (q.answer !== undefined) {
+			const ans = Array.isArray(q.answer) ? q.answer.join(", ") : String(q.answer);
+			lines.push(`   ${isEn ? "Answer" : "答案"}: ${ans}`);
+		}
+		if (q.analysis) lines.push(`   ${isEn ? "Explanation" : "解析"}: ${q.analysis}`);
+		if (q.score !== undefined && q.score !== null) lines.push(`   ${isEn ? "Score" : "分值"}: ${q.score}`);
+		lines.push("");
+	});
+	return lines.join("\n").trim();
+}
+
+function formatLessonPreview(obj, item) {
+	const isEn = getLocale() === "en";
+	const lines = [];
+	const title = obj.lesson_title || obj.title || item.topic || item.title || "-";
+	lines.push(String(title));
+	const info = [displayGrade(obj.year_group || obj.grade || item.grade), displaySubject(obj.subject || item.subject), obj.topic || item.topic]
+		.filter(Boolean)
+		.join(" · ");
+	if (info) lines.push(info);
+	lines.push("");
+
+	const objectives = Array.isArray(obj.learning_objectives) ? obj.learning_objectives : [];
+	if (objectives.length) {
+		lines.push(isEn ? "Objectives" : "教学目标");
+		objectives.forEach((x, i) => lines.push(`${i + 1}. ${x}`));
+		lines.push("");
+	}
+
+	const seq = Array.isArray(obj.teaching_sequence) ? obj.teaching_sequence : [];
+	if (seq.length) {
+		lines.push(isEn ? "Teaching Process" : "教学过程");
+		seq.forEach((step, i) => {
+			const phase = step.phase || (isEn ? `Step ${i + 1}` : `环节${i + 1}`);
+			const mins = step.duration_minutes ? (isEn ? ` (${step.duration_minutes} min)` : `（${step.duration_minutes}分钟）`) : "";
+			lines.push(`${i + 1}. ${phase}${mins}`);
+			(step.teacher_actions || []).forEach(x => lines.push(`   - ${isEn ? "Teacher" : "教师"}: ${x}`));
+			(step.student_activities || []).forEach(x => lines.push(`   - ${isEn ? "Students" : "学生"}: ${x}`));
+		});
+		lines.push("");
+	}
+
+	if (obj.homework && obj.homework.main_task) {
+		lines.push(isEn ? "Homework" : "作业");
+		lines.push(`- ${obj.homework.main_task}`);
+	}
+
+	return lines.join("\n").trim();
+}
+
+function formatResourcePreview(item) {
+	const raw = item?.content || "";
+	const parsed = parseMaybeJson(raw);
+	if (!parsed || typeof parsed !== "object") return raw;
+	if (item?.type === "exercise") return formatExercisePreview(parsed, item);
+	if (item?.type === "lesson") return formatLessonPreview(parsed, item);
+	return JSON.stringify(parsed, null, 2);
+}
+
 function metaForItem(item) {
 	if (item.type === "lesson") {
-		return [item.grade || "", item.subject || "", item.duration ? `${item.duration}${t("minuteUnit")}` : ""]
+		return [displayGrade(item.grade || ""), displaySubject(item.subject || ""), item.duration ? `${item.duration}${t("minuteUnit")}` : ""]
 			.filter(Boolean)
 			.join(" · ");
 	}
-	const types = item.types ? (Array.isArray(item.types) ? item.types.join("/") : item.types) : "";
-	return [item.grade || "", item.subject || "", types, item.difficulty || "", item.count ? `${t("questionCountPrefix")}${item.count}` : ""]
+	const types = displayExerciseTypes(item.types);
+	return [displayGrade(item.grade || ""), displaySubject(item.subject || ""), types, displayDifficulty(item.difficulty || ""), item.count ? `${t("questionCountPrefix")}${item.count}` : ""]
 		.filter(Boolean)
 		.join(" · ");
 }
@@ -212,7 +379,6 @@ async function apiFetchHistory() {
 
 	const lessonList = (lessonRes.code === 0 ? lessonRes.data : []) || [];
 	const exerciseList = (exerciseRes.code === 0 ? exerciseRes.data : []) || [];
-
 	const lessons = lessonList.map(l => ({
 		...l,
 		type: "lesson"
@@ -399,7 +565,7 @@ function selectItem(item) {
 	const empty = document.getElementById("previewEmpty");
 	if (!title || !meta || !body || !empty) return;
 
-	const text = item.content || "";
+	const text = formatResourcePreview(item);
 	title.textContent = item.topic || item.title || "-";
 	meta.textContent = `${item.type === "exercise" ? t("typeExercise") : t("typeLesson")} · ${metaForItem(item) || "-"}`;
 	body.textContent = text;
@@ -449,25 +615,38 @@ function clearPreview() {
 }
 
 async function apiListClasses() {
-	const user = getLoginUser();
-	const headers = { "X-User-Id": user && user.id ? String(user.id) : "" };
+	const headers = buildAuthHeaders();
 	const res = await fetch(`${API_BASE}/api/class/`, { headers });
 	const data = await res.json().catch(() => ({}));
+	if (res.status === 401) {
+		alert(t("sessionExpired"));
+		window.location.href = "../login.html";
+		return [];
+	}
 	if (!res.ok || data.code !== 0) return [];
 	return data.data || [];
 }
 
 async function apiGetClass(cid) {
-	const user = getLoginUser();
-	const headers = { "X-User-Id": user && user.id ? String(user.id) : "" };
+	const headers = buildAuthHeaders();
 	const res = await fetch(`${API_BASE}/api/class/${cid}`, { headers });
 	const data = await res.json().catch(() => ({}));
+	if (res.status === 401) {
+		alert(t("sessionExpired"));
+		window.location.href = "../login.html";
+		return null;
+	}
 	if (!res.ok || data.code !== 0) return null;
 	return data.data || null;
 }
 
-function openPublishModal() {
+async function openPublishModal() {
 	if (!state.selected) return;
+	await loadClasses();
+	if (!state.classes.length) {
+		alert(t("selectClass"));
+		return;
+	}
 	const modal = document.getElementById("publishModal");
 	if (!modal) return;
 	modal.classList.add("open");
@@ -663,6 +842,7 @@ async function loadClasses() {
 	if (!state.classes.length) {
 		select.innerHTML = `<option value="">${t("selectClass")}</option>`;
 		state.students = [];
+		state.selectedStudentIds = new Set();
 		renderStudents(false);
 		return;
 	}

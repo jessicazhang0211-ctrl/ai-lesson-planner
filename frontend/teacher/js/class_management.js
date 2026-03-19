@@ -331,51 +331,26 @@ function t(key) {
 }
 
 /** ---------- Storage ---------- */
-const STORE_KEY = "cm_store_v1";
+const STORE_KEY_PREFIX = "cm_store_v2_user_";
+
+function getStoreKey() {
+  const user = getLoginUser();
+  const uid = user && (user.id || user.user_id);
+  if (uid) return `${STORE_KEY_PREFIX}${uid}`;
+  return `${STORE_KEY_PREFIX}guest`;
+}
 
 function loadStore() {
-  const raw = localStorage.getItem(STORE_KEY);
+  const raw = localStorage.getItem(getStoreKey());
   if (raw) {
     try { return JSON.parse(raw); } catch {}
   }
-  // If logged in, try to load from backend
-  const loginRaw = localStorage.getItem('login_user');
-  if (loginRaw) {
-    try {
-      const user = JSON.parse(loginRaw);
-      // fetch classes synchronously is not possible here; return empty shell and caller will populate
-      return { classes: [] };
-    } catch {}
-  }
-  // default demo data
-  const demo = {
-    classes: [
-      {
-        id: "c1",
-        name: "一年级（1）班",
-        desc: "数学基础",
-        status: "active",
-        code: "A1B2C3",
-        created_at: "2026-02-01",
-        stage: "primary",
-        allow_join: true,
-        note: "",
-        students: [
-          { id: "s1", name: "林小雨", stu_id: "202601001", status: "joined", parent_phone: "138****8801", accuracy: 86, submit: 92 },
-          { id: "s2", name: "周子涵", stu_id: "202601002", status: "pending", parent_phone: "137****2109", accuracy: null, submit: null },
-          { id: "s3", name: "王一鸣", stu_id: "202601003", status: "disabled", parent_phone: "139****5510", accuracy: 71, submit: 44 }
-        ]
-      },
-      { id: "c2", name: "一年级（2）班", desc: "", status: "active", code: "K9P1Q7", created_at: "2026-02-02", stage: "primary", allow_join: true, note: "", students: [] },
-      { id: "c3", name: "二年级（3）班", desc: "", status: "archived", code: "Z3H8M2", created_at: "2026-01-15", stage: "primary", allow_join: false, note: "已结束", students: [] }
-    ]
-  };
-  localStorage.setItem(STORE_KEY, JSON.stringify(demo));
-  return demo;
+  // No demo fallback for authenticated workflows; rely on backend classes.
+  return { classes: [] };
 }
 
 function saveStore(store) {
-  localStorage.setItem(STORE_KEY, JSON.stringify(store));
+  localStorage.setItem(getStoreKey(), JSON.stringify(store));
 }
 
 /** ---------- State ---------- */
@@ -906,7 +881,7 @@ function onStudentActionClick(e) {
     if (typeof s.id === 'number' && typeof cls.id === 'number') {
       apiFetch(`/api/class/${cls.id}/students/${s.id}`, { method: 'DELETE' })
         .then(() => { cls.students = (cls.students || []).filter(x => x.id !== s.id); saveStore(state.store); renderAll(); alert(t('toast_deleted')); })
-        .catch(() => { alert(t('err_op_failed')); });
+        .catch((e) => { alert(`${t('err_delete_student_failed')}: ${e?.message || t('err_op_failed')}`); });
       return;
     }
     cls.students = (cls.students || []).filter(x => x.id !== s.id);
@@ -1600,7 +1575,7 @@ function bindEvents() {
     if (typeof s.id === 'number' && typeof cls.id === 'number') {
       apiFetch(`/api/class/${cls.id}/students/${s.id}`, { method: 'DELETE' })
         .then(() => { cls.students = (cls.students || []).filter(x => x.id !== s.id); closeDrawer(); saveStore(state.store); renderAll(); alert(t('toast_deleted')); })
-        .catch(() => { alert(t('err_delete_student_failed')); });
+        .catch((e) => { alert(`${t('err_delete_student_failed')}: ${e?.message || t('err_op_failed')}`); });
       return;
     }
     cls.students = (cls.students || []).filter(x => x.id !== s.id);

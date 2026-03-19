@@ -1,25 +1,61 @@
 let lessonCache = [];
 let selectedLessonId = null;
 let pdfFontLoaded = false;
+
 const lessonPageDict = {
   zh: {
+    pageTitle: "教案资源 · 学生端",
+    heroTitle: "老师教案资源",
+    heroSub: "查看老师发布的教案与学习资料。",
+    btnRefresh: "刷新",
+    listTitle: "教案列表",
+    listSub: "点击查看详情",
+    btnDownloadPdf: "下载 PDF",
+    emptyHint: "选择左侧教案查看详情",
     defaultTitle: "教案",
     view: "查看",
     empty: "(空)",
     pdfFontError: "PDF 字体加载失败，中文会乱码。请用本地静态服务器打开前端后重试。\n例如：cd frontend && python -m http.server 8000"
   },
   en: {
+    pageTitle: "Lesson Resources · Student",
+    heroTitle: "Teacher Lesson Resources",
+    heroSub: "Browse lesson plans and learning materials published by your teacher.",
+    btnRefresh: "Refresh",
+    listTitle: "Lesson List",
+    listSub: "Click to view details",
+    btnDownloadPdf: "Download PDF",
+    emptyHint: "Select a lesson on the left to view details",
     defaultTitle: "Lesson Plan",
     view: "View",
     empty: "(empty)",
     pdfFontError: "PDF font loading failed. CJK text may be garbled. Please open frontend via a local HTTP server and try again.\nExample: cd frontend && python -m http.server 8000"
   }
 };
+
+const i18n = window.I18N || null;
+if (i18n) i18n.registerDict("studentLessons", lessonPageDict);
+
 const PDF_FONT_FAMILY = "SanJiZiHaiSongGBK";
 const PDF_FONT_FILE_NORMAL = "SanJiZiHaiSongGBK-2.ttf";
 const PDF_FONT_FILE_BOLD = "SanJiZiHaiSongGBK-2.ttf";
 const PDF_FONT_URL_NORMAL = "../assets/fonts/SanJiZiHaiSongGBK-2.ttf";
 const PDF_FONT_URL_BOLD = "../assets/fonts/SanJiZiHaiSongGBK-2.ttf";
+
+function getLocale() {
+  return i18n ? i18n.getLocale() : (localStorage.getItem("locale") || "zh");
+}
+
+function t(key) {
+  if (i18n) return i18n.t("studentLessons", key, key);
+  const locale = getLocale();
+  return (lessonPageDict[locale] && lessonPageDict[locale][key]) || lessonPageDict.zh[key] || key;
+}
+
+function applyPageI18n() {
+  if (i18n) i18n.applyDataI18n("studentLessons", document);
+  document.title = t("pageTitle");
+}
 
 function getFontCandidates(url) {
   const baseName = "SanJiZiHaiSongGBK-2.ttf";
@@ -70,12 +106,12 @@ async function renderLessons() {
   const box = document.getElementById("lessonList");
   if (!box) return;
   const locale = getLocale();
-  const t = lessonPageDict[locale] || lessonPageDict.zh;
+  const dict = lessonPageDict[locale] || lessonPageDict.zh;
   try {
     const lessons = await apiGet("/api/student/lessons");
     lessonCache = lessons || [];
     if (!lessonCache.length) {
-      box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">${t.empty}</div>`;
+      box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">${dict.empty}</div>`;
       return;
     }
     box.innerHTML = lessonCache.map(item => {
@@ -84,10 +120,10 @@ async function renderLessons() {
       return `
         <div class="lesson-item ${active}">
           <div>
-            <div class="lesson-title">${item.title || t.defaultTitle}</div>
+            <div class="lesson-title">${item.title || dict.defaultTitle}</div>
             <div class="lesson-sub">${meta}</div>
           </div>
-          <button class="btn" data-id="${item.id}">${t.view}</button>
+          <button class="btn" data-id="${item.id}">${dict.view}</button>
         </div>
       `;
     }).join("");
@@ -103,7 +139,7 @@ async function renderLessons() {
       openLesson(lessonCache[0].id);
     }
   } catch {
-    box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">${t.empty}</div>`;
+    box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">${dict.empty}</div>`;
   }
 }
 
@@ -114,11 +150,11 @@ function openLesson(id) {
   const empty = document.getElementById("lessonEmpty");
   if (!title || !content || !meta || !empty) return;
   const locale = getLocale();
-  const t = lessonPageDict[locale] || lessonPageDict.zh;
+  const dict = lessonPageDict[locale] || lessonPageDict.zh;
   const item = lessonCache.find(x => x.id === id);
   if (!item) return;
   selectedLessonId = id;
-  title.textContent = item.title || t.defaultTitle;
+  title.textContent = item.title || dict.defaultTitle;
   content.textContent = item.content || "";
   meta.textContent = item.published_at || item.created_at || "";
   empty.style.display = item.content ? "none" : "flex";
@@ -136,13 +172,13 @@ async function downloadLessonPdf() {
     doc.setFont(PDF_FONT_FAMILY, "normal");
   } catch {
     const locale = getLocale();
-    const t = lessonPageDict[locale] || lessonPageDict.zh;
-    alert(t.pdfFontError);
+    const dict = lessonPageDict[locale] || lessonPageDict.zh;
+    alert(dict.pdfFontError);
     return;
   }
   const locale = getLocale();
-  const t = lessonPageDict[locale] || lessonPageDict.zh;
-  const title = item.title || t.defaultTitle;
+  const dict = lessonPageDict[locale] || lessonPageDict.zh;
+  const title = item.title || dict.defaultTitle;
   const content = item.content || "";
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
@@ -177,6 +213,13 @@ document.addEventListener("DOMContentLoaded", () => {
   requireLogin();
   applySystemSettings();
   loadStudentProfile();
+  applyPageI18n();
   renderLessons();
   bindLessonEvents();
+  if (i18n) {
+    i18n.onLocaleChange(() => {
+      applyPageI18n();
+      renderLessons();
+    });
+  }
 });

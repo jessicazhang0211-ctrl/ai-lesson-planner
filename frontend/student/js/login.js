@@ -117,9 +117,16 @@ async function loginSubmit(e) {
         localStorage.setItem("auth_token", data.data.token);
       }
 
+      const mustChangePassword = !!(data.data && data.data.must_change_password);
+      if (mustChangePassword) {
+        localStorage.setItem("must_change_password", "1");
+      } else {
+        localStorage.removeItem("must_change_password");
+      }
+
       localStorage.setItem("prefill_stu_id", stuId);
 
-      window.location.href = "./index.html";
+      window.location.href = mustChangePassword ? "./settings.html?force_password=1" : "./index.html";
       return;
     }
 

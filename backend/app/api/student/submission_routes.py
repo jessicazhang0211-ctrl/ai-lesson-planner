@@ -1,4 +1,5 @@
 from .shared import *
+from .shared import _load_ids, _grade_objective
 
 @bp.route("/exercises/<int:publish_id>/save", methods=["POST"])
 @token_required
