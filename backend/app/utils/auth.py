@@ -83,7 +83,9 @@ def token_required(f):
                     u = User.query.get(uid)
                     if u and u.check_password("123456"):
                         g.must_change_password = True
-                        if request.path != "/api/user/change-password":
+                        # Allow student-side read/write APIs in development even with initial password,
+                        # otherwise frontend may look like a CORS failure while actually being blocked by auth.
+                        if request.path != "/api/user/change-password" and not request.path.startswith("/api/student/"):
                             return err(
                                 "password reset required",
                                 http_status=403,

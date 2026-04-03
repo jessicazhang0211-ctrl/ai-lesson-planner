@@ -69,6 +69,62 @@ function t(key) {
   return (studentHomeDict[locale] && studentHomeDict[locale][key]) || studentHomeDict.zh[key] || key;
 }
 
+function translateInsightValue(value, key) {
+  const raw = String(value || "").trim();
+  if (!raw || getLocale() !== "en") return raw;
+
+  const commonMap = {
+    "--": "--",
+    "薄弱知识点": "Weak knowledge point",
+    "学习状态": "Study status",
+    "建议": "Suggestion",
+    "基础薄弱": "Needs fundamentals reinforcement",
+    "良好": "Good",
+    "稳定": "Stable",
+    "波动": "Fluctuating",
+    "需提升": "Needs improvement",
+    "继续保持": "Keep it up",
+    "重点复习": "Focus on review",
+    "暂无明显薄弱点": "No obvious weak point yet",
+    "数据不足": "Insufficient data",
+    "表现优秀": "Excellent performance",
+    "稳定提升": "Steady improvement",
+    "需要加强": "Needs reinforcement",
+    "完成更多作业后再进行分析": "Complete more assignments for a more reliable analysis",
+    "保持节奏，尝试提高综合题": "Keep the pace and challenge more comprehensive questions",
+    "建议巩固错题题型": "Focus on consolidating question types you often get wrong",
+    "优先补齐基础题型": "Prioritize strengthening foundational question types"
+  };
+  if (Object.prototype.hasOwnProperty.call(commonMap, raw)) return commonMap[raw];
+
+  const weakRateMatch = raw.match(/^(单选|多选|判断|填空|简答|其他)题错误率偏高$/);
+  if (weakRateMatch) {
+    const typeMap = {
+      "单选": "single-choice",
+      "多选": "multiple-choice",
+      "判断": "true/false",
+      "填空": "fill-in-the-blank",
+      "简答": "short-answer",
+      "其他": "other"
+    };
+    const qType = typeMap[weakRateMatch[1]] || "specific";
+    return `High error rate in ${qType} questions`;
+  }
+
+  const weakSpotMap = {
+    "分数比较": "Fraction comparison",
+    "分数计算": "Fraction operations",
+    "应用题": "Word problems",
+    "几何": "Geometry",
+    "口算": "Mental arithmetic"
+  };
+  if (key === "weak_spot" && Object.prototype.hasOwnProperty.call(weakSpotMap, raw)) {
+    return weakSpotMap[raw];
+  }
+
+  return raw;
+}
+
 function applyPageI18n() {
   if (i18n) i18n.applyDataI18n("studentHome", document);
   document.title = t("pageTitle");
@@ -104,9 +160,10 @@ function setText(id, value) {
 
 async function loadHome() {
   try {
+    const locale = getLocale();
     const [assignmentsResp, overview] = await Promise.all([
       apiGet("/api/student/assignments"),
-      apiGet("/api/student/overview")
+      apiGet(`/api/student/overview?lang=${encodeURIComponent(locale)}`)
     ]);
     const assignments = normalizeAssignments(assignmentsResp);
 
@@ -125,9 +182,9 @@ async function loadHome() {
     setText("kpiAccuracy", overview.avg_score != null ? `${overview.avg_score}%` : "--");
     setText("kpiExam", overview.latest_score != null ? String(overview.latest_score) : "--");
 
-    setText("weakSpot", overview.analysis?.weak_spot || "--");
-    setText("studyState", overview.analysis?.study_state || "--");
-    setText("studyTip", overview.analysis?.study_tip || "--");
+    setText("weakSpot", translateInsightValue(overview.analysis?.weak_spot || "--", "weak_spot") || "--");
+    setText("studyState", translateInsightValue(overview.analysis?.study_state || "--", "study_state") || "--");
+    setText("studyTip", translateInsightValue(overview.analysis?.study_tip || "--", "study_tip") || "--");
   } catch {
     renderList("taskList", [], "task");
   }

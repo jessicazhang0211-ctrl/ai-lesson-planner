@@ -86,6 +86,9 @@
             <div class="review-detail-title" id="detailTitle">—</div>
             <div class="review-detail-meta" id="detailMeta">—</div>
           </div>
+          <div class="review-detail-tools">
+            <button class="btn ghost" id="btnAiSummary" data-r-i18n="aiSummaryBtn">AI 分析</button>
+          </div>
         </div>
         <div class="review-body" id="reviewBody"></div>
         <div class="review-grade">
@@ -99,6 +102,17 @@
       </section>
     </div>
   </main>
+</div>
+
+<div class="review-modal" id="aiSummaryModal" aria-hidden="true">
+  <div class="review-modal-backdrop" id="aiSummaryModalBackdrop"></div>
+  <div class="review-modal-panel">
+    <div class="review-modal-head">
+      <div class="review-modal-title" data-r-i18n="aiSummaryTitle">AI 作业分析</div>
+      <button class="review-modal-close" id="aiSummaryModalClose" aria-label="Close">×</button>
+    </div>
+    <div class="review-modal-body" id="aiSummaryModalBody" data-r-i18n="aiSummaryEmpty">选择作业后可生成重难点与学情总结。</div>
+  </div>
 </div>
 
 <script src="../js/i18n.js"></script>

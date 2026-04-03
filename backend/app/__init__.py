@@ -17,7 +17,7 @@ def create_app():
             r"/api/*": {
                 "origins": allowed_origins,
                 "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-                "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
+                "allow_headers": ["Content-Type", "Authorization", "X-Requested-With", "X-User-Id"],
                 "supports_credentials": False,
             }
         },
@@ -34,7 +34,7 @@ def create_app():
             resp.headers["Access-Control-Allow-Origin"] = origin
             resp.headers["Vary"] = "Origin"
             resp.headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,PATCH,DELETE,OPTIONS"
-            resp.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization,X-Requested-With"
+            resp.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization,X-Requested-With,X-User-Id"
         return resp
 
     # 初始化数据库

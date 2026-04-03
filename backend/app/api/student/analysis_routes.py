@@ -1,9 +1,38 @@
 from .shared import *
-from .shared import _rule_based_analysis, _ai_analysis
+from .shared import _rule_based_analysis, _ai_analysis, _normalize_lang, _localize_analysis
+
+
+def _build_analysis_marker(assignments, submissions):
+    # Use stable score-related fields to detect true data changes,
+    # avoiding reliance on timestamp precision/timezone differences.
+    assignment_parts = []
+    for a in sorted(assignments or [], key=lambda x: x.publish_id):
+        assignment_parts.append(
+            f"{a.publish_id}:{a.status or ''}:{a.score if a.score is not None else ''}:{(a.completed_at or a.created_at or '')}"
+        )
+
+    submission_parts = []
+    for s in sorted(submissions or [], key=lambda x: x.publish_id):
+        submission_parts.append(
+            "|".join(
+                [
+                    str(s.publish_id),
+                    str(s.status or ""),
+                    str(s.auto_score if s.auto_score is not None else ""),
+                    str(s.teacher_score if s.teacher_score is not None else ""),
+                    str(s.total_score if s.total_score is not None else ""),
+                    str(s.updated_at or s.created_at or ""),
+                ]
+            )
+        )
+
+    return "#".join(assignment_parts) + "@@" + "#".join(submission_parts)
 
 @bp.route("/overview", methods=["GET"])
 @token_required
 def overview():
+    lang = _normalize_lang(request.args.get("lang") or "zh")
+
     user_id = int(getattr(g, "current_user_id", 0) or 0)
     if not user_id:
         return err("missing user", http_status=401)
@@ -40,6 +69,25 @@ def overview():
     if completed_with_time:
         completed_with_time.sort(key=lambda x: x.completed_at or x.created_at, reverse=True)
         latest_score = completed_with_time[0].score
+
+    # 学情分析应同时响应两类事件：
+    # 1) 新完成作业；2) 教师批改后分数更新。
+    # 仅看 completed_at 会遗漏“已完成作业被后续批改”的场景。
+    completed_events = [
+        a for a in assignments
+        if a.status == "completed" and (a.completed_at or a.created_at)
+    ]
+
+    graded_events = []
+    if pub_ids:
+        graded_events = (
+            ExerciseSubmission.query
+            .filter(
+                ExerciseSubmission.publish_id.in_(pub_ids),
+                ExerciseSubmission.student_id == profile.student_id,
+            )
+            .all()
+        )
 
     trend_items = []
     if completed_with_time:
@@ -97,20 +145,51 @@ def overview():
             wrong_rate_map[k] = wrong_cnt / total_cnt
 
     latest_completed_at = None
-    if completed_with_time:
-        latest_completed_at = max([a.completed_at or a.created_at for a in completed_with_time if (a.completed_at or a.created_at)], default=None)
+    if completed_events:
+        latest_completed_at = max(
+            [a.completed_at or a.created_at for a in completed_events],
+            default=None
+        )
+
+    latest_scored_at = None
+    if graded_events:
+        latest_scored_at = max(
+            [
+                s.updated_at or s.created_at
+                for s in graded_events
+                if (s.updated_at or s.created_at) and (s.status == "graded" or s.teacher_score is not None)
+            ],
+            default=None,
+        )
+
+    latest_signal_at = max(
+        [dt for dt in [latest_completed_at, latest_scored_at] if dt],
+        default=None,
+    )
 
     cached_analysis = None
+    cached_marker = ""
     if profile.analysis_json:
         try:
             cached_analysis = json.loads(profile.analysis_json)
+            if isinstance(cached_analysis, dict):
+                cached_marker = str(cached_analysis.get("_marker") or "")
+                cached_analysis = {
+                    "weak_spot": cached_analysis.get("weak_spot", ""),
+                    "study_state": cached_analysis.get("study_state", ""),
+                    "study_tip": cached_analysis.get("study_tip", ""),
+                }
         except Exception:
             cached_analysis = None
+
+    current_marker = _build_analysis_marker(assignments, graded_events)
 
     should_recompute = False
     if not cached_analysis:
         should_recompute = True
-    elif latest_completed_at and (not profile.analysis_latest_completed_at or latest_completed_at > profile.analysis_latest_completed_at):
+    elif cached_marker != current_marker:
+        should_recompute = True
+    elif latest_signal_at and (not profile.analysis_updated_at or latest_signal_at > profile.analysis_updated_at):
         should_recompute = True
 
     analysis = cached_analysis or _rule_based_analysis(avg_score_all, wrong_rate_map)
@@ -125,11 +204,15 @@ def overview():
         if ai_result:
             analysis = ai_result
 
-        profile.analysis_json = json.dumps(analysis, ensure_ascii=False)
+        stored_analysis = dict(analysis or {})
+        stored_analysis["_marker"] = current_marker
+        profile.analysis_json = json.dumps(stored_analysis, ensure_ascii=False)
         profile.analysis_updated_at = datetime.datetime.now()
-        profile.analysis_latest_completed_at = latest_completed_at
+        profile.analysis_latest_completed_at = latest_signal_at
         db.session.add(profile)
         db.session.commit()
+
+    localized_analysis = _localize_analysis(analysis, lang)
 
     return ok({
         "todo": max(total - completed, 0),
@@ -140,6 +223,6 @@ def overview():
         "avg_score_all": avg_score_all,
         "avg_score_week": avg_score_week,
         "trend": trend_items,
-        "analysis": analysis
+        "analysis": localized_analysis
     })
 

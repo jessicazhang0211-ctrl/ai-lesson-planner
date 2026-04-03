@@ -13,6 +13,13 @@ const lessonPageDict = {
     btnDownloadPdf: "下载 PDF",
     emptyHint: "选择左侧教案查看详情",
     defaultTitle: "教案",
+    sectionObjectives: "教学目标",
+    sectionKeyPoints: "重难点",
+    sectionProcess: "教学过程",
+    sectionAssessment: "评价",
+    sectionHomework: "作业",
+    teacherLabel: "教师",
+    studentLabel: "学生",
     view: "查看",
     empty: "(空)",
     pdfFontError: "PDF 字体加载失败，中文会乱码。请用本地静态服务器打开前端后重试。\n例如：cd frontend && python -m http.server 8000"
@@ -27,6 +34,13 @@ const lessonPageDict = {
     btnDownloadPdf: "Download PDF",
     emptyHint: "Select a lesson on the left to view details",
     defaultTitle: "Lesson Plan",
+    sectionObjectives: "Learning Objectives",
+    sectionKeyPoints: "Key Points",
+    sectionProcess: "Teaching Process",
+    sectionAssessment: "Assessment",
+    sectionHomework: "Homework",
+    teacherLabel: "Teacher",
+    studentLabel: "Students",
     view: "View",
     empty: "(empty)",
     pdfFontError: "PDF font loading failed. CJK text may be garbled. Please open frontend via a local HTTP server and try again.\nExample: cd frontend && python -m http.server 8000"
@@ -55,6 +69,98 @@ function t(key) {
 function applyPageI18n() {
   if (i18n) i18n.applyDataI18n("studentLessons", document);
   document.title = t("pageTitle");
+}
+
+function parseMaybeJson(raw) {
+  if (!raw || typeof raw !== "string") return null;
+  let text = raw.trim();
+  if (!text) return null;
+  if (text.startsWith("```")) {
+    text = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+  }
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+function asArray(value) {
+  if (Array.isArray(value)) return value;
+  if (value == null || value === "") return [];
+  return [value];
+}
+
+function formatLessonContent(raw, item) {
+  const parsed = parseMaybeJson(raw);
+  if (!parsed || typeof parsed !== "object") {
+    return raw || "";
+  }
+
+  const lines = [];
+  const title = parsed.lesson_title || parsed.title || item?.title || t("defaultTitle");
+  lines.push(String(title));
+
+  const info = [parsed.year_group || parsed.grade || "", parsed.subject || "", parsed.topic || ""]
+    .filter(Boolean)
+    .join(" · ");
+  if (info) lines.push(info);
+
+  const objectives = asArray(parsed.learning_objectives || parsed.objectives).filter(Boolean);
+  if (objectives.length) {
+    lines.push("");
+    lines.push(t("sectionObjectives"));
+    objectives.forEach((x, i) => lines.push(`${i + 1}. ${x}`));
+  }
+
+  const keyPoints = asArray(parsed.key_points || parsed.keyPoints || parsed.difficult_points).filter(Boolean);
+  if (keyPoints.length) {
+    lines.push("");
+    lines.push(t("sectionKeyPoints"));
+    keyPoints.forEach((x, i) => lines.push(`${i + 1}. ${x}`));
+  }
+
+  const seq = asArray(parsed.teaching_sequence || parsed.process || parsed.steps).filter(Boolean);
+  if (seq.length) {
+    lines.push("");
+    lines.push(t("sectionProcess"));
+    seq.forEach((step, idx) => {
+      if (typeof step === "string") {
+        lines.push(`${idx + 1}. ${step}`);
+        return;
+      }
+      const phase = step.phase || `Step ${idx + 1}`;
+      const mins = step.duration_minutes ? ` (${step.duration_minutes} min)` : "";
+      lines.push(`${idx + 1}. ${phase}${mins}`);
+      asArray(step.teacher_actions).filter(Boolean).forEach(x => lines.push(`   - ${t("teacherLabel")}: ${x}`));
+      asArray(step.student_activities).filter(Boolean).forEach(x => lines.push(`   - ${t("studentLabel")}: ${x}`));
+    });
+  }
+
+  const assessment = parsed.assessment;
+  if (assessment) {
+    lines.push("");
+    lines.push(t("sectionAssessment"));
+    if (typeof assessment === "string") {
+      lines.push(`- ${assessment}`);
+    } else {
+      asArray(assessment.methods || assessment.items || assessment.criteria).filter(Boolean).forEach(x => lines.push(`- ${x}`));
+    }
+  }
+
+  const homework = parsed.homework;
+  if (homework) {
+    lines.push("");
+    lines.push(t("sectionHomework"));
+    if (typeof homework === "string") {
+      lines.push(`- ${homework}`);
+    } else if (homework.main_task) {
+      lines.push(`- ${homework.main_task}`);
+      asArray(homework.optional_task).filter(Boolean).forEach(x => lines.push(`- ${x}`));
+    }
+  }
+
+  return lines.join("\n").trim();
 }
 
 function getFontCandidates(url) {
@@ -154,10 +260,11 @@ function openLesson(id) {
   const item = lessonCache.find(x => x.id === id);
   if (!item) return;
   selectedLessonId = id;
+  const rendered = formatLessonContent(item.content || "", item);
   title.textContent = item.title || dict.defaultTitle;
-  content.textContent = item.content || "";
+  content.textContent = rendered;
   meta.textContent = item.published_at || item.created_at || "";
-  empty.style.display = item.content ? "none" : "flex";
+  empty.style.display = rendered ? "none" : "flex";
   renderLessons();
 }
 
@@ -179,7 +286,7 @@ async function downloadLessonPdf() {
   const locale = getLocale();
   const dict = lessonPageDict[locale] || lessonPageDict.zh;
   const title = item.title || dict.defaultTitle;
-  const content = item.content || "";
+  const content = formatLessonContent(item.content || "", item);
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   const marginX = 40;

@@ -39,6 +39,10 @@ const resourceDict = {
 		statsMax: "满分",
 		statsChart: "成绩趋势",
 		statsClassLabel: "班级",
+		statsAiTitle: "AI 作业分析",
+		statsAiEmpty: "仅习题类型支持 AI 分析。",
+		statsAiLoading: "AI 正在分析中...",
+		statsAiFail: "AI 分析失败，请稍后重试。",
 		minuteUnit: "分钟",
 		questionCountPrefix: "题量",
 		publishTitle: "发布资源",
@@ -103,6 +107,10 @@ const resourceDict = {
 		statsMax: "Max",
 		statsChart: "Trend",
 		statsClassLabel: "Class",
+		statsAiTitle: "AI Assignment Insights",
+		statsAiEmpty: "AI analysis is only available for exercise resources.",
+		statsAiLoading: "AI is analyzing...",
+		statsAiFail: "AI analysis failed. Please try again.",
 		minuteUnit: "min",
 		questionCountPrefix: "Q",
 		publishTitle: "Publish Resource",
@@ -158,6 +166,7 @@ function applyResourceLang() {
 		const key = el.getAttribute("data-i18n-placeholder");
 		if (resourceDict[getLocale()][key]) el.placeholder = resourceDict[getLocale()][key];
 	});
+	document.title = `${t("title")} · AI Lesson Planner`;
 }
 
 function getToken() {
@@ -425,6 +434,18 @@ async function apiFetchStats(item, classId) {
 	return data.data;
 }
 
+async function apiFetchPublishedAiSummary(pubId) {
+	const token = getToken();
+	if (!token) return null;
+	const lang = getLocale();
+	const res = await fetch(`${API_BASE}/api/resource/publish/${pubId}/ai-summary?lang=${encodeURIComponent(lang)}`, {
+		headers: { "Authorization": `Bearer ${token}` }
+	});
+	const data = await res.json().catch(() => ({}));
+	if (!res.ok || data.code !== 0) return null;
+	return data.data || null;
+}
+
 function applyFilters() {
 	const type = document.getElementById("filterType").value;
 	const keyword = (document.getElementById("filterKeyword").value || "").trim().toLowerCase();
@@ -658,18 +679,38 @@ function openStatsModal(item) {
 	if (!modal) return;
 	const title = document.getElementById("statsTitle");
 	const summary = document.getElementById("statsSummary");
+	const aiBox = document.getElementById("statsAiBox");
+	const aiBody = document.getElementById("statsAiBody");
+	const aiRefreshBtn = document.getElementById("statsAiRefresh");
 	const list = document.getElementById("statsList");
 	const chart = document.getElementById("statsChart");
 	const classSelect = document.getElementById("statsClass");
 
 	if (title) title.textContent = item.title || "—";
 	if (summary) summary.textContent = "";
+	if (aiBody) aiBody.textContent = t("statsAiEmpty");
+	if (aiBox) aiBox.style.display = item.resource_type === "exercise" ? "block" : "none";
 	if (list) list.innerHTML = "";
 	if (chart) chart.innerHTML = "";
 	if (classSelect) classSelect.innerHTML = "";
 
 	modal.classList.add("open");
 	modal.setAttribute("aria-hidden", "false");
+
+	const loadAiSummary = async (force) => {
+		if (item.resource_type !== "exercise" || !aiBody) return;
+		aiBody.textContent = t("statsAiLoading");
+		if (aiRefreshBtn) aiRefreshBtn.disabled = true;
+		try {
+			const ai = await apiFetchPublishedAiSummary(item.id);
+			const text = ai && ai.summary ? String(ai.summary).trim() : "";
+			aiBody.textContent = text || t("statsAiFail");
+		} catch {
+			aiBody.textContent = t("statsAiFail");
+		} finally {
+			if (aiRefreshBtn) aiRefreshBtn.disabled = false;
+		}
+	};
 
 	const renderStats = (stats) => {
 		if (!stats) return;
@@ -738,6 +779,12 @@ function openStatsModal(item) {
 
 	apiFetchStats(item).then(stats => {
 		renderStats(stats);
+		loadAiSummary(false);
+		if (aiRefreshBtn) {
+			aiRefreshBtn.onclick = () => {
+				loadAiSummary(true);
+			};
+		}
 		if (classSelect) {
 			classSelect.addEventListener("change", () => {
 				const cid = classSelect.value || "";
@@ -916,10 +963,17 @@ async function publishSelected() {
 
 async function refresh() {
 	try {
+		const prev = state.selected ? { id: state.selected.id, type: state.selected.type } : null;
 		state.list = await apiFetchHistory();
-		state.filtered = state.list;
+		applyFilters();
+		if (prev) {
+			const nextSelected = state.filtered.find(i => i.id === prev.id && i.type === prev.type);
+			if (nextSelected) {
+				selectItem(nextSelected);
+				return;
+			}
+		}
 		state.selected = null;
-		renderList();
 		clearPreview();
 	} catch {
 		alert(t("loadFail"));
@@ -962,4 +1016,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 	await refreshPublished();
 	await loadClasses();
 	setModeUI(document.getElementById("publishMode").value);
+});
+
+window.addEventListener("app:locale-changed", () => {
+	applyResourceLang();
+	renderList();
+	renderPublishedList();
+	if (state.selected) {
+		const selected = state.filtered.find(i => i.id === state.selected.id && i.type === state.selected.type);
+		if (selected) selectItem(selected);
+	}
 });

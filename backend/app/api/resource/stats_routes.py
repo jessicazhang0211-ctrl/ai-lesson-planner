@@ -2,6 +2,7 @@ import json
 
 from flask import g, request
 
+from app.services.ai_service import ai_service
 from app.models.classroom import Classroom
 from app.models.exercise import Exercise
 from app.models.exercise_submission import ExerciseSubmission
@@ -11,6 +12,95 @@ from app.utils.auth import token_required
 from app.utils.response import err, ok
 
 from .blueprint import bp
+
+
+_PUBLISH_AI_SUMMARY_CACHE = {}
+
+
+def _normalize_lang(lang):
+    return "en" if str(lang or "zh").lower().startswith("en") else "zh"
+
+
+def _event_marker(assignments, submissions):
+    completed = [a for a in assignments if (a.status == "completed")]
+    graded = [s for s in submissions if (s.status == "graded")]
+
+    latest_completed = None
+    if completed:
+        latest_completed = max([(a.completed_at or a.created_at) for a in completed if (a.completed_at or a.created_at)], default=None)
+
+    latest_graded = None
+    if graded:
+        latest_graded = max([(s.updated_at or s.created_at) for s in graded if (s.updated_at or s.created_at)], default=None)
+
+    completed_ts = latest_completed.strftime("%Y-%m-%d %H:%M:%S") if latest_completed else ""
+    graded_ts = latest_graded.strftime("%Y-%m-%d %H:%M:%S") if latest_graded else ""
+    return f"c:{len(completed)}:{completed_ts}|g:{len(graded)}:{graded_ts}"
+
+
+def _build_local_publish_ai_summary(exercise, assignments, submissions, lang="zh"):
+    lang = _normalize_lang(lang)
+    try:
+        structured = json.loads(exercise.content_json or "{}")
+    except Exception:
+        structured = {}
+
+    questions = structured.get("questions") or []
+    total_questions = len(questions)
+    subjective_count = 0
+    objective_count = 0
+    for q in questions:
+        qtype = str((q or {}).get("type") or "").lower()
+        if qtype in ("short", "essay"):
+            subjective_count += 1
+        else:
+            objective_count += 1
+
+    assigned = len(assignments)
+    completed = len([a for a in assignments if a.status == "completed"])
+    completion_rate = round((completed / assigned) * 100, 1) if assigned else 0
+
+    graded_subs = [s for s in submissions if s.status == "graded"]
+    avg_total = None
+    if graded_subs:
+        vals = [int(s.total_score or 0) for s in graded_subs]
+        avg_total = round(sum(vals) / len(vals), 1) if vals else None
+
+    if lang == "en":
+        lines = [
+            "1. Key Points and Challenges",
+            f"- Question count: {total_questions} (objective {objective_count}, subjective {subjective_count})",
+            f"- Topic: {exercise.title or 'This assignment'}",
+            "",
+            "2. Class Performance Summary",
+            f"- Assigned students: {assigned}",
+            f"- Completed: {completed}",
+            f"- Completion rate: {completion_rate}%",
+            f"- Graded submissions: {len(graded_subs)}",
+            f"- Average total score: {avg_total if avg_total is not None else '-'}",
+            "",
+            "3. Teaching Suggestions",
+            "- Remind non-completers and provide a short catch-up task.",
+            "- Re-teach high-error concepts and assign 3-5 targeted follow-up items.",
+        ]
+    else:
+        lines = [
+            "1. 重难点",
+            f"- 题量：{total_questions}（客观题 {objective_count}，主观题 {subjective_count}）",
+            f"- 主题：{exercise.title or '本次作业'}",
+            "",
+            "2. 班级作业情况总结",
+            f"- 已发布人数：{assigned}",
+            f"- 已完成人数：{completed}",
+            f"- 完成率：{completion_rate}%",
+            f"- 已批改份数：{len(graded_subs)}",
+            f"- 平均总分：{avg_total if avg_total is not None else '-'}",
+            "",
+            "3. 教学建议",
+            "- 对未完成学生进行提醒并安排补做任务。",
+            "- 针对高错题知识点进行再讲解并布置3-5道巩固题。",
+        ]
+    return "\n".join(lines)
 
 
 @bp.route("/resource/<string:resource_type>/<int:resource_id>/stats", methods=["GET"])
@@ -200,3 +290,73 @@ def resource_stats(resource_type: str, resource_id: int):
             "trend": trend,
         }
     )
+
+
+@bp.route("/publish/<int:pub_id>/ai-summary", methods=["GET"])
+@token_required
+def publish_ai_summary(pub_id: int):
+    user_id = int(getattr(g, "current_user_id", 0) or 0)
+    if not user_id:
+        return err("missing user", http_status=401)
+
+    lang = _normalize_lang(request.args.get("lang") or "zh")
+
+    pub = ResourcePublish.query.get(pub_id)
+    if not pub or pub.revoked:
+        return err("publish not found", http_status=404)
+    if int(pub.created_by or 0) != user_id:
+        return err("not allowed", http_status=403)
+    if pub.resource_type != "exercise":
+        return err("ai summary only supported for exercise", http_status=400)
+
+    exercise = Exercise.query.get(pub.resource_id)
+    if not exercise or not exercise.content_json:
+        return err("exercise format not supported", http_status=400)
+
+    assignments = ResourceAssignment.query.filter_by(publish_id=pub.id).all()
+    submissions = ExerciseSubmission.query.filter_by(publish_id=pub.id).all()
+    marker = _event_marker(assignments, submissions)
+    cache_key = f"{pub.id}:{lang}"
+    cached = _PUBLISH_AI_SUMMARY_CACHE.get(cache_key)
+    if cached and cached.get("marker") == marker:
+        return ok({"summary": cached.get("summary", ""), "source": cached.get("source", "cache"), "marker": marker})
+
+    local_summary = _build_local_publish_ai_summary(exercise, assignments, submissions, lang)
+
+    try:
+        if lang == "en":
+            prompt = (
+                "You are a primary-school teaching assistant. Based on this published assignment's class-level data, "
+                "write concise and actionable insights.\n"
+                "Use exactly three sections:\n"
+                "1) Key Points and Challenges\n"
+                "2) Class Performance Summary\n"
+                "3) Teaching Suggestions (max 3)\n"
+                "Language: English.\n\n"
+                f"Title: {exercise.title or ''}\n"
+                f"Assignments count: {len(assignments)}\n"
+                f"Submissions count: {len(submissions)}\n"
+                f"Exercise JSON: {exercise.content_json}\n"
+            )
+        else:
+            prompt = (
+                "你是一名小学教研助理。请基于已发布作业的班级数据输出简洁、可执行的分析。\n"
+                "固定三部分：\n"
+                "1) 重难点\n"
+                "2) 班级作业情况总结\n"
+                "3) 教学建议（最多3条）\n"
+                "语言：中文。\n\n"
+                f"标题：{exercise.title or ''}\n"
+                f"发布人数：{len(assignments)}\n"
+                f"提交记录数：{len(submissions)}\n"
+                f"习题JSON：{exercise.content_json}\n"
+            )
+        ai_text = ai_service.generate_text(prompt)
+        summary = (ai_text or "").strip() or local_summary
+        source = "gemini"
+    except Exception:
+        summary = local_summary
+        source = "fallback"
+
+    _PUBLISH_AI_SUMMARY_CACHE[cache_key] = {"marker": marker, "summary": summary, "source": source}
+    return ok({"summary": summary, "source": source, "marker": marker})

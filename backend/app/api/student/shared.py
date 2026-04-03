@@ -14,6 +14,7 @@ from app.services.ai_service import ai_service
 from app.utils.json_handlers import extract_json
 import json
 import datetime
+import re
 
 try:
     import google.generativeai as genai
@@ -137,6 +138,81 @@ def _ai_analysis(summary_text: str):
     except Exception:
         return None
     return None
+
+
+def _normalize_lang(lang: str):
+    v = str(lang or "zh").lower()
+    return "en" if v.startswith("en") else "zh"
+
+
+def _translate_analysis_rule_based(analysis: dict):
+    if not isinstance(analysis, dict):
+        return None
+
+    zh_to_en = {
+        "暂无明显薄弱点": "No obvious weak point yet",
+        "数据不足": "Insufficient data",
+        "表现优秀": "Excellent performance",
+        "稳定提升": "Steady improvement",
+        "需要加强": "Needs reinforcement",
+        "完成更多作业后再进行分析": "Complete more assignments for a more reliable analysis",
+        "保持节奏，尝试提高综合题": "Keep the pace and challenge more comprehensive questions",
+        "建议巩固错题题型": "Focus on consolidating question types you often get wrong",
+        "优先补齐基础题型": "Prioritize strengthening foundational question types"
+    }
+
+    def _tx(value):
+        raw = str(value or "").strip()
+        if not raw:
+            return raw
+        if raw in zh_to_en:
+            return zh_to_en[raw]
+
+        m = re.match(r"^(单选|多选|判断|填空|简答|其他)题错误率偏高$", raw)
+        if m:
+            tmap = {
+                "单选": "single-choice",
+                "多选": "multiple-choice",
+                "判断": "true/false",
+                "填空": "fill-in-the-blank",
+                "简答": "short-answer",
+                "其他": "other"
+            }
+            qtype = tmap.get(m.group(1), "specific")
+            return f"High error rate in {qtype} questions"
+        return raw
+
+    return {
+        "weak_spot": _tx(analysis.get("weak_spot", "")),
+        "study_state": _tx(analysis.get("study_state", "")),
+        "study_tip": _tx(analysis.get("study_tip", ""))
+    }
+
+
+def _localize_analysis(analysis: dict, lang: str):
+    lang = _normalize_lang(lang)
+    if lang == "zh":
+        return analysis
+    if not isinstance(analysis, dict):
+        return analysis
+
+    if not genai or not Config.GEMINI_API_KEY:
+        return _translate_analysis_rule_based(analysis) or analysis
+
+    try:
+        prompt = (
+            "Translate the following JSON values into concise educational English. "
+            "Keep keys unchanged and return JSON only.\n"
+            "Keys: weak_spot, study_state, study_tip.\n"
+            f"Input JSON: {json.dumps(analysis, ensure_ascii=False)}"
+        )
+        localized = _extract_json(ai_service.generate_text(prompt))
+        if isinstance(localized, dict) and all(k in localized for k in ("weak_spot", "study_state", "study_tip")):
+            return localized
+    except Exception:
+        pass
+
+    return _translate_analysis_rule_based(analysis) or analysis
 
 
 

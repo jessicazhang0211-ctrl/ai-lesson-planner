@@ -122,6 +122,24 @@ function getToken() {
   return localStorage.getItem("auth_token") || "";
 }
 
+function redirectToLoginOnAuthError(message) {
+  const msg = String(message || "").toLowerCase();
+  const hit = msg.includes("401") || msg.includes("invalid") || msg.includes("expired") || msg.includes("missing user") || msg.includes("token");
+  if (!hit) return false;
+
+  localStorage.removeItem("auth_token");
+  localStorage.removeItem("login_user");
+  localStorage.removeItem("login_role");
+
+  const locale = getLocale();
+  const notice = locale === "en" ? "Session expired. Please sign in again." : "登录已失效，请重新登录。";
+  if (!window.location.pathname.toLowerCase().endsWith("/login.html")) {
+    alert(notice);
+    window.location.href = "./login.html";
+  }
+  return true;
+}
+
 async function apiGet(path) {
   const token = getToken();
   const res = await fetch(`${API_BASE}${path}`, {
@@ -131,6 +149,11 @@ async function apiGet(path) {
   if (!res.ok || data.code !== 0) {
     const mustChangePassword = !!(data && data.data && data.data.must_change_password);
     const msg = String(data.message || "api error");
+
+    if (res.status === 401 || redirectToLoginOnAuthError(msg)) {
+      throw new Error(msg || "401 unauthorized");
+    }
+
     if (mustChangePassword || msg.includes("password reset required")) {
       localStorage.setItem("must_change_password", "1");
       const locale = getLocale();

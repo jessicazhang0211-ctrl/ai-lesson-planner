@@ -1,0 +1,289 @@
+task_id,provider,model,http_code,status,latency_ms,json_parse_ok,judge_status,content_completeness,age_appropriateness,teaching_design_quality,json_structure_usability,low_age_support_strategy,resource_recommendation_quality,ai_intelligence,total_score,brief_reason
+Y1-T1,OpenAI,gpt-5.4,0,HTTP_ERROR,274676.6,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y1-T2,OpenAI,gpt-5.4,200,OK,88395.29,True,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T3,OpenAI,gpt-5.4,200,OK,170323.04,True,ok,18,20,19,14,10,9,4,94,内容详尽、教学设计清晰、低龄支持充分，作业被截断略减分
+Y1-T4,OpenAI,gpt-5.4,0,HTTP_ERROR,274637.58,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y1-T5,OpenAI,gpt-5.4,0,HTTP_ERROR,274641.3,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y1-T6,OpenAI,gpt-5.4,0,HTTP_ERROR,274659.6,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y2-T1,OpenAI,gpt-5.4,0,HTTP_ERROR,274760.01,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y2-T2,OpenAI,gpt-5.4,0,HTTP_ERROR,274678.44,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y2-T3,OpenAI,gpt-5.4,200,OK,151575.52,True,ok,19,19,19,14,10,9,4,94,教案详实、环节与支架清晰、资源匹配、低龄支持强；年龄标注小偏差，非完全原创模板感。
+Y2-T4,OpenAI,gpt-5.4,200,OK,59322.23,True,ok,18,19,18,13,10,9,4,91,内容详尽、环节完整、适龄有支架与资源，略显模板化。
+Y2-T5,OpenAI,gpt-5.4,200,OK,155841.15,True,ok,18,20,18,14,10,10,5,95,内容详尽、分步清晰、资源匹配；差异化与结尾总结稍弱。
+Y2-T6,OpenAI,gpt-5.4,200,OK,83768.01,True,ok,18,17,18,13,9,9,4,88,内容详实、环节清晰、支架与资源匹配；但末尾文本有轻微截断。
+Y3-T1,OpenAI,gpt-5.4,429,HTTP_ERROR,421.22,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y3-T2,OpenAI,gpt-5.4,200,OK,74193.64,True,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T3,OpenAI,gpt-5.4,429,HTTP_ERROR,301.64,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y3-T4,OpenAI,gpt-5.4,200,OK,82226.86,True,ok,18,19,18,13,9,9,4,90,教案内容详尽、环节清晰、年龄适配好，评估细节略欠。
+Y3-T5,OpenAI,gpt-5.4,429,HTTP_ERROR,257.62,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y3-T6,OpenAI,gpt-5.4,429,HTTP_ERROR,203.83,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y4-T1,OpenAI,gpt-5.4,429,HTTP_ERROR,363.71,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y4-T2,OpenAI,gpt-5.4,429,HTTP_ERROR,418.59,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y4-T3,OpenAI,gpt-5.4,429,HTTP_ERROR,223.98,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y4-T4,OpenAI,gpt-5.4,429,HTTP_ERROR,464.32,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y4-T5,OpenAI,gpt-5.4,200,OK,79960.36,True,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T6,OpenAI,gpt-5.4,429,HTTP_ERROR,442.12,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y5-T1,OpenAI,gpt-5.4,429,HTTP_ERROR,91798.26,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y5-T2,OpenAI,gpt-5.4,429,HTTP_ERROR,340.18,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y5-T3,OpenAI,gpt-5.4,429,HTTP_ERROR,207.09,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y5-T4,OpenAI,gpt-5.4,429,HTTP_ERROR,216.45,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y5-T5,OpenAI,gpt-5.4,429,HTTP_ERROR,655.88,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y5-T6,OpenAI,gpt-5.4,429,HTTP_ERROR,385.73,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y6-T1,OpenAI,gpt-5.4,429,HTTP_ERROR,181.94,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y6-T2,OpenAI,gpt-5.4,429,HTTP_ERROR,208.68,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y6-T3,OpenAI,gpt-5.4,429,HTTP_ERROR,194.62,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y6-T4,OpenAI,gpt-5.4,429,HTTP_ERROR,215.02,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y6-T5,OpenAI,gpt-5.4,429,HTTP_ERROR,234.58,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y6-T6,OpenAI,gpt-5.4,429,HTTP_ERROR,223.17,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y1-T1,OpenAI,gpt-5-mini,429,HTTP_ERROR,233.18,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y1-T2,OpenAI,gpt-5-mini,429,HTTP_ERROR,409.18,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y1-T3,OpenAI,gpt-5-mini,429,HTTP_ERROR,201.08,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y1-T4,OpenAI,gpt-5-mini,429,HTTP_ERROR,222.44,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y1-T5,OpenAI,gpt-5-mini,429,HTTP_ERROR,189.92,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y1-T6,OpenAI,gpt-5-mini,429,HTTP_ERROR,205.74,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y2-T1,OpenAI,gpt-5-mini,429,HTTP_ERROR,212.31,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y2-T2,OpenAI,gpt-5-mini,429,HTTP_ERROR,265.17,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y2-T3,OpenAI,gpt-5-mini,429,HTTP_ERROR,216.14,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y2-T4,OpenAI,gpt-5-mini,429,HTTP_ERROR,234.94,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y2-T5,OpenAI,gpt-5-mini,429,HTTP_ERROR,236.31,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y2-T6,OpenAI,gpt-5-mini,429,HTTP_ERROR,189.02,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y3-T1,OpenAI,gpt-5-mini,429,HTTP_ERROR,184.55,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y3-T2,OpenAI,gpt-5-mini,429,HTTP_ERROR,204.23,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y3-T3,OpenAI,gpt-5-mini,429,HTTP_ERROR,225.14,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y3-T4,OpenAI,gpt-5-mini,429,HTTP_ERROR,191.51,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y3-T5,OpenAI,gpt-5-mini,429,HTTP_ERROR,210.02,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y3-T6,OpenAI,gpt-5-mini,429,HTTP_ERROR,224.69,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y4-T1,OpenAI,gpt-5-mini,429,HTTP_ERROR,233.41,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y4-T2,OpenAI,gpt-5-mini,429,HTTP_ERROR,243.72,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y4-T3,OpenAI,gpt-5-mini,429,HTTP_ERROR,229.72,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y4-T4,OpenAI,gpt-5-mini,429,HTTP_ERROR,228.51,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y4-T5,OpenAI,gpt-5-mini,429,HTTP_ERROR,230.4,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y4-T6,OpenAI,gpt-5-mini,429,HTTP_ERROR,219.07,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y5-T1,OpenAI,gpt-5-mini,429,HTTP_ERROR,231.54,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y5-T2,OpenAI,gpt-5-mini,200,OK,60087.76,True,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T3,OpenAI,gpt-5-mini,429,HTTP_ERROR,484.38,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y5-T4,OpenAI,gpt-5-mini,429,HTTP_ERROR,210.65,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y5-T5,OpenAI,gpt-5-mini,429,HTTP_ERROR,323.44,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y5-T6,OpenAI,gpt-5-mini,429,HTTP_ERROR,345.47,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y6-T1,OpenAI,gpt-5-mini,429,HTTP_ERROR,228.58,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y6-T2,OpenAI,gpt-5-mini,429,HTTP_ERROR,207.75,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y6-T3,OpenAI,gpt-5-mini,429,HTTP_ERROR,404.04,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y6-T4,OpenAI,gpt-5-mini,429,HTTP_ERROR,234.67,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y6-T5,OpenAI,gpt-5-mini,429,HTTP_ERROR,240.22,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y6-T6,OpenAI,gpt-5-mini,429,HTTP_ERROR,195.64,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y1-T1,Anthropic,Claude Opus 4.6,200,OK,22859.85,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T2,Anthropic,Claude Opus 4.6,200,OK,21725.39,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T3,Anthropic,Claude Opus 4.6,200,OK,19706.65,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T4,Anthropic,Claude Opus 4.6,200,OK,20419.09,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T5,Anthropic,Claude Opus 4.6,200,OK,22470.7,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T6,Anthropic,Claude Opus 4.6,200,OK,22138.97,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T1,Anthropic,Claude Opus 4.6,200,OK,20566.81,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T2,Anthropic,Claude Opus 4.6,200,OK,20756.24,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T3,Anthropic,Claude Opus 4.6,200,OK,22927.36,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T4,Anthropic,Claude Opus 4.6,200,OK,21852.81,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T5,Anthropic,Claude Opus 4.6,200,OK,22567.56,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T6,Anthropic,Claude Opus 4.6,200,OK,21426.76,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T1,Anthropic,Claude Opus 4.6,200,OK,20275.82,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T2,Anthropic,Claude Opus 4.6,200,OK,20732.54,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T3,Anthropic,Claude Opus 4.6,200,OK,21153.76,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T4,Anthropic,Claude Opus 4.6,200,OK,20853.28,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T5,Anthropic,Claude Opus 4.6,200,OK,20664.02,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T6,Anthropic,Claude Opus 4.6,200,OK,21464.73,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T1,Anthropic,Claude Opus 4.6,200,OK,21092.81,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T2,Anthropic,Claude Opus 4.6,200,OK,22477.54,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T3,Anthropic,Claude Opus 4.6,200,OK,21327.63,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T4,Anthropic,Claude Opus 4.6,200,OK,20830.61,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T5,Anthropic,Claude Opus 4.6,200,OK,22635.05,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T6,Anthropic,Claude Opus 4.6,200,OK,22874.02,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T1,Anthropic,Claude Opus 4.6,200,OK,20039.54,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T2,Anthropic,Claude Opus 4.6,200,OK,21724.08,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T3,Anthropic,Claude Opus 4.6,200,OK,20877.33,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T4,Anthropic,Claude Opus 4.6,200,OK,20551.86,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T5,Anthropic,Claude Opus 4.6,200,OK,21058.7,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T6,Anthropic,Claude Opus 4.6,200,OK,21996.44,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T1,Anthropic,Claude Opus 4.6,200,OK,23508.64,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T2,Anthropic,Claude Opus 4.6,200,OK,22174.16,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T3,Anthropic,Claude Opus 4.6,200,OK,20745.29,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T4,Anthropic,Claude Opus 4.6,200,OK,23074.01,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T5,Anthropic,Claude Opus 4.6,200,OK,21387.78,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T6,Anthropic,Claude Opus 4.6,200,OK,22817.88,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T1,Anthropic,Claude Sonnet 4.6,200,OK,22285.36,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T2,Anthropic,Claude Sonnet 4.6,200,OK,20118.32,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T3,Anthropic,Claude Sonnet 4.6,200,OK,21411.42,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T4,Anthropic,Claude Sonnet 4.6,200,OK,22599.46,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T5,Anthropic,Claude Sonnet 4.6,200,OK,21753.68,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T6,Anthropic,Claude Sonnet 4.6,200,OK,22243.63,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T1,Anthropic,Claude Sonnet 4.6,200,OK,21833.13,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T2,Anthropic,Claude Sonnet 4.6,200,OK,22273.68,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T3,Anthropic,Claude Sonnet 4.6,200,OK,22449.57,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T4,Anthropic,Claude Sonnet 4.6,200,OK,20542.92,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T5,Anthropic,Claude Sonnet 4.6,200,OK,21718.52,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T6,Anthropic,Claude Sonnet 4.6,200,OK,21954.15,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T1,Anthropic,Claude Sonnet 4.6,200,OK,21658.14,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T2,Anthropic,Claude Sonnet 4.6,200,OK,21233.54,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T3,Anthropic,Claude Sonnet 4.6,200,OK,20454.91,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T4,Anthropic,Claude Sonnet 4.6,200,OK,22433.5,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T5,Anthropic,Claude Sonnet 4.6,200,OK,20861.11,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T6,Anthropic,Claude Sonnet 4.6,200,OK,22119.69,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T1,Anthropic,Claude Sonnet 4.6,200,OK,21396.87,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T2,Anthropic,Claude Sonnet 4.6,200,OK,21071.19,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T3,Anthropic,Claude Sonnet 4.6,200,OK,22404.76,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T4,Anthropic,Claude Sonnet 4.6,200,OK,21198.71,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T5,Anthropic,Claude Sonnet 4.6,200,OK,23258.26,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T6,Anthropic,Claude Sonnet 4.6,200,OK,22078.35,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T1,Anthropic,Claude Sonnet 4.6,200,OK,21477.31,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T2,Anthropic,Claude Sonnet 4.6,200,OK,22125.89,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T3,Anthropic,Claude Sonnet 4.6,200,OK,20155.69,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T4,Anthropic,Claude Sonnet 4.6,200,OK,19488.36,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T5,Anthropic,Claude Sonnet 4.6,200,OK,21912.55,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T6,Anthropic,Claude Sonnet 4.6,200,OK,22080.47,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T1,Anthropic,Claude Sonnet 4.6,200,OK,22298.93,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T2,Anthropic,Claude Sonnet 4.6,200,OK,21543.41,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T3,Anthropic,Claude Sonnet 4.6,200,OK,19701.93,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T4,Anthropic,Claude Sonnet 4.6,200,OK,22445.09,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T5,Anthropic,Claude Sonnet 4.6,200,OK,22457.0,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T6,Anthropic,Claude Sonnet 4.6,200,OK,22072.33,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T1,Google,Gemini 2.5 Pro,200,OK,32236.78,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T2,Google,Gemini 2.5 Pro,200,OK,34493.03,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T3,Google,Gemini 2.5 Pro,200,OK,34390.44,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T4,Google,Gemini 2.5 Pro,200,OK,33704.51,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T5,Google,Gemini 2.5 Pro,200,OK,35498.99,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T6,Google,Gemini 2.5 Pro,200,OK,33395.68,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T1,Google,Gemini 2.5 Pro,200,OK,33275.99,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T2,Google,Gemini 2.5 Pro,200,OK,32787.51,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T3,Google,Gemini 2.5 Pro,200,OK,34278.64,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T4,Google,Gemini 2.5 Pro,200,OK,32501.14,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T5,Google,Gemini 2.5 Pro,200,OK,35283.84,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T6,Google,Gemini 2.5 Pro,200,OK,34333.46,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T1,Google,Gemini 2.5 Pro,200,OK,33330.89,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T2,Google,Gemini 2.5 Pro,200,OK,34225.78,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T3,Google,Gemini 2.5 Pro,200,OK,32789.38,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T4,Google,Gemini 2.5 Pro,200,OK,34424.83,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T5,Google,Gemini 2.5 Pro,200,OK,31644.95,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T6,Google,Gemini 2.5 Pro,200,OK,33666.27,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T1,Google,Gemini 2.5 Pro,200,OK,31710.28,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T2,Google,Gemini 2.5 Pro,200,OK,33735.95,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T3,Google,Gemini 2.5 Pro,200,OK,32870.27,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T4,Google,Gemini 2.5 Pro,200,OK,33719.83,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T5,Google,Gemini 2.5 Pro,200,OK,34900.92,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T6,Google,Gemini 2.5 Pro,200,OK,31202.25,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T1,Google,Gemini 2.5 Pro,200,OK,33545.89,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T2,Google,Gemini 2.5 Pro,200,OK,33132.3,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T3,Google,Gemini 2.5 Pro,200,OK,34133.26,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T4,Google,Gemini 2.5 Pro,200,OK,32483.16,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T5,Google,Gemini 2.5 Pro,200,OK,33639.08,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T6,Google,Gemini 2.5 Pro,200,OK,33490.47,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T1,Google,Gemini 2.5 Pro,200,OK,32857.31,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T2,Google,Gemini 2.5 Pro,200,OK,34458.5,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T3,Google,Gemini 2.5 Pro,200,OK,33939.71,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T4,Google,Gemini 2.5 Pro,200,OK,34022.0,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T5,Google,Gemini 2.5 Pro,200,OK,34319.38,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T6,Google,Gemini 2.5 Pro,200,OK,33690.76,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T1,Google,Gemini 2.5 Flash,200,OK,4912.98,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T2,Google,Gemini 2.5 Flash,200,OK,5836.28,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T3,Google,Gemini 2.5 Flash,200,OK,5057.89,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T4,Google,Gemini 2.5 Flash,200,OK,4754.85,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T5,Google,Gemini 2.5 Flash,200,OK,4998.9,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T6,Google,Gemini 2.5 Flash,200,OK,4482.3,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T1,Google,Gemini 2.5 Flash,200,OK,5141.47,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T2,Google,Gemini 2.5 Flash,200,OK,4759.15,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T3,Google,Gemini 2.5 Flash,200,OK,5071.19,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T4,Google,Gemini 2.5 Flash,200,OK,4585.43,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T5,Google,Gemini 2.5 Flash,200,OK,4715.06,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T6,Google,Gemini 2.5 Flash,200,OK,4599.54,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T1,Google,Gemini 2.5 Flash,200,OK,5653.74,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T2,Google,Gemini 2.5 Flash,200,OK,5113.68,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T3,Google,Gemini 2.5 Flash,200,OK,6591.83,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T4,Google,Gemini 2.5 Flash,200,OK,5814.46,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T5,Google,Gemini 2.5 Flash,200,OK,5057.44,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T6,Google,Gemini 2.5 Flash,200,OK,4880.31,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T1,Google,Gemini 2.5 Flash,200,OK,4619.84,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T2,Google,Gemini 2.5 Flash,200,OK,5683.36,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T3,Google,Gemini 2.5 Flash,200,OK,5150.56,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T4,Google,Gemini 2.5 Flash,200,OK,5013.5,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T5,Google,Gemini 2.5 Flash,200,OK,5318.41,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T6,Google,Gemini 2.5 Flash,200,OK,4883.36,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T1,Google,Gemini 2.5 Flash,200,OK,4855.83,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T2,Google,Gemini 2.5 Flash,200,OK,5028.71,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T3,Google,Gemini 2.5 Flash,200,OK,4779.29,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T4,Google,Gemini 2.5 Flash,200,OK,4737.21,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T5,Google,Gemini 2.5 Flash,200,OK,5235.56,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T6,Google,Gemini 2.5 Flash,200,OK,5136.04,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T1,Google,Gemini 2.5 Flash,200,OK,4925.15,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T2,Google,Gemini 2.5 Flash,200,OK,5161.98,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T3,Google,Gemini 2.5 Flash,200,OK,4659.48,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T4,Google,Gemini 2.5 Flash,200,OK,5066.04,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T5,Google,Gemini 2.5 Flash,200,OK,6698.52,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T6,Google,Gemini 2.5 Flash,200,OK,5130.08,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T1,DeepSeek,deepseek-reasoner,200,OK,113060.36,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T2,DeepSeek,deepseek-reasoner,200,OK,109610.54,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T3,DeepSeek,deepseek-reasoner,200,OK,109178.26,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T4,DeepSeek,deepseek-reasoner,200,OK,110815.53,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T5,DeepSeek,deepseek-reasoner,200,OK,111740.98,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T6,DeepSeek,deepseek-reasoner,200,OK,110180.7,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T1,DeepSeek,deepseek-reasoner,200,OK,114088.08,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T2,DeepSeek,deepseek-reasoner,200,OK,112513.54,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T3,DeepSeek,deepseek-reasoner,200,OK,115105.94,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T4,DeepSeek,deepseek-reasoner,200,OK,113566.09,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T5,DeepSeek,deepseek-reasoner,200,OK,114239.55,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T6,DeepSeek,deepseek-reasoner,200,OK,111575.02,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T1,DeepSeek,deepseek-reasoner,200,OK,108103.13,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T2,DeepSeek,deepseek-reasoner,200,OK,109633.24,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T3,DeepSeek,deepseek-reasoner,200,OK,110621.93,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T4,DeepSeek,deepseek-reasoner,200,OK,116492.26,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T5,DeepSeek,deepseek-reasoner,200,OK,111203.35,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T6,DeepSeek,deepseek-reasoner,200,OK,113953.59,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T1,DeepSeek,deepseek-reasoner,200,OK,111617.44,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T2,DeepSeek,deepseek-reasoner,200,OK,116633.5,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T3,DeepSeek,deepseek-reasoner,200,OK,111127.6,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T4,DeepSeek,deepseek-reasoner,200,OK,112013.22,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T5,DeepSeek,deepseek-reasoner,200,OK,115085.71,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T6,DeepSeek,deepseek-reasoner,200,OK,117701.29,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T1,DeepSeek,deepseek-reasoner,200,OK,115258.7,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T2,DeepSeek,deepseek-reasoner,200,OK,118268.32,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T3,DeepSeek,deepseek-reasoner,200,OK,117645.48,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T4,DeepSeek,deepseek-reasoner,200,OK,120552.89,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T5,DeepSeek,deepseek-reasoner,200,OK,116502.77,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T6,DeepSeek,deepseek-reasoner,200,OK,122222.54,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T1,DeepSeek,deepseek-reasoner,200,OK,122160.87,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T2,DeepSeek,deepseek-reasoner,200,OK,120050.25,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T3,DeepSeek,deepseek-reasoner,200,OK,113312.02,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T4,DeepSeek,deepseek-reasoner,200,OK,119301.29,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T5,DeepSeek,deepseek-reasoner,200,OK,120546.61,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T6,DeepSeek,deepseek-reasoner,200,OK,124496.48,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T1,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,44166.03,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T2,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,53114.61,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T3,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,52697.39,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T4,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,50731.55,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T5,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,37025.1,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T6,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,53239.69,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T1,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,42232.17,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T2,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,47810.78,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T3,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,52658.34,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T4,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,52838.98,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T5,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,36306.13,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y2-T6,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,49798.77,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T1,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,52381.09,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T2,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,53642.28,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T3,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,55114.18,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T4,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,51650.49,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T5,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,29795.11,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y3-T6,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,33358.48,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T1,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,48835.34,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T2,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,51029.55,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T3,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,53910.42,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T4,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,51913.21,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T5,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,50290.21,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y4-T6,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,44041.29,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T1,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,41098.77,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T2,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,43816.46,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T3,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,36350.72,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T4,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,34214.03,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T5,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,39612.3,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y5-T6,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,25303.18,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T1,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24268.16,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T2,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,29184.03,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T3,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,31674.91,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T4,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24067.43,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T5,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24372.57,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback
+Y6-T6,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,33250.13,False,judge_http_429,10,10,10,7,5,5,2,49,judge parse fallback

@@ -85,7 +85,10 @@ function applyLang() {
   $("registerLink").textContent = t.register;
   $("studentLink").textContent = t.student;
 
-  $("hintText").textContent = t.hint;
+  const hintEl = $("hintText");
+  if (hintEl) {
+    hintEl.textContent = t.hint;
+  }
 
   // 右上角切换显示
   $("langToggle").textContent = lang === "zh" ? "EN" : "ZH";
@@ -153,17 +156,26 @@ async function loginSubmit(e) {
 }
 
 function bindEvents() {
-  $("langToggle").addEventListener("click", (e) => {
-    e.preventDefault();
-    toggleLang();
-  });
+  const langToggle = $("langToggle");
+  if (langToggle) {
+    langToggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      toggleLang();
+    });
+  }
 
-  $("forgotLink").addEventListener("click", (e) => {
-    e.preventDefault();
-    alert(dict[lang].alerts.forgot);
-  });
+  const forgotLink = $("forgotLink");
+  if (forgotLink) {
+    forgotLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      alert(dict[lang].alerts.forgot);
+    });
+  }
 
-  $("loginForm").addEventListener("submit", loginSubmit);
+  const loginForm = $("loginForm");
+  if (loginForm) {
+    loginForm.addEventListener("submit", loginSubmit);
+  }
 }
 
 function prefillFromRegister() {

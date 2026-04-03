@@ -1,0 +1,9 @@
+rank,provider,model,runs,avg_total_score,ok_rate_percent,json_parse_ok_percent,avg_latency_ms
+1,Google,Gemini 2.5 Flash,36,49.0,100.0,0.0,5114.15
+2,Anthropic,Claude Opus 4.6,36,49.0,100.0,0.0,21548.77
+3,Anthropic,Claude Sonnet 4.6,36,49.0,100.0,0.0,21642.0
+4,Google,Gemini 2.5 Pro,36,49.0,100.0,0.0,33558.71
+5,Alibaba Cloud / Qwen,qwen3.5-plus,36,49.0,100.0,0.0,42660.94
+6,DeepSeek,deepseek-reasoner,36,49.0,100.0,0.0,114727.2
+7,OpenAI,gpt-5.4,36,19.42,25.0,25.0,74767.17
+8,OpenAI,gpt-5-mini,36,1.36,2.78,2.78,1906.51

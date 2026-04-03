@@ -31,7 +31,13 @@ const reviewDict = {
     pendingReview: "待批改列表",
     historyReview: "历史批改",
     all: "全部",
-    submitFailed: "提交失败"
+    submitFailed: "提交失败",
+    loadFailed: "加载失败",
+    aiSummaryBtn: "AI 分析",
+    aiSummaryTitle: "AI 作业分析",
+    aiSummaryEmpty: "选择作业后可生成重难点与学情总结。",
+    aiSummaryLoading: "AI 正在分析中...",
+    aiSummaryFail: "AI 分析失败，请稍后重试。"
   },
   en: {
     pageTitle: "Assignment Review",
@@ -63,7 +69,13 @@ const reviewDict = {
     pendingReview: "Pending Reviews",
     historyReview: "Review History",
     all: "All",
-    submitFailed: "Submit failed"
+    submitFailed: "Submit failed",
+    loadFailed: "Load failed",
+    aiSummaryBtn: "AI Insights",
+    aiSummaryTitle: "AI Assignment Insights",
+    aiSummaryEmpty: "Select an assignment to generate key-point and student insights.",
+    aiSummaryLoading: "AI is analyzing...",
+    aiSummaryFail: "AI analysis failed. Please try again."
   }
 };
 const i18n = window.I18N || null;
@@ -95,6 +107,19 @@ let reviewList = [];
 let currentDetail = null;
 let viewMode = "pending";
 let classOptions = [];
+let aiSummaryCache = {};
+let listLoadError = "";
+
+function normalizeListData(raw) {
+  if (Array.isArray(raw)) return raw;
+  if (!raw || typeof raw !== "object") return [];
+
+  const keys = ["items", "list", "rows", "assignments", "data"];
+  for (const key of keys) {
+    if (Array.isArray(raw[key])) return raw[key];
+  }
+  return [];
+}
 
 function getToken() {
   return localStorage.getItem("auth_token") || "";
@@ -144,12 +169,64 @@ async function apiPost(path, payload) {
   return data.data;
 }
 
+async function apiGetAiSummary(submissionId) {
+  return apiGet(`/api/resource/review/${submissionId}/ai-summary?lang=${encodeURIComponent(getLocale())}`);
+}
+
+function setAiSummaryText(text) {
+  const el = document.getElementById("aiSummaryModalBody");
+  if (!el) return;
+  el.textContent = text || t("aiSummaryEmpty");
+}
+
+function openAiSummaryModal() {
+  const modal = document.getElementById("aiSummaryModal");
+  if (!modal) return;
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+}
+
+function closeAiSummaryModal() {
+  const modal = document.getElementById("aiSummaryModal");
+  if (!modal) return;
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden", "true");
+}
+
+async function loadAiSummary(force = false) {
+  if (!selectedSubmissionId) {
+    setAiSummaryText(t("aiSummaryEmpty"));
+    return;
+  }
+
+  const cacheKey = `${selectedSubmissionId}:${getLocale()}`;
+
+  const btn = document.getElementById("btnAiSummary");
+  if (btn) btn.disabled = true;
+  setAiSummaryText(t("aiSummaryLoading"));
+  try {
+    const data = await apiGetAiSummary(selectedSubmissionId);
+    const summary = data && data.summary ? String(data.summary).trim() : "";
+    if (!summary) throw new Error("empty summary");
+    aiSummaryCache[cacheKey] = summary;
+    setAiSummaryText(summary);
+  } catch {
+    setAiSummaryText(t("aiSummaryFail"));
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
 function renderList() {
   const box = document.getElementById("reviewItems");
   const count = document.getElementById("reviewCount");
   if (!box || !count) return;
 
   count.textContent = String(reviewList.length);
+  if (listLoadError) {
+    box.innerHTML = `<div style="color:#c53d3d;font-size:12px;line-height:1.5;">${listLoadError}</div>`;
+    return;
+  }
   if (!reviewList.length) {
     box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">${t("empty")}</div>`;
     return;
@@ -254,13 +331,18 @@ async function selectSubmission(id) {
     }
   } catch {
     setDetailEmpty(true);
+    setAiSummaryText(t("aiSummaryFail"));
   }
 }
 
 async function loadReviewList() {
   try {
+    const btn = document.getElementById("btnRefresh");
+    if (btn) btn.disabled = true;
+    listLoadError = "";
     if (viewMode === "pending") {
-      reviewList = await apiGet("/api/resource/review?status=pending_review");
+      const data = await apiGet("/api/resource/review?status=pending_review");
+      reviewList = normalizeListData(data);
     } else {
       const classId = document.getElementById("filterClass")?.value || "";
       const student = (document.getElementById("filterStudent")?.value || "").trim();
@@ -270,17 +352,24 @@ async function loadReviewList() {
       if (student) params.set("student", student);
       if (title) params.set("title", title);
       const qs = params.toString();
-      reviewList = await apiGet(`/api/resource/review/history${qs ? `?${qs}` : ""}`);
+      const data = await apiGet(`/api/resource/review/history${qs ? `?${qs}` : ""}`);
+      reviewList = normalizeListData(data);
     }
     renderList();
-  } catch {
+  } catch (e) {
     reviewList = [];
+    listLoadError = (e && e.message) ? `${t("loadFailed")}: ${e.message}` : t("loadFailed");
     renderList();
+  } finally {
+    const btn = document.getElementById("btnRefresh");
+    if (btn) btn.disabled = false;
   }
 }
 
 function setViewMode(mode) {
   viewMode = mode;
+  selectedSubmissionId = null;
+  currentDetail = null;
   const filters = document.getElementById("historyFilters");
   const title = document.getElementById("reviewListTitle");
   const tabPending = document.getElementById("tabPending");
@@ -293,6 +382,8 @@ function setViewMode(mode) {
   if (tabHistory) tabHistory.classList.toggle("primary", mode === "history");
   if (submitBtn) submitBtn.style.display = mode === "history" ? "none" : "inline-flex";
   setDetailEmpty(true);
+  setAiSummaryText(t("aiSummaryEmpty"));
+  closeAiSummaryModal();
   loadReviewList();
 }
 
@@ -310,10 +401,23 @@ async function loadClasses() {
 }
 
 function bindEvents() {
-  document.getElementById("btnRefresh")?.addEventListener("click", loadReviewList);
+  document.getElementById("btnRefresh")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    loadReviewList();
+  });
   document.getElementById("tabPending")?.addEventListener("click", () => setViewMode("pending"));
   document.getElementById("tabHistory")?.addEventListener("click", () => setViewMode("history"));
-  document.getElementById("btnSearch")?.addEventListener("click", loadReviewList);
+  document.getElementById("btnSearch")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    loadReviewList();
+  });
+  document.getElementById("btnAiSummary")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    openAiSummaryModal();
+    loadAiSummary(false);
+  });
+  document.getElementById("aiSummaryModalBackdrop")?.addEventListener("click", closeAiSummaryModal);
+  document.getElementById("aiSummaryModalClose")?.addEventListener("click", closeAiSummaryModal);
   document.getElementById("btnSubmitScore")?.addEventListener("click", async () => {
     if (!selectedSubmissionId) return;
     const teacherComment = document.getElementById("teacherComment").value || "";
@@ -335,6 +439,8 @@ function bindEvents() {
 
 window.addEventListener("app:locale-changed", () => {
   applyStaticTexts();
+  const key = selectedSubmissionId ? `${selectedSubmissionId}:${getLocale()}` : "";
+  setAiSummaryText(key ? (aiSummaryCache[key] || t("aiSummaryEmpty")) : t("aiSummaryEmpty"));
   loadClasses();
   renderList();
   if (selectedSubmissionId) selectSubmission(selectedSubmissionId);
