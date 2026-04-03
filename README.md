@@ -313,7 +313,7 @@ D:/ai-lesson-planner/venv/Scripts/python.exe AItest/summarize_results.py
 当前仓库未单独提供 AUTHORS 文件，可在此临时维护：
 
 1. 项目维护者：待补充
-2. 联系邮箱：待补充
+2. 联系邮箱：jessicazhang0211@gmail.com
 3. 项目主页：待补充
 
 ## 15. 版权、许可与法律声明
