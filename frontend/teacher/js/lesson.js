@@ -259,8 +259,41 @@ ${input.activities || `1）导入（5分钟）：情境/提问引出主题
 function setOutput(text) {
   const out = document.getElementById("output");
   const empty = document.getElementById("emptyState");
-  out.textContent = text || "";
+  const raw = text || "";
+  out.dataset.rawText = raw;
+  renderLatexOutput(raw);
   empty.style.display = text ? "none" : "flex";
+}
+
+function escapeHtml(text) {
+  return String(text || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function renderLatexOutput(rawText) {
+  const out = document.getElementById("output");
+  if (!out) return;
+
+  const safe = escapeHtml(rawText).replace(/\n/g, "<br>");
+  out.innerHTML = safe;
+
+  if (typeof window.renderMathInElement !== "function") return;
+  try {
+    window.renderMathInElement(out, {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "\\[", right: "\\]", display: true },
+        { left: "$", right: "$", display: false },
+        { left: "\\(", right: "\\)", display: false }
+      ],
+      throwOnError: false,
+      strict: "ignore"
+    });
+  } catch {
+    out.innerHTML = safe;
+  }
 }
 
 function tryParseJsonObject(raw) {
@@ -400,7 +433,7 @@ function setOutputFromAny(rawText, rawJsonObj) {
 
 function getOutputText() {
   const out = document.getElementById("output");
-  return out ? (out.textContent || "") : "";
+  return out ? (out.dataset.rawText || out.textContent || "") : "";
 }
 
 const API_BASE = "http://127.0.0.1:5000";
@@ -472,6 +505,7 @@ function showLoading(){
   const out = document.getElementById('output');
   const empty = document.getElementById('emptyState');
   empty.style.display = 'none';
+  delete out.dataset.rawText;
   out.innerHTML = `<div class="spinner"></div><div style="margin-top:8px;color:#9aa3ad">${lessonDict[getLocale()].generating}</div>`;
 }
 
@@ -938,6 +972,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const out = document.getElementById("output");
   if (out) {
     out.addEventListener("input", () => {
+      out.dataset.rawText = out.innerText || "";
       localStorage.setItem("last_lesson_plan", getOutputText());
     });
   }

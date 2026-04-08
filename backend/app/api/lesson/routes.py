@@ -7,6 +7,12 @@ from app.extensions import db
 from app.models.lesson import Lesson
 from app.utils.auth import token_required
 from app.services.ai_service import ai_service
+from app.services.math_rule_service import (
+    build_retrieval_context_block,
+    generate_math_tooling_bundle,
+    retrieve_math_knowledge,
+    verify_math_content,
+)
 from app.utils.json_handlers import extract_json
 import datetime, json
 import os
@@ -259,6 +265,31 @@ def generate_lesson():
     want_json = (output_format != "text") or json_only or json_schema is not None
     strict_example_structure = bool(data.get("strict_example_structure", True)) if want_json else False
     requested_max_tokens = data.get("max_completion_tokens", None)
+    math_rule_mode = bool(data.get("math_rule_mode", False))
+    use_knowledge_retrieval = bool(data.get("use_knowledge_retrieval", math_rule_mode))
+    use_symbolic_verification = bool(data.get("use_symbolic_verification", math_rule_mode))
+    include_tool_generated_examples = bool(data.get("include_tool_generated_examples", False))
+    include_geometry_figure = bool(data.get("include_geometry_figure", False))
+    math_difficulty = str(data.get("math_difficulty", "basic") or "basic").strip().lower()
+
+    retrieval_context_block = ""
+    retrieved_knowledge = {}
+    tooling_bundle = None
+
+    if math_rule_mode:
+        want_json = True
+        strict_example_structure = False
+        if required_json_fields is None:
+            required_json_fields = ["prerequisite_knowledge", "core_formula", "example_chain"]
+        if use_knowledge_retrieval:
+            retrieval_context_block = build_retrieval_context_block(topic, lang=lang)
+            retrieved_knowledge = retrieve_math_knowledge(topic)
+        if include_tool_generated_examples:
+            tooling_bundle = generate_math_tooling_bundle(
+                topic=topic,
+                difficulty=math_difficulty,
+                include_geometry=include_geometry_figure,
+            )
 
     if not topic:
         return err("topic is required", http_status=400)
@@ -397,6 +428,55 @@ Hard requirements:
         if schema_text:
             prompt_json_zh += f"\n请严格遵循以下 JSON Schema：\n{schema_text}\n"
             prompt_json_en += f"\nYou must strictly follow this JSON schema:\n{schema_text}\n"
+
+        if math_rule_mode:
+            prompt_json_zh += (
+                "\n数学规则层要求（必须满足）：\n"
+                "1) prerequisite_knowledge 必须是数组，且优先从课程知识约束中选择。\n"
+                "2) core_formula 必须包含 latex 与 constraints，且 constraints 非空。\n"
+                "3) example_chain 每个对象必须包含 type/question/answer/verification_method。\n"
+                "4) 若 verification_method='sympy计算'，则 question 与 answer 必须可被符号计算校验一致。\n"
+            )
+            prompt_json_en += (
+                "\nMath rule-layer constraints (must satisfy):\n"
+                "1) prerequisite_knowledge should be an array from constrained curriculum knowledge when available.\n"
+                "2) core_formula must include latex and non-empty constraints.\n"
+                "3) example_chain items must contain type/question/answer/verification_method.\n"
+                "4) If verification_method='sympy计算', question and answer must be symbolically verifiable.\n"
+            )
+
+            math_template = {
+                "prerequisite_knowledge": ["整数加减法", "分数意义", "通分"],
+                "core_formula": {
+                    "latex": "\\\\frac{a}{c} + \\\\frac{b}{c} = \\\\frac{a+b}{c}",
+                    "constraints": ["分母相同", "结果约分"],
+                },
+                "example_chain": [
+                    {
+                        "id": 1,
+                        "type": "基础",
+                        "question": "1/2 + 1/3",
+                        "answer": "5/6",
+                        "verification_method": "sympy计算",
+                    }
+                ],
+            }
+            prompt_json_zh += f"\n建议模板：\n{json.dumps(math_template, ensure_ascii=False, indent=2)}\n"
+            prompt_json_en += f"\nSuggested template:\n{json.dumps(math_template, ensure_ascii=False, indent=2)}\n"
+
+            if retrieval_context_block:
+                prompt_json_zh += f"\n{retrieval_context_block}\n"
+                prompt_json_en += f"\n{retrieval_context_block}\n"
+
+            if isinstance(tooling_bundle, dict):
+                prompt_json_zh += (
+                    "\n可使用以下经工具验证的题目/图形数据，请优先复用其结论并保持可验证性：\n"
+                    f"{json.dumps(tooling_bundle, ensure_ascii=False, indent=2)}\n"
+                )
+                prompt_json_en += (
+                    "\nYou may reuse these tool-verified math assets and keep results verifiable:\n"
+                    f"{json.dumps(tooling_bundle, ensure_ascii=False, indent=2)}\n"
+                )
         prompt = prompt_json_en if lang == "en" else prompt_json_zh
 
     try:
@@ -469,30 +549,64 @@ Hard requirements:
                 if not valid:
                     return err(f"AI JSON 缺少必填字段: {', '.join(missing)}", http_status=500)
 
-            resource_errors = _validate_semantic_resource_fields(lesson_plan_json)
-            if resource_errors:
-                resource_fix_prompt = (
-                    "Return one corrected JSON object only. Keep the same structure and fill resource fields meaningfully.\n\n"
-                    "Fix these semantic errors:\n- " + "\n- ".join(resource_errors[:20]) + "\n\n"
-                    "Constraints:\n"
-                    "- resources_summary must contain concrete classroom resources.\n"
-                    "- external_resources must include at least one usable reference with title/description/suggested_use.\n"
-                    "- Keep all keys and nesting unchanged.\n\n"
-                    "Current JSON:\n"
-                    f"{json.dumps(lesson_plan_json, ensure_ascii=False, indent=2)}"
+            if not math_rule_mode:
+                resource_errors = _validate_semantic_resource_fields(lesson_plan_json)
+                if resource_errors:
+                    resource_fix_prompt = (
+                        "Return one corrected JSON object only. Keep the same structure and fill resource fields meaningfully.\n\n"
+                        "Fix these semantic errors:\n- " + "\n- ".join(resource_errors[:20]) + "\n\n"
+                        "Constraints:\n"
+                        "- resources_summary must contain concrete classroom resources.\n"
+                        "- external_resources must include at least one usable reference with title/description/suggested_use.\n"
+                        "- Keep all keys and nesting unchanged.\n\n"
+                        "Current JSON:\n"
+                        f"{json.dumps(lesson_plan_json, ensure_ascii=False, indent=2)}"
+                    )
+                    resource_fixed_raw = ai_service.generate_lesson_text(
+                        resource_fix_prompt,
+                        max_completion_tokens=max(effective_max_tokens, 12000),
+                    )
+                    resource_fixed_json = extract_json(resource_fixed_raw)
+                    if not isinstance(resource_fixed_json, dict):
+                        return err("AI 资源字段补全失败（返回非 JSON）", http_status=500)
+                    resource_recheck = _validate_semantic_resource_fields(resource_fixed_json)
+                    if resource_recheck:
+                        brief = "; ".join(resource_recheck[:6])
+                        return err(f"AI 资源字段补全失败: {brief}", http_status=500)
+                    lesson_plan_json = resource_fixed_json
+
+            math_validation_errors = []
+            if math_rule_mode and use_symbolic_verification:
+                allowed_prereq = retrieved_knowledge.get("allowed_prerequisites") if isinstance(retrieved_knowledge, dict) else None
+                math_ok, math_validation_errors = verify_math_content(
+                    lesson_plan_json,
+                    allowed_prerequisites=allowed_prereq,
                 )
-                resource_fixed_raw = ai_service.generate_lesson_text(
-                    resource_fix_prompt,
-                    max_completion_tokens=max(effective_max_tokens, 12000),
-                )
-                resource_fixed_json = extract_json(resource_fixed_raw)
-                if not isinstance(resource_fixed_json, dict):
-                    return err("AI 资源字段补全失败（返回非 JSON）", http_status=500)
-                resource_recheck = _validate_semantic_resource_fields(resource_fixed_json)
-                if resource_recheck:
-                    brief = "; ".join(resource_recheck[:6])
-                    return err(f"AI 资源字段补全失败: {brief}", http_status=500)
-                lesson_plan_json = resource_fixed_json
+                if not math_ok:
+                    repair_prompt = (
+                        "Return one corrected JSON object only. Fix all math-validation errors below.\n\n"
+                        "Math validation errors:\n- " + "\n- ".join(math_validation_errors[:30]) + "\n\n"
+                        "Keep business intent unchanged and preserve JSON-only output.\n"
+                        "Corrected JSON must pass symbolic verification where verification_method is 'sympy计算'.\n\n"
+                        "Current JSON:\n"
+                        f"{json.dumps(lesson_plan_json, ensure_ascii=False, indent=2)}"
+                    )
+                    repaired_raw = ai_service.generate_lesson_text(
+                        repair_prompt,
+                        max_completion_tokens=max(effective_max_tokens, 12000),
+                    )
+                    repaired_json = extract_json(repaired_raw)
+                    if not isinstance(repaired_json, dict):
+                        return err("数学规则校验修复失败（返回非 JSON）", http_status=500)
+                    math_ok_retry, retry_errors = verify_math_content(
+                        repaired_json,
+                        allowed_prerequisites=allowed_prereq,
+                    )
+                    if not math_ok_retry:
+                        brief = "; ".join(retry_errors[:8])
+                        return err(f"数学规则校验失败: {brief}", http_status=500)
+                    lesson_plan_json = repaired_json
+                    math_validation_errors = []
 
             lesson_plan = json.dumps(lesson_plan_json, ensure_ascii=False, indent=2)
         else:
@@ -509,7 +623,10 @@ Hard requirements:
             'key_points': key_points,
             'activities': activities,
             'output_format': 'json' if want_json else 'text',
-            'strict_example_structure': bool(strict_example_structure)
+            'strict_example_structure': bool(strict_example_structure),
+            'math_rule_mode': bool(math_rule_mode),
+            'use_knowledge_retrieval': bool(use_knowledge_retrieval),
+            'use_symbolic_verification': bool(use_symbolic_verification),
         }
         description = f"__META__{json.dumps(meta, ensure_ascii=False)}__\n" + lesson_plan
 
@@ -528,6 +645,15 @@ Hard requirements:
         payload = {"lesson_plan": lesson_plan, "lesson_id": lesson.id}
         if lesson_plan_json is not None:
             payload["lesson_plan_json"] = lesson_plan_json
+        if math_rule_mode:
+            payload["math_validation"] = {
+                "enabled": True,
+                "passed": len(math_validation_errors) == 0,
+                "errors": math_validation_errors,
+                "retrieval_applied": bool(retrieval_context_block),
+            }
+            if isinstance(tooling_bundle, dict):
+                payload["tool_generated_assets"] = tooling_bundle
         return ok(payload)
     except Exception as e:
         print(f"Lesson generation error: {str(e)}")  # 调试日志

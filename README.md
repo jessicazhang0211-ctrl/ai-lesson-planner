@@ -68,6 +68,8 @@ openpyxl
 xlrd
 PyJWT
 python-docx
+sympy
+antlr4-python3-runtime
 ```
 
 ## 4. 安装、配置与运行指南
@@ -253,6 +255,50 @@ D:/ai-lesson-planner/venv/Scripts/python.exe AItest/summarize_results.py
 ```
 
 详细说明见：AItest/HOW_TO_RUN_ZH.md
+
+### 9.3 数学教案规则层（新增）
+
+`POST /api/lesson/generate` 支持可选数学规则层参数（保留原架构，按需启用）：
+
+```json
+{
+  "topic": "分数加减法",
+  "grade": "五年级",
+  "subject": "数学",
+  "math_rule_mode": true,
+  "use_knowledge_retrieval": true,
+  "use_symbolic_verification": true,
+  "include_tool_generated_examples": true,
+  "include_geometry_figure": false,
+  "math_difficulty": "basic"
+}
+```
+
+启用后会增加三层约束：
+
+1. 结构化 JSON 生成约束（`prerequisite_knowledge`、`core_formula`、`example_chain`）。
+2. 课程知识检索注入（内置最小知识库，抑制数学幻觉）。
+3. sympy 自动校验与失败重试修复（公式可解析、例题答案可验证）。
+
+### 9.4 LaTeX 公式渲染（新增）
+
+教师端教案预览页已接入 KaTeX 自动渲染，支持以下定界符：
+
+1. 行内公式：`$...$`、`\(...\)`
+2. 块级公式：`$$...$$`、`\[...\]`
+
+示例：
+
+```text
+同分母加法：$\frac{a}{c}+\frac{b}{c}=\frac{a+b}{c}$
+
+异分母通分：
+$$
+\frac{a}{b}+\frac{c}{d}=\frac{ad+bc}{bd}
+$$
+```
+
+说明：复制、保存、PDF 导出仍基于原始文本，不会丢失公式源码。
 
 ## 10. 常见问题说明（FAQ）
 

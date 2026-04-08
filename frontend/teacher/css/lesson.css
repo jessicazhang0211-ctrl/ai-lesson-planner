@@ -146,6 +146,16 @@
   box-shadow: 0 0 0 3px rgba(5,109,232,.12), 0 12px 28px rgba(15,23,42,0.06);
 }
 
+.output .katex-display{
+  margin: 0.8em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.output .katex{
+  font-size: 1.03em;
+}
+
 .spinner{
   width:36px;height:36px;border-radius:50%;
   border:4px solid rgba(255,255,255,0.12);
