@@ -44,6 +44,8 @@
       <a class="menu-item" href="./exercise.html" data-i18n="exercise">Exercise Design</a>
       <a class="menu-item" href="./resource.html" data-i18n="resource">Resource Manager</a>
       <a class="menu-item" href="./review.html" data-i18n="review">Assignment Review</a>
+      <a class="menu-item" href="./knowledge.html" data-i18n="knowledge">Knowledge Base</a>
+      <a class="menu-item" href="./validation.html" data-i18n="validation">Validation Logs</a>
       <a class="menu-item" href="./class_management.html" data-i18n="class">Class Management</a>
       <a class="menu-item" href="./settings.html" data-i18n="settings">Settings</a>
     </nav>
@@ -66,12 +68,15 @@
         <div class="form-row">
           <label data-i18n-page="grade">Grade</label>
           <select id="grade">
-            <option value="小学一年级">Year 1</option>
-            <option value="小学二年级">Year 2</option>
-            <option value="小学三年级">Year 3</option>
-            <option value="小学四年级">Year 4</option>
-            <option value="小学五年级">Year 5</option>
-            <option value="小学六年级">Year 6</option>
+            <option value="小学一年级">小学一年级</option>
+            <option value="小学二年级">小学二年级</option>
+            <option value="小学三年级">小学三年级</option>
+            <option value="小学四年级">小学四年级</option>
+            <option value="小学五年级">小学五年级</option>
+            <option value="小学六年级">小学六年级</option>
+            <option value="初一">初一</option>
+            <option value="初二">初二</option>
+            <option value="初三">初三</option>
           </select>
         </div>
 
@@ -109,6 +114,14 @@
             <option value="5">5</option>
             <option value="6">6</option>
           </select>
+        </div>
+
+        <div class="form-row checkbox-row">
+          <label class="checkbox-label" for="includeReview">
+            <input id="includeReview" type="checkbox" />
+            <span data-i18n-page="includeReview">复习模式：注入历史学情反馈</span>
+          </label>
+          <div class="checkbox-hint" data-i18n-page="includeReviewHint">勾选后，生成时会参考同课题已批改作业分析。</div>
         </div>
 
         <div class="card-title mt" data-i18n-page="teachingDesign">Teaching Design</div>
@@ -149,10 +162,14 @@
       <!-- 右侧：输出预览 -->
       <section class="card lesson-preview">
         <div class="preview-head">
-          <div class="card-title" data-i18n-page="preview">Preview</div>
+          <div class="preview-title-wrap">
+            <div class="card-title" data-i18n-page="preview">Preview</div>
+            <span id="reviewBadge" class="review-badge" style="display:none;">需复核</span>
+          </div>
           <div class="preview-actions">
             <a href="#" id="copyBtn" class="link" data-i18n-page="copy">Copy</a>
             <a href="#" id="saveBtn" class="link" data-i18n-page="save">Save</a>
+            <a href="#" id="refreshVersionsBtn" class="link" data-i18n-page="versionHistory">Version History</a>
             <a href="#" id="downloadPdfBtn" class="link" data-i18n-page="downloadPdf">Download PDF</a>
           </div>
         </div>
@@ -162,6 +179,33 @@
         <div class="empty" id="emptyState">
           <div class="empty-title" data-i18n-page="emptyTitle">No Content Yet</div>
           <div class="empty-sub" data-i18n-page="emptySub">Fill the form and click Generate.</div>
+        </div>
+
+        <div class="version-box">
+          <div class="history-head">
+            <div class="history-title" data-i18n-page="versionHistory">Version History</div>
+          </div>
+          <div id="versionList" class="history-list"></div>
+          <div id="diffBox" class="diff-box" style="display:none;">
+            <div class="history-title" data-i18n-page="diffView">Diff View</div>
+            <div id="diffMeta" class="version-meta"></div>
+            <div class="diff-toolbar">
+              <button id="diffUnifiedBtn" class="btn-diff active" type="button" data-i18n-page="diffModeUnified">Unified</button>
+              <button id="diffSplitBtn" class="btn-diff" type="button" data-i18n-page="diffModeSplit">Split</button>
+              <input id="diffFilterInput" class="diff-filter" type="text" data-i18n-page-placeholder="diffFilterPlaceholder" placeholder="Filter..." />
+            </div>
+            <div id="diffLines" class="diff-lines"></div>
+            <div id="diffSplit" class="diff-split" style="display:none;">
+              <div>
+                <div class="version-meta">Before</div>
+                <div id="diffBefore" class="diff-lines"></div>
+              </div>
+              <div>
+                <div class="version-meta">After</div>
+                <div id="diffAfter" class="diff-lines"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </div>

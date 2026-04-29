@@ -1,5 +1,5 @@
 from .shared import *
-from .shared import _load_ids, _grade_objective
+from .shared import _load_ids, _grade_objective, _resolve_exercise_structured
 
 @bp.route("/exercises/<int:publish_id>/save", methods=["POST"])
 @token_required
@@ -63,16 +63,12 @@ def submit_exercise(publish_id: int):
         return err("not allowed", http_status=403)
 
     exercise = Exercise.query.get(pub.resource_id)
-    if not exercise or not exercise.content_json:
+    structured = _resolve_exercise_structured(exercise)
+    if not exercise or not structured:
         return err("exercise format not supported", http_status=400)
 
     data = request.get_json(silent=True) or {}
     answers = data.get("answers") or {}
-
-    try:
-        structured = json.loads(exercise.content_json)
-    except Exception:
-        return err("invalid exercise format", http_status=400)
 
     questions = structured.get("questions", [])
     auto_score = 0
@@ -149,13 +145,9 @@ def review_exercise(publish_id: int):
         return err("submission not found", http_status=404)
 
     exercise = Exercise.query.get(pub.resource_id)
-    if not exercise or not exercise.content_json:
+    structured = _resolve_exercise_structured(exercise)
+    if not exercise or not structured:
         return err("exercise format not supported", http_status=400)
-
-    try:
-        structured = json.loads(exercise.content_json)
-    except Exception:
-        return err("invalid exercise format", http_status=400)
 
     try:
         answers = json.loads(submission.answers or "{}")
@@ -259,11 +251,8 @@ def list_scores():
     exercises = {e.id: e for e in Exercise.query.filter(Exercise.id.in_(exercise_ids)).all()} if exercise_ids else {}
     max_score_map = {}
     for ex in exercises.values():
-        if not ex or not ex.content_json:
-            continue
-        try:
-            structured = json.loads(ex.content_json)
-        except Exception:
+        structured = _resolve_exercise_structured(ex)
+        if not structured:
             continue
         total = 0
         for q in structured.get("questions", []):

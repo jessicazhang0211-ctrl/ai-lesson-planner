@@ -1,4 +1,7 @@
 import json
+import csv
+import os
+from io import StringIO
 
 from flask import g, request
 
@@ -6,8 +9,10 @@ from app.services.ai_service import ai_service
 from app.models.classroom import Classroom
 from app.models.exercise import Exercise
 from app.models.exercise_submission import ExerciseSubmission
+from app.models.assignment_analysis import AssignmentAnalysis
 from app.models.resource_assignment import ResourceAssignment
 from app.models.resource_publish import ResourcePublish
+from app.services.knowledge_base_service import list_knowledge_items, save_knowledge_items
 from app.utils.auth import token_required
 from app.utils.response import err, ok
 
@@ -19,6 +24,342 @@ _PUBLISH_AI_SUMMARY_CACHE = {}
 
 def _normalize_lang(lang):
     return "en" if str(lang or "zh").lower().startswith("en") else "zh"
+
+
+def _safe_json_list(raw):
+    try:
+        value = json.loads(raw or "")
+        return value if isinstance(value, list) else []
+    except Exception:
+        return []
+
+
+def _safe_int(value, default=None):
+    try:
+        return int(value)
+    except Exception:
+        return default
+
+
+def _to_text(raw_bytes: bytes) -> str:
+    for enc in ("utf-8", "utf-8-sig", "gbk"):
+        try:
+            return raw_bytes.decode(enc)
+        except Exception:
+            continue
+    return raw_bytes.decode("utf-8", errors="ignore")
+
+
+def _parse_knowledge_upload(filename: str, text: str, default_topic: str, default_tags, default_class_id=None):
+    ext = (os.path.splitext(filename or "")[1] or "").lower()
+    filename_topic = (os.path.splitext(os.path.basename(filename or ""))[0] or "").strip()
+    fallback_topic = (default_topic or filename_topic or "导入知识").strip()
+    base = {
+        "topic": fallback_topic,
+        "tags": default_tags,
+        "class_id": default_class_id,
+        "source": "import",
+    }
+
+    if ext == ".json":
+        try:
+            payload = json.loads(text or "")
+        except Exception:
+            payload = None
+
+        if isinstance(payload, dict):
+            payload = payload.get("items") if isinstance(payload.get("items"), list) else [payload]
+
+        items = []
+        if isinstance(payload, list):
+            for row in payload:
+                if not isinstance(row, dict):
+                    continue
+                item = dict(base)
+                item["topic"] = str(row.get("topic") or base["topic"] or "").strip()
+                item["title"] = str(row.get("title") or "").strip()
+                item["content"] = str(row.get("content") or row.get("text") or "").strip()
+                item["tags"] = row.get("tags") if row.get("tags") is not None else base["tags"]
+                item["class_id"] = _safe_int(row.get("class_id"), default_class_id)
+                items.append(item)
+        return items
+
+    if ext == ".csv":
+        rows = []
+        reader = csv.DictReader(StringIO(text or ""))
+        for row in reader:
+            item = dict(base)
+            item["topic"] = str(row.get("topic") or base["topic"] or "").strip()
+            item["title"] = str(row.get("title") or "").strip()
+            item["content"] = str(row.get("content") or row.get("text") or "").strip()
+            item["tags"] = row.get("tags") if row.get("tags") is not None else base["tags"]
+            item["class_id"] = _safe_int(row.get("class_id"), default_class_id)
+            rows.append(item)
+        return rows
+
+    lines = [ln.strip() for ln in (text or "").splitlines() if ln.strip()]
+    return [
+        {
+            **base,
+            "title": "",
+            "content": ln,
+        }
+        for ln in lines
+    ]
+
+
+@bp.route("/knowledge-base", methods=["GET"])
+@token_required
+def knowledge_base_overview():
+    user_id = int(getattr(g, "current_user_id", 0) or 0)
+    if not user_id:
+        return err("missing user", http_status=401)
+
+    class_id = request.args.get("class_id")
+    selected_topic = (request.args.get("topic") or "").strip()
+    try:
+        timeline_limit = max(1, min(int(request.args.get("limit") or 50), 200))
+    except Exception:
+        timeline_limit = 50
+
+    rows_q = AssignmentAnalysis.query.filter_by(created_by=user_id)
+    if class_id:
+        try:
+            class_id = int(class_id)
+            rows_q = rows_q.filter_by(class_id=class_id)
+        except ValueError:
+            return err("invalid class_id", http_status=400)
+
+    rows = rows_q.order_by(AssignmentAnalysis.updated_at.desc()).limit(1000).all()
+
+    topic_buckets = {}
+    for row in rows:
+        key = (row.topic or row.title or "未分类课题").strip() or "未分类课题"
+        bucket = topic_buckets.get(key)
+        if bucket is None:
+            bucket = {
+                "topic": key,
+                "count": 0,
+                "latest_at": row.updated_at,
+                "avg_completion_rate": 0.0,
+                "_completion_sum": 0.0,
+                "_completion_count": 0,
+            }
+            topic_buckets[key] = bucket
+
+        bucket["count"] += 1
+        if row.updated_at and (bucket["latest_at"] is None or row.updated_at > bucket["latest_at"]):
+            bucket["latest_at"] = row.updated_at
+        if row.completion_rate is not None:
+            bucket["_completion_sum"] += float(row.completion_rate)
+            bucket["_completion_count"] += 1
+
+    topics = []
+    for bucket in topic_buckets.values():
+        ccount = bucket.pop("_completion_count", 0)
+        csum = bucket.pop("_completion_sum", 0.0)
+        bucket["avg_completion_rate"] = round((csum / ccount), 1) if ccount else None
+        bucket["latest_at"] = bucket["latest_at"].strftime("%Y-%m-%d %H:%M:%S") if bucket.get("latest_at") else ""
+        topics.append(bucket)
+    topics.sort(key=lambda x: (x.get("count") or 0, x.get("latest_at") or ""), reverse=True)
+
+    filtered_rows = rows
+    if selected_topic:
+        st = selected_topic.lower()
+        filtered_rows = [
+            r
+            for r in rows
+            if st in str((r.topic or "")).lower() or st in str((r.title or "")).lower()
+        ]
+
+    filtered_rows = filtered_rows[:timeline_limit]
+
+    misconception_counter = {}
+    wrong_question_counter = {}
+    wrong_question_examples = {}
+    timeline = []
+    for row in filtered_rows:
+        weak_types = _safe_json_list(row.weak_question_types_json)
+        summary = str(row.summary_text or "").strip()
+        analysis_obj = {}
+        try:
+            analysis_obj = json.loads(row.analysis_json or "{}")
+        except Exception:
+            analysis_obj = {}
+        wrong_questions = analysis_obj.get("wrong_questions") if isinstance(analysis_obj, dict) else []
+        if not isinstance(wrong_questions, list):
+            wrong_questions = []
+
+        misconceptions = _safe_json_list(row.common_misconceptions_json)
+        if not misconceptions:
+            misconceptions = []
+        # Backfill older truncated misconception strings from stored wrong-question details.
+        recovered_misconceptions = []
+        for w in wrong_questions:
+            if not isinstance(w, dict):
+                continue
+            stem = str(w.get("stem") or "").strip()
+            if stem:
+                recovered_misconceptions.append(stem)
+        if recovered_misconceptions:
+            has_truncated = any(
+                isinstance(x, str) and len(x.strip()) >= 55 and ("..." not in x)
+                for x in misconceptions
+            )
+            if (not misconceptions) or has_truncated:
+                misconceptions = recovered_misconceptions[:3]
+
+        for m in misconceptions:
+            text = str(m or "").strip()
+            if not text:
+                continue
+            misconception_counter[text] = misconception_counter.get(text, 0) + 1
+
+        timeline_wrong_questions = []
+        for w in wrong_questions:
+            if not isinstance(w, dict):
+                continue
+            stem = str(w.get("stem") or "").strip()
+            if not stem:
+                continue
+            stem_key = stem[:120]
+            wrong_question_counter[stem_key] = wrong_question_counter.get(stem_key, 0) + 1
+            if stem_key not in wrong_question_examples:
+                wrong_question_examples[stem_key] = {
+                    "stem": stem,
+                    "type": str(w.get("type") or ""),
+                    "analysis": str(w.get("analysis") or ""),
+                }
+            timeline_wrong_questions.append(
+                {
+                    "id": w.get("id"),
+                    "type": w.get("type") or "",
+                    "stem": stem,
+                    "analysis": str(w.get("analysis") or ""),
+                }
+            )
+
+        timeline.append(
+            {
+                "submission_id": row.submission_id,
+                "publish_id": row.publish_id,
+                "class_id": row.class_id,
+                "topic": (row.topic or row.title or "").strip(),
+                "title": row.title or "",
+                "score": row.score,
+                "max_score": row.max_score,
+                "completion_rate": row.completion_rate,
+                "weak_question_types": weak_types,
+                "common_misconceptions": misconceptions,
+                "wrong_questions": timeline_wrong_questions[:5],
+                "summary": summary,
+                "updated_at": row.updated_at.strftime("%Y-%m-%d %H:%M:%S") if row.updated_at else "",
+            }
+        )
+
+    misconception_heat = [
+        {"name": k, "count": v}
+        for k, v in sorted(misconception_counter.items(), key=lambda kv: kv[1], reverse=True)
+    ]
+
+    wrong_question_heat = []
+    for stem, count in sorted(wrong_question_counter.items(), key=lambda kv: kv[1], reverse=True):
+        ex = wrong_question_examples.get(stem) or {}
+        wrong_question_heat.append(
+            {
+                "stem": stem,
+                "count": count,
+                "type": ex.get("type") or "",
+                "analysis": ex.get("analysis") or "",
+            }
+        )
+
+    return ok(
+        {
+            "topics": topics,
+            "selected_topic": selected_topic,
+            "timeline": timeline,
+            "misconception_heat": misconception_heat,
+            "wrong_question_heat": wrong_question_heat[:50],
+            "total_records": len(rows),
+            "filtered_records": len(filtered_rows),
+        }
+    )
+
+
+@bp.route("/knowledge-items", methods=["GET"])
+@token_required
+def knowledge_items_list():
+    user_id = int(getattr(g, "current_user_id", 0) or 0)
+    if not user_id:
+        return err("missing user", http_status=401)
+
+    class_id_raw = request.args.get("class_id")
+    class_id = _safe_int(class_id_raw, None) if str(class_id_raw or "").strip() else None
+    topic = (request.args.get("topic") or "").strip()
+    limit = _safe_int(request.args.get("limit"), 100) or 100
+    rows = list_knowledge_items(created_by=user_id, class_id=class_id, topic=topic, limit=limit)
+    return ok({"items": rows, "total": len(rows)})
+
+
+@bp.route("/knowledge-items/import", methods=["POST", "OPTIONS"])
+@token_required
+def knowledge_items_import():
+    if request.method == "OPTIONS":
+        return ok({"msg": "CORS preflight ok"})
+
+    user_id = int(getattr(g, "current_user_id", 0) or 0)
+    if not user_id:
+        return err("missing user", http_status=401)
+
+    is_multipart = request.content_type and "multipart/form-data" in request.content_type.lower()
+    payload = request.form.to_dict(flat=True) if is_multipart else (request.get_json(silent=True) or {})
+
+    default_topic = str(payload.get("topic") or "").strip()
+    default_class_id = _safe_int(payload.get("class_id"), None)
+    default_tags = str(payload.get("tags") or "").replace("，", ",")
+    default_tags = [x.strip() for x in default_tags.split(",") if x.strip()]
+
+    items = []
+    if is_multipart and request.files.get("file"):
+        upload = request.files.get("file")
+        raw = upload.read() if upload else b""
+        text = _to_text(raw) if raw else ""
+        items = _parse_knowledge_upload(
+            filename=getattr(upload, "filename", "") or "",
+            text=text,
+            default_topic=default_topic,
+            default_tags=default_tags,
+            default_class_id=default_class_id,
+        )
+    else:
+        manual_content = str(payload.get("content") or "").strip()
+        manual_title = str(payload.get("title") or "").strip()
+        payload_items = payload.get("items") if isinstance(payload, dict) else None
+        if isinstance(payload_items, list):
+            items = payload_items
+        elif manual_content:
+            items = [
+                {
+                    "topic": default_topic,
+                    "title": manual_title,
+                    "content": manual_content,
+                    "tags": default_tags,
+                    "class_id": default_class_id,
+                    "source": "manual",
+                }
+            ]
+
+    saved = save_knowledge_items(
+        created_by=user_id,
+        items=items,
+        default_class_id=default_class_id,
+        source="import",
+    )
+    if saved <= 0:
+        return err("no valid knowledge rows to import", http_status=400)
+
+    return ok({"saved": saved})
 
 
 def _event_marker(assignments, submissions):
@@ -310,8 +651,8 @@ def publish_ai_summary(pub_id: int):
         return err("ai summary only supported for exercise", http_status=400)
 
     exercise = Exercise.query.get(pub.resource_id)
-    if not exercise or not exercise.content_json:
-        return err("exercise format not supported", http_status=400)
+    if not exercise:
+        return err("exercise not found", http_status=404)
 
     assignments = ResourceAssignment.query.filter_by(publish_id=pub.id).all()
     submissions = ExerciseSubmission.query.filter_by(publish_id=pub.id).all()

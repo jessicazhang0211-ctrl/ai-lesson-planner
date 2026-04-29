@@ -33,7 +33,7 @@ class Config:
     # JWT 设置
     JWT_SECRET = os.getenv("JWT_SECRET", None) or SECRET_KEY
     JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-    JWT_EXP_SECONDS = int(os.getenv("JWT_EXP_SECONDS", "3600"))
+    JWT_EXP_SECONDS = int(os.getenv("JWT_EXP_SECONDS", "43200"))
     ENABLE_GLOBAL_ERROR_HANDLER = os.getenv("ENABLE_GLOBAL_ERROR_HANDLER", "0") == "1"
 
     # CORS 白名单，逗号分隔；为空时仅允许本地常见前端端口
@@ -41,9 +41,9 @@ class Config:
     if _cors_raw:
         CORS_ORIGINS = [x.strip() for x in _cors_raw.split(",") if x.strip()]
     else:
+        # Default: allow local dev servers on any port, plus file:// pages (Origin: null).
         CORS_ORIGINS = [
-            "http://127.0.0.1:8000",
-            "http://localhost:8000",
-            "http://127.0.0.1:5500",
-            "http://localhost:5500",
+            "http://127.0.0.1:*",
+            "http://localhost:*",
+            "null",
         ]

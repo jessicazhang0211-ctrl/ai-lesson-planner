@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Validation Logs · AI Lesson Planner</title>
+  <link rel="stylesheet" href="./css/teacher.css" />
+  <link rel="stylesheet" href="./css/validation.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-left" onclick="goHome()">
+    <img src="../assets/logo.png" class="logo" alt="logo" />
+    <span class="system-name" id="appName">AI Lesson Planner</span>
+  </div>
+
+  <div class="topbar-right" onclick="toggleUserMenu()">
+    <span class="username">User</span>
+    <img src="../assets/avatar.png" class="avatar" alt="avatar" />
+    <div class="user-menu" id="userMenu">
+      <div class="menu-item" data-i18n="settings" onclick="goSettings()">Settings</div>
+      <div class="menu-item logout" data-i18n="logout" onclick="logout()">Sign out</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
+    <nav class="menu">
+      <a class="menu-item" href="./index.html" data-i18n="dashboard">Dashboard</a>
+      <a class="menu-item" href="./lesson.html" data-i18n="lesson">Lesson Plan</a>
+      <a class="menu-item" href="./ppt.html" data-i18n="ppt">PPT Generator</a>
+      <a class="menu-item" href="./exercise.html" data-i18n="exercise">Exercise Design</a>
+      <a class="menu-item" href="./resource.html" data-i18n="resource">Resource Manager</a>
+      <a class="menu-item" href="./review.html" data-i18n="review">Assignment Review</a>
+      <a class="menu-item" href="./knowledge.html" data-i18n="knowledge">Knowledge Base</a>
+      <a class="menu-item active" href="./validation.html" data-i18n="validation">Validation Logs</a>
+      <a class="menu-item" href="./class_management.html" data-i18n="class">Class Management</a>
+      <a class="menu-item" href="./settings.html" data-i18n="settings">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <div class="val-head">
+      <div>
+        <h1 class="val-title" data-v-i18n="title">验证日志</h1>
+        <div class="val-sub" data-v-i18n="subtitle">查看 JSON 解析、自动校验和人工复核触发原因。</div>
+      </div>
+      <div class="val-actions">
+        <button id="btnRefresh" class="btn ghost" data-v-i18n="refresh">刷新</button>
+      </div>
+    </div>
+
+    <section class="val-stats">
+      <div class="val-stat">
+        <div class="val-stat-label" data-v-i18n="statTotal">总记录</div>
+        <div class="val-stat-value" id="statTotal">0</div>
+      </div>
+      <div class="val-stat">
+        <div class="val-stat-label" data-v-i18n="statNeedReview">待复核</div>
+        <div class="val-stat-value warn" id="statNeedReview">0</div>
+      </div>
+      <div class="val-stat">
+        <div class="val-stat-label" data-v-i18n="statPassed">已通过</div>
+        <div class="val-stat-value ok" id="statPassed">0</div>
+      </div>
+      <div class="val-stat">
+        <div class="val-stat-label" data-v-i18n="statParseIssues">解析异常</div>
+        <div class="val-stat-value danger" id="statParseIssues">0</div>
+      </div>
+    </section>
+
+    <section class="card val-filters">
+      <div class="val-filter">
+        <label data-v-i18n="entityType">对象类型</label>
+        <select id="filterEntityType">
+          <option value="" data-v-i18n="all">全部</option>
+          <option value="lesson">lesson</option>
+          <option value="exercise">exercise</option>
+        </select>
+      </div>
+      <div class="val-filter">
+        <label data-v-i18n="reviewType">状态</label>
+        <select id="filterReview">
+          <option value="" data-v-i18n="all">全部</option>
+          <option value="need_review">need_review</option>
+          <option value="passed">passed</option>
+        </select>
+      </div>
+      <div class="val-filter">
+        <label data-v-i18n="limit">数量</label>
+        <select id="filterLimit">
+          <option value="50">50</option>
+          <option value="100" selected>100</option>
+          <option value="200">200</option>
+        </select>
+      </div>
+      <div class="val-filter grow">
+        <label data-v-i18n="keyword">关键词</label>
+        <input id="filterKeyword" type="search" data-v-placeholder="keywordPlaceholder" />
+      </div>
+    </section>
+
+    <section class="card val-log-card">
+      <div class="val-table-wrap">
+        <table class="val-table">
+          <thead>
+            <tr>
+              <th data-v-i18n="thTime">时间</th>
+              <th data-v-i18n="thEntity">对象</th>
+              <th data-v-i18n="thStep">步骤</th>
+              <th data-v-i18n="thParse">解析</th>
+              <th data-v-i18n="thValidation">校验</th>
+              <th data-v-i18n="thNeedReview">复核</th>
+              <th data-v-i18n="thReasons">原因</th>
+              <th data-v-i18n="thAction">操作</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+      <div id="emptyBox" class="empty-box" data-v-i18n="empty">暂无数据</div>
+    </section>
+  </main>
+</div>
+
+<script src="../js/i18n.js"></script>
+<script src="./js/teacher.js"></script>
+<script src="./js/validation.js"></script>
+</body>
+</html>

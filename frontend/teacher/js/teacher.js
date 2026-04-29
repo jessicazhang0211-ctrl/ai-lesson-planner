@@ -22,6 +22,8 @@ const teacherDict = {
     exercise: "习题设计",
     resource: "资源管理",
     review: "作业批改",
+    knowledge: "知识库",
+    validation: "验证日志",
     class: "班级管理",
     settings: "设置",
     loginFirst: "请先登录",
@@ -37,6 +39,8 @@ const teacherDict = {
     exercise: "Exercise Builder",
     resource: "Resource Manager",
     review: "Review",
+    knowledge: "Knowledge Base",
+    validation: "Validation Logs",
     class: "Class Management",
     settings: "Settings",
     loginFirst: "Please sign in first",
@@ -81,6 +85,8 @@ function applyTeacherLang() {
   setText("[data-i18n='exercise']", t.exercise);
   setText("[data-i18n='resource']", t.resource);
   setText("[data-i18n='review']", t.review);
+  setText("[data-i18n='knowledge']", t.knowledge);
+  setText("[data-i18n='validation']", t.validation);
   setText("[data-i18n='class']", t.class);
   setText("[data-i18n='settings']", t.settings);
   setText("[data-i18n='profile']", t.profile);

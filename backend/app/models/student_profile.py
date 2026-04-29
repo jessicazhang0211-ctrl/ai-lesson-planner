@@ -13,6 +13,9 @@ class StudentProfile(db.Model):
     analysis_json = db.Column(db.Text, nullable=True)
     analysis_updated_at = db.Column(db.DateTime, nullable=True)
     analysis_latest_completed_at = db.Column(db.DateTime, nullable=True)
+    knowledge_stats_json = db.Column(db.Text, nullable=True)
+    error_type_stats_json = db.Column(db.Text, nullable=True)
+    recommendation_text = db.Column(db.Text, nullable=True)
 
     def to_dict(self):
         return {
@@ -20,5 +23,6 @@ class StudentProfile(db.Model):
             "user_id": self.user_id,
             "class_id": self.class_id,
             "student_id": self.student_id,
-            "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S") if self.created_at else ""
+            "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S") if self.created_at else "",
+            "recommendation_text": self.recommendation_text or "",
         }

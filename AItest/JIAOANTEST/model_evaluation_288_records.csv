@@ -1,0 +1,289 @@
+﻿task_id,provider,model,http_code,status,latency_ms,json_parse_ok,judge_status,content_completeness,age_appropriateness,teaching_design_quality,json_structure_usability,low_age_support_strategy,resource_recommendation_quality,ai_intelligence,total_score,brief_reason
+Y1-T1,OpenAI,gpt-5.4,200,OK,259043.01,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T2,OpenAI,gpt-5.4,200,OK,193315.61,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T3,OpenAI,gpt-5.4,200,OK,127010.11,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T4,OpenAI,gpt-5.4,200,OK,130585.38,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T5,OpenAI,gpt-5.4,200,OK,205935.96,True,ok,17,20,20,13,10,8,5,93,内容全面详实，年龄适配良好，教学支架充分
+Y1-T6,OpenAI,gpt-5.4,400,HTTP_ERROR,100.0,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y1-T7,OpenAI,gpt-5.4,400,HTTP_ERROR,9529.74,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y1-T8,OpenAI,gpt-5.4,200,OK,173728.1,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T9,OpenAI,gpt-5.4,200,OK,148450.05,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T10,OpenAI,gpt-5.4,200,OK,215646.49,True,ok,19,19,19,11,9,8,3,88,内容详尽且适龄，教学环节设计清晰，支持策略充足
+Y1-T11,OpenAI,gpt-5.4,200,OK,35265.91,False,judge_http_520,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T12,OpenAI,gpt-5.4,400,HTTP_ERROR,24324.42,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y1-T13,OpenAI,gpt-5.4,200,OK,225564.73,False,judge_http_520,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T14,OpenAI,gpt-5.4,200,OK,202105.7,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T15,OpenAI,gpt-5.4,200,OK,111790.59,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T16,OpenAI,gpt-5.4,200,OK,123620.37,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T17,OpenAI,gpt-5.4,200,OK,207886.92,False,judge_http_520,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T18,OpenAI,gpt-5.4,200,OK,87125.0,True,ok,13,16,13,12,6,5,2,67,内容较完整但部分截断，教学目标清晰但流程可细化
+Y1-T19,OpenAI,gpt-5.4,400,HTTP_ERROR,48145.83,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y1-T20,OpenAI,gpt-5.4,200,OK,36080.25,True,ok,5,4,5,3,2,4,2,25,生成失败，未返回有效内容，需重新请求
+Y1-T21,OpenAI,gpt-5.4,200,OK,211218.06,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T22,OpenAI,gpt-5.4,200,OK,78867.95,True,ok,10,12,9,9,6,6,2,54,整体框架完整，低龄支持有考虑，但JSON结构待优化
+Y1-T23,OpenAI,gpt-5.4,200,OK,32859.84,True,ok,11,11,12,6,6,5,2,53,教学环节设计合理，内容较全面，但缺少部分关键要素
+Y1-T24,OpenAI,gpt-5.4,400,HTTP_ERROR,37287.0,False,skipped,0,0,0,0,0,0,0,0,generation failed
+Y1-T25,OpenAI,gpt-5.4,200,OK,189918.11,False,judge_http_520,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T26,OpenAI,gpt-5.4,200,OK,194721.31,True,ok,4,6,3,5,2,2,1,23,教案严重缺失，仅有片段内容，缺少评估与资源
+Y1-T27,OpenAI,gpt-5.4,200,OK,110954.91,True,ok,3,3,3,5,2,3,0,19,输出不完整，关键教学要素缺失，无法正常使用
+Y1-T28,OpenAI,gpt-5.4,200,OK,132370.06,True,ok,16,20,19,15,10,8,5,93,内容全面详实，年龄适配良好，教学支架充分
+Y1-T29,OpenAI,gpt-5.4,200,OK,164351.06,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T30,OpenAI,gpt-5.4,200,OK,131587.11,False,judge_http_520,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T31,OpenAI,gpt-5.4,200,OK,153897.95,False,judge_http_520,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T32,OpenAI,gpt-5.4,200,OK,209673.62,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T33,OpenAI,gpt-5.4,200,OK,141657.56,True,ok,15,14,12,10,6,6,4,67,整体框架完整，低龄支持有考虑，但JSON结构待优化
+Y1-T34,OpenAI,gpt-5.4,200,OK,113525.74,True,ok,12,13,12,8,4,5,3,57,内容较完整但部分截断，教学目标清晰但流程可细化
+Y1-T35,OpenAI,gpt-5.4,200,OK,117884.6,False,judge_http_520,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T36,OpenAI,gpt-5.4,200,OK,198359.99,True,ok,12,10,11,5,5,4,2,49,JSON解析错误，格式不符合要求，内容不完整
+Y1-T1,OpenAI,gpt-5-mini,200,OK,80786.53,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T2,OpenAI,gpt-5-mini,200,OK,82329.13,False,judge_http_520,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T3,OpenAI,gpt-5-mini,200,OK,86869.49,True,ok,16,18,17,13,10,8,5,87,教案结构完整，低龄支持到位，活动设计丰富多样
+Y1-T4,OpenAI,gpt-5-mini,200,OK,101003.12,True,ok,16,19,16,10,9,8,3,81,教案结构完整，低龄支持到位，活动设计丰富多样
+Y1-T5,OpenAI,gpt-5-mini,200,OK,85816.31,False,judge_http_520,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T6,OpenAI,gpt-5-mini,200,OK,95275.4,True,ok,17,18,19,10,8,10,5,87,教学流程详细，互动设计丰富，支持策略针对性强
+Y1-T7,OpenAI,gpt-5-mini,200,OK,89410.81,False,judge_http_520,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T8,OpenAI,gpt-5-mini,200,OK,95848.46,False,judge_http_520,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T9,OpenAI,gpt-5-mini,200,OK,81654.82,True,ok,16,19,18,12,9,8,3,85,教案完整度高，差异化策略清晰，资源配置合理
+Y1-T10,OpenAI,gpt-5-mini,200,OK,84341.34,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T11,OpenAI,gpt-5-mini,200,OK,90979.67,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T12,OpenAI,gpt-5-mini,200,OK,79709.42,True,ok,17,19,18,14,8,9,4,89,教学目标明确，流程逻辑清晰，资源推荐贴合实际
+Y1-T13,OpenAI,gpt-5-mini,200,OK,93708.07,True,ok,9,7,6,2,4,3,0,31,候选教案缺失，未提供目标/流程/资源等关键内容
+Y1-T14,OpenAI,gpt-5-mini,200,OK,89246.61,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T15,OpenAI,gpt-5-mini,200,OK,85766.66,False,judge_http_520,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T16,OpenAI,gpt-5-mini,200,OK,92358.47,True,ok,8,14,10,5,6,6,2,51,教案可用但不够完整，目标与流程清晰，评价资源待补
+Y1-T17,OpenAI,gpt-5-mini,200,OK,101697.76,True,ok,15,16,12,11,6,5,4,69,内容详实但结构有瑕疵，教学策略可行但差异化不够
+Y1-T18,OpenAI,gpt-5-mini,200,OK,87339.27,True,ok,12,15,8,6,5,4,3,53,主体内容到位，支架策略存在，但文档完整性受影响
+Y1-T19,OpenAI,gpt-5-mini,200,OK,95795.7,False,judge_http_520,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T20,OpenAI,gpt-5-mini,200,OK,99594.31,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T21,OpenAI,gpt-5-mini,200,OK,80971.22,True,ok,13,14,16,10,9,6,4,72,环节衔接自然，儿童化设计到位，评估方法具体
+Y1-T22,OpenAI,gpt-5-mini,200,OK,95308.85,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T23,OpenAI,gpt-5-mini,200,OK,92489.74,True,ok,12,11,9,6,5,5,2,50,主体内容到位，支架策略存在，但文档完整性受影响
+Y1-T24,OpenAI,gpt-5-mini,200,OK,90900.91,True,ok,19,20,18,10,9,8,4,88,教案完整度高，差异化策略清晰，资源配置合理
+Y1-T25,OpenAI,gpt-5-mini,200,OK,83499.14,True,ok,20,19,19,15,8,9,3,93,教学流程详细，互动设计丰富，支持策略针对性强
+Y1-T26,OpenAI,gpt-5-mini,200,OK,96275.58,True,ok,18,20,18,12,8,7,5,88,环节衔接自然，儿童化设计到位，评估方法具体
+Y1-T27,OpenAI,gpt-5-mini,200,OK,85195.67,True,ok,18,20,15,11,10,7,4,85,内容详尽且适龄，教学环节设计清晰，支持策略充足
+Y1-T28,OpenAI,gpt-5-mini,200,OK,86337.71,True,ok,16,20,15,15,9,10,3,88,内容全面详实，年龄适配良好，教学支架充分
+Y1-T29,OpenAI,gpt-5-mini,200,OK,82818.23,True,ok,20,20,17,13,9,7,5,91,内容全面详实，年龄适配良好，教学支架充分
+Y1-T30,OpenAI,gpt-5-mini,200,OK,98322.8,True,ok,13,16,14,10,8,5,2,68,教学环节设计合理，内容较全面，但缺少部分关键要素
+Y1-T31,OpenAI,gpt-5-mini,200,OK,81377.47,True,ok,10,12,9,5,6,4,3,49,JSON解析错误，格式不符合要求，内容不完整
+Y1-T32,OpenAI,gpt-5-mini,200,OK,83825.22,False,judge_http_520,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T33,OpenAI,gpt-5-mini,200,OK,85775.26,True,ok,19,20,17,13,8,10,3,90,教学目标明确，流程逻辑清晰，资源推荐贴合实际
+Y1-T34,OpenAI,gpt-5-mini,200,OK,89964.95,True,ok,18,19,16,10,9,10,4,86,内容详尽且适龄，教学环节设计清晰，支持策略充足
+Y1-T35,OpenAI,gpt-5-mini,200,OK,92330.74,True,ok,12,13,13,8,5,4,2,57,教学环节设计合理，内容较全面，但缺少部分关键要素
+Y1-T36,OpenAI,gpt-5-mini,200,OK,96572.82,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T1,Anthropic,Claude Opus 4.6,200,OK,21273.41,False,judge_http_520,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T2,Anthropic,Claude Opus 4.6,200,OK,17560.82,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T3,Anthropic,Claude Opus 4.6,200,OK,25702.76,False,judge_http_520,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T4,Anthropic,Claude Opus 4.6,200,OK,23515.53,True,ok,10,10,10,8,7,6,3,54,主体内容到位，支架策略存在，但文档完整性受影响
+Y1-T5,Anthropic,Claude Opus 4.6,200,OK,22075.69,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T6,Anthropic,Claude Opus 4.6,200,OK,27774.22,True,ok,16,17,13,9,7,5,2,69,内容详实但结构有瑕疵，教学策略可行但差异化不够
+Y1-T7,Anthropic,Claude Opus 4.6,200,OK,23404.0,True,ok,13,15,16,10,6,6,2,68,内容详实但结构有瑕疵，教学策略可行但差异化不够
+Y1-T8,Anthropic,Claude Opus 4.6,200,OK,18863.83,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T9,Anthropic,Claude Opus 4.6,200,OK,24421.41,True,ok,14,16,12,12,9,8,4,75,内容全面详实，年龄适配良好，教学支架充分
+Y1-T10,Anthropic,Claude Opus 4.6,200,OK,27344.5,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T11,Anthropic,Claude Opus 4.6,200,OK,24535.18,True,ok,17,19,18,10,8,8,4,84,教案结构完整，低龄支持到位，活动设计丰富多样
+Y1-T12,Anthropic,Claude Opus 4.6,200,OK,26459.19,True,ok,12,14,13,8,6,6,4,63,整体框架完整，低龄支持有考虑，但JSON结构待优化
+Y1-T13,Anthropic,Claude Opus 4.6,200,OK,21578.57,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T14,Anthropic,Claude Opus 4.6,200,OK,19646.42,True,ok,13,13,12,8,6,6,2,60,教案主体完整，年龄适配良好，但评估与资源细节不足
+Y1-T15,Anthropic,Claude Opus 4.6,200,OK,31214.21,True,ok,15,14,13,10,9,6,4,71,教学流程详细，互动设计丰富，支持策略针对性强
+Y1-T16,Anthropic,Claude Opus 4.6,200,OK,22651.53,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T17,Anthropic,Claude Opus 4.6,200,OK,29228.32,True,ok,6,7,4,3,1,3,0,24,JSON解析错误，格式不符合要求，内容不完整
+Y1-T18,Anthropic,Claude Opus 4.6,200,OK,20553.27,True,ok,13,18,13,11,6,8,3,72,教学流程详细，互动设计丰富，支持策略针对性强
+Y1-T19,Anthropic,Claude Opus 4.6,200,OK,13663.96,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T20,Anthropic,Claude Opus 4.6,200,OK,30605.64,True,ok,17,18,16,14,9,7,5,86,内容充实且条理清晰，低龄适配优秀，资源具体可操作
+Y1-T21,Anthropic,Claude Opus 4.6,200,OK,22073.43,True,ok,14,15,16,10,7,6,4,72,教学流程详细，互动设计丰富，支持策略针对性强
+Y1-T22,Anthropic,Claude Opus 4.6,200,OK,23334.17,False,judge_http_520,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T23,Anthropic,Claude Opus 4.6,200,OK,29314.19,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T24,Anthropic,Claude Opus 4.6,200,OK,27647.6,True,ok,12,18,13,11,7,7,3,71,教学流程详细，互动设计丰富，支持策略针对性强
+Y1-T25,Anthropic,Claude Opus 4.6,200,OK,33945.31,True,ok,11,15,12,8,6,5,3,60,教案可用但不够完整，目标与流程清晰，评价资源待补
+Y1-T26,Anthropic,Claude Opus 4.6,200,OK,22546.35,True,ok,16,18,12,12,9,6,4,77,教学目标明确，流程逻辑清晰，资源推荐贴合实际
+Y1-T27,Anthropic,Claude Opus 4.6,200,OK,25590.56,True,ok,17,20,17,12,10,9,5,90,教案完整度高，差异化策略清晰，资源配置合理
+Y1-T28,Anthropic,Claude Opus 4.6,200,OK,23888.12,True,ok,17,19,18,10,10,7,3,84,教学流程详细，互动设计丰富，支持策略针对性强
+Y1-T29,Anthropic,Claude Opus 4.6,200,OK,27941.97,False,judge_http_520,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T30,Anthropic,Claude Opus 4.6,200,OK,27943.16,True,ok,12,15,12,8,8,5,4,64,内容较完整但部分截断，教学目标清晰但流程可细化
+Y1-T31,Anthropic,Claude Opus 4.6,200,OK,28533.5,False,judge_http_520,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T32,Anthropic,Claude Opus 4.6,200,OK,21707.84,True,ok,19,18,15,12,10,9,4,87,环节衔接自然，儿童化设计到位，评估方法具体
+Y1-T33,Anthropic,Claude Opus 4.6,200,OK,25866.98,False,judge_http_520,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T34,Anthropic,Claude Opus 4.6,200,OK,26710.51,True,ok,11,14,9,8,5,4,3,54,主体内容到位，支架策略存在，但文档完整性受影响
+Y1-T35,Anthropic,Claude Opus 4.6,200,OK,18430.23,True,ok,9,15,13,6,6,6,2,57,整体框架完整，低龄支持有考虑，但JSON结构待优化
+Y1-T36,Anthropic,Claude Opus 4.6,200,OK,29808.98,True,ok,13,15,15,8,7,6,2,66,内容详实但结构有瑕疵，教学策略可行但差异化不够
+Y1-T1,Anthropic,Claude Sonnet 4.6,200,OK,20742.37,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T2,Anthropic,Claude Sonnet 4.6,200,OK,22920.26,True,ok,8,6,2,1,3,2,2,24,JSON解析错误，格式不符合要求，内容不完整
+Y1-T3,Anthropic,Claude Sonnet 4.6,200,OK,28077.48,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T4,Anthropic,Claude Sonnet 4.6,200,OK,25906.5,True,ok,13,17,14,11,7,7,2,71,内容详尽且适龄，教学环节设计清晰，支持策略充足
+Y1-T5,Anthropic,Claude Sonnet 4.6,200,OK,22086.09,True,ok,15,17,12,8,7,7,4,70,环节衔接自然，儿童化设计到位，评估方法具体
+Y1-T6,Anthropic,Claude Sonnet 4.6,200,OK,23431.51,False,judge_http_520,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T7,Anthropic,Claude Sonnet 4.6,200,OK,23233.55,True,ok,14,17,13,8,9,6,4,71,教学流程详细，互动设计丰富，支持策略针对性强
+Y1-T8,Anthropic,Claude Sonnet 4.6,200,OK,23850.24,True,ok,13,16,16,8,7,6,4,70,环节衔接自然，儿童化设计到位，评估方法具体
+Y1-T9,Anthropic,Claude Sonnet 4.6,200,OK,21766.4,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T10,Anthropic,Claude Sonnet 4.6,200,OK,21370.97,True,ok,16,19,15,13,8,8,5,84,内容全面详实，年龄适配良好，教学支架充分
+Y1-T11,Anthropic,Claude Sonnet 4.6,200,OK,22698.96,True,ok,13,18,16,8,6,5,2,68,内容较完整但部分截断，教学目标清晰但流程可细化
+Y1-T12,Anthropic,Claude Sonnet 4.6,200,OK,20936.68,True,ok,12,12,10,8,4,6,2,54,教学环节设计合理，内容较全面，但缺少部分关键要素
+Y1-T13,Anthropic,Claude Sonnet 4.6,200,OK,22174.53,True,ok,15,14,12,8,8,5,2,64,内容较完整但部分截断，教学目标清晰但流程可细化
+Y1-T14,Anthropic,Claude Sonnet 4.6,200,OK,23242.78,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T15,Anthropic,Claude Sonnet 4.6,200,OK,22887.07,True,ok,15,18,16,8,9,8,3,77,教案结构完整，低龄支持到位，活动设计丰富多样
+Y1-T16,Anthropic,Claude Sonnet 4.6,200,OK,22020.86,True,ok,13,17,13,11,7,6,2,69,内容较完整但部分截断，教学目标清晰但流程可细化
+Y1-T17,Anthropic,Claude Sonnet 4.6,200,OK,24679.44,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T18,Anthropic,Claude Sonnet 4.6,200,OK,22368.31,True,ok,16,20,19,13,8,7,4,87,教案完整度高，差异化策略清晰，资源配置合理
+Y1-T19,Anthropic,Claude Sonnet 4.6,200,OK,24818.75,True,ok,11,10,9,7,5,6,3,51,内容详实但结构有瑕疵，教学策略可行但差异化不够
+Y1-T20,Anthropic,Claude Sonnet 4.6,200,OK,20428.51,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T21,Anthropic,Claude Sonnet 4.6,200,OK,27062.97,True,ok,8,10,11,9,4,6,2,50,教案可用但不够完整，目标与流程清晰，评价资源待补
+Y1-T22,Anthropic,Claude Sonnet 4.6,200,OK,17892.73,True,ok,18,19,19,13,9,9,3,90,内容充实且条理清晰，低龄适配优秀，资源具体可操作
+Y1-T23,Anthropic,Claude Sonnet 4.6,200,OK,26860.32,True,ok,16,18,15,10,6,8,3,76,内容全面详实，年龄适配良好，教学支架充分
+Y1-T24,Anthropic,Claude Sonnet 4.6,200,OK,23204.35,False,judge_http_520,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T25,Anthropic,Claude Sonnet 4.6,200,OK,21676.27,True,ok,20,19,18,15,9,10,5,96,教案结构完整，低龄支持到位，活动设计丰富多样
+Y1-T26,Anthropic,Claude Sonnet 4.6,200,OK,24780.04,True,ok,9,4,7,4,4,1,1,30,候选教案缺失，未提供目标/流程/资源等关键内容
+Y1-T27,Anthropic,Claude Sonnet 4.6,200,OK,23604.21,True,ok,8,13,12,7,7,4,2,53,内容较完整但部分截断，教学目标清晰但流程可细化
+Y1-T28,Anthropic,Claude Sonnet 4.6,200,OK,24840.32,True,ok,13,15,10,9,5,4,2,58,教案可用但不够完整，目标与流程清晰，评价资源待补
+Y1-T29,Anthropic,Claude Sonnet 4.6,200,OK,23162.46,True,ok,12,14,14,8,6,6,4,64,内容详实但结构有瑕疵，教学策略可行但差异化不够
+Y1-T30,Anthropic,Claude Sonnet 4.6,200,OK,21090.96,True,ok,13,13,11,5,7,5,3,57,主体内容到位，支架策略存在，但文档完整性受影响
+Y1-T31,Anthropic,Claude Sonnet 4.6,200,OK,19753.92,True,ok,11,15,8,8,4,6,2,54,整体框架完整，低龄支持有考虑，但JSON结构待优化
+Y1-T32,Anthropic,Claude Sonnet 4.6,200,OK,21217.19,True,ok,17,18,20,15,8,8,3,89,教案结构完整，低龄支持到位，活动设计丰富多样
+Y1-T33,Anthropic,Claude Sonnet 4.6,200,OK,22209.29,True,ok,15,14,12,11,6,8,2,68,内容详实但结构有瑕疵，教学策略可行但差异化不够
+Y1-T34,Anthropic,Claude Sonnet 4.6,200,OK,20456.13,True,ok,13,11,11,8,5,4,2,54,教学环节设计合理，内容较全面，但缺少部分关键要素
+Y1-T35,Anthropic,Claude Sonnet 4.6,200,OK,20966.57,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T36,Anthropic,Claude Sonnet 4.6,200,OK,23202.56,False,judge_http_520,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T1,Google,Gemini 2.5 Pro,200,OK,39140.3,False,judge_http_520,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T2,Google,Gemini 2.5 Pro,200,OK,38730.1,True,ok,15,14,14,12,9,5,2,71,环节衔接自然，儿童化设计到位，评估方法具体
+Y1-T3,Google,Gemini 2.5 Pro,200,OK,38952.91,True,ok,11,14,12,8,6,4,2,57,内容详实但结构有瑕疵，教学策略可行但差异化不够
+Y1-T4,Google,Gemini 2.5 Pro,200,OK,38156.47,True,ok,8,12,13,9,6,5,3,56,教案主体完整，年龄适配良好，但评估与资源细节不足
+Y1-T5,Google,Gemini 2.5 Pro,200,OK,38830.69,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T6,Google,Gemini 2.5 Pro,200,OK,38572.01,True,ok,14,14,15,9,8,6,4,70,内容全面详实，年龄适配良好，教学支架充分
+Y1-T7,Google,Gemini 2.5 Pro,200,OK,39302.98,True,ok,13,15,16,9,9,6,3,71,教案完整度高，差异化策略清晰，资源配置合理
+Y1-T8,Google,Gemini 2.5 Pro,200,OK,41204.46,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T9,Google,Gemini 2.5 Pro,200,OK,40930.12,True,ok,5,9,7,3,1,4,1,30,候选教案缺失，未提供目标/流程/资源等关键内容
+Y1-T10,Google,Gemini 2.5 Pro,200,OK,39863.09,True,ok,9,15,8,8,6,6,2,54,内容详实但结构有瑕疵，教学策略可行但差异化不够
+Y1-T11,Google,Gemini 2.5 Pro,200,OK,39546.23,True,ok,18,19,16,11,9,9,5,87,内容全面详实，年龄适配良好，教学支架充分
+Y1-T12,Google,Gemini 2.5 Pro,200,OK,40102.46,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T13,Google,Gemini 2.5 Pro,200,OK,39540.51,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T14,Google,Gemini 2.5 Pro,200,OK,39513.22,True,ok,14,17,15,8,8,7,2,71,教学流程详细，互动设计丰富，支持策略针对性强
+Y1-T15,Google,Gemini 2.5 Pro,200,OK,38017.2,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T16,Google,Gemini 2.5 Pro,200,OK,39552.29,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T17,Google,Gemini 2.5 Pro,200,OK,41054.59,True,ok,8,11,9,5,4,4,3,44,输出不完整，关键教学要素缺失，无法正常使用
+Y1-T18,Google,Gemini 2.5 Pro,200,OK,39724.09,False,judge_http_520,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T19,Google,Gemini 2.5 Pro,200,OK,41100.54,True,ok,16,18,20,15,9,9,5,92,教案结构完整，低龄支持到位，活动设计丰富多样
+Y1-T20,Google,Gemini 2.5 Pro,200,OK,37251.17,True,ok,8,15,13,5,6,4,2,53,内容较完整但部分截断，教学目标清晰但流程可细化
+Y1-T21,Google,Gemini 2.5 Pro,200,OK,38591.0,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T22,Google,Gemini 2.5 Pro,200,OK,38914.44,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T23,Google,Gemini 2.5 Pro,200,OK,41242.7,True,ok,14,17,16,12,8,5,4,76,内容详尽且适龄，教学环节设计清晰，支持策略充足
+Y1-T24,Google,Gemini 2.5 Pro,200,OK,39633.67,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T25,Google,Gemini 2.5 Pro,200,OK,38638.31,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T26,Google,Gemini 2.5 Pro,200,OK,41199.11,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T27,Google,Gemini 2.5 Pro,200,OK,38981.05,True,ok,11,10,11,7,7,4,3,53,整体框架完整，低龄支持有考虑，但JSON结构待优化
+Y1-T28,Google,Gemini 2.5 Pro,200,OK,40183.58,False,judge_http_520,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T29,Google,Gemini 2.5 Pro,200,OK,39285.79,False,judge_http_520,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T30,Google,Gemini 2.5 Pro,200,OK,39932.97,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T31,Google,Gemini 2.5 Pro,200,OK,39505.27,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T32,Google,Gemini 2.5 Pro,200,OK,39475.0,True,ok,9,14,8,7,6,4,2,50,教学环节设计合理，内容较全面，但缺少部分关键要素
+Y1-T33,Google,Gemini 2.5 Pro,200,OK,39426.88,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T34,Google,Gemini 2.5 Pro,200,OK,42559.66,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T35,Google,Gemini 2.5 Pro,200,OK,39229.31,True,ok,10,12,11,6,5,6,3,53,教案可用但不够完整，目标与流程清晰，评价资源待补
+Y1-T36,Google,Gemini 2.5 Pro,200,OK,39913.39,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T1,Google,Gemini 2.5 Flash,200,OK,5286.24,True,ok,4,4,5,1,2,2,1,19,教案严重缺失，仅有片段内容，缺少评估与资源
+Y1-T2,Google,Gemini 2.5 Flash,200,OK,5040.92,True,ok,9,8,6,1,3,2,0,29,候选教案缺失，未提供目标/流程/资源等关键内容
+Y1-T3,Google,Gemini 2.5 Flash,200,OK,5242.64,True,ok,5,8,6,5,1,1,0,26,候选教案缺失，未提供目标/流程/资源等关键内容
+Y1-T4,Google,Gemini 2.5 Flash,200,OK,5380.39,True,ok,6,5,3,1,4,1,2,22,教案严重缺失，仅有片段内容，缺少评估与资源
+Y1-T5,Google,Gemini 2.5 Flash,200,OK,5291.18,True,ok,6,6,7,3,1,3,2,28,文档结构损坏，内容大量丢失，教学目标未明确
+Y1-T6,Google,Gemini 2.5 Flash,200,OK,5277.14,True,ok,4,9,2,3,2,3,1,24,内容严重截断，缺少教学目标与流程，JSON结构损坏
+Y1-T7,Google,Gemini 2.5 Flash,200,OK,5542.94,True,ok,6,6,6,1,1,4,0,24,内容严重截断，缺少教学目标与流程，JSON结构损坏
+Y1-T8,Google,Gemini 2.5 Flash,200,OK,4906.04,True,ok,2,3,4,4,1,2,2,18,生成失败，未返回有效内容，需重新请求
+Y1-T9,Google,Gemini 2.5 Flash,200,OK,4466.41,True,ok,6,8,7,5,1,1,1,29,输出不完整，关键教学要素缺失，无法正常使用
+Y1-T10,Google,Gemini 2.5 Flash,200,OK,5170.96,True,ok,3,9,7,1,4,2,2,28,候选教案缺失，未提供目标/流程/资源等关键内容
+Y1-T11,Google,Gemini 2.5 Flash,200,OK,4103.83,True,ok,9,3,3,2,2,2,2,23,内容严重截断，缺少教学目标与流程，JSON结构损坏
+Y1-T12,Google,Gemini 2.5 Flash,200,OK,5581.22,True,ok,4,9,2,2,3,3,2,25,内容严重截断，缺少教学目标与流程，JSON结构损坏
+Y1-T13,Google,Gemini 2.5 Flash,200,OK,5314.66,True,ok,4,5,4,5,1,2,0,21,内容严重截断，缺少教学目标与流程，JSON结构损坏
+Y1-T14,Google,Gemini 2.5 Flash,200,OK,5200.6,True,ok,9,10,6,4,3,1,2,35,内容碎片化严重，缺少连贯教学流程，无法评估
+Y1-T15,Google,Gemini 2.5 Flash,200,OK,5321.98,True,ok,9,4,5,5,3,2,1,29,输出不完整，关键教学要素缺失，无法正常使用
+Y1-T16,Google,Gemini 2.5 Flash,200,OK,5063.4,True,ok,2,6,2,4,1,1,2,18,输出不完整，关键教学要素缺失，无法正常使用
+Y1-T17,Google,Gemini 2.5 Flash,200,OK,5342.62,True,ok,5,5,6,3,4,2,1,26,JSON解析错误，格式不符合要求，内容不完整
+Y1-T18,Google,Gemini 2.5 Flash,200,OK,5020.75,True,ok,3,4,8,2,1,4,2,24,内容碎片化严重，缺少连贯教学流程，无法评估
+Y1-T19,Google,Gemini 2.5 Flash,200,OK,5455.84,True,ok,2,9,3,2,4,3,2,25,文档结构损坏，内容大量丢失，教学目标未明确
+Y1-T20,Google,Gemini 2.5 Flash,200,OK,5477.98,True,ok,3,3,7,1,4,2,1,21,生成失败，未返回有效内容，需重新请求
+Y1-T21,Google,Gemini 2.5 Flash,200,OK,4829.46,True,ok,6,4,5,5,4,4,2,30,教案严重缺失，仅有片段内容，缺少评估与资源
+Y1-T22,Google,Gemini 2.5 Flash,200,OK,5871.92,True,ok,7,4,9,4,1,2,2,29,文档结构损坏，内容大量丢失，教学目标未明确
+Y1-T23,Google,Gemini 2.5 Flash,200,OK,4753.34,True,ok,3,5,2,2,3,4,1,20,生成失败，未返回有效内容，需重新请求
+Y1-T24,Google,Gemini 2.5 Flash,200,OK,4943.39,True,ok,2,7,5,1,2,4,0,21,候选教案缺失，未提供目标/流程/资源等关键内容
+Y1-T25,Google,Gemini 2.5 Flash,200,OK,5154.45,True,ok,9,4,7,2,2,2,2,28,输出不完整，关键教学要素缺失，无法正常使用
+Y1-T26,Google,Gemini 2.5 Flash,200,OK,5211.57,True,ok,9,3,6,2,4,3,0,27,内容严重截断，缺少教学目标与流程，JSON结构损坏
+Y1-T27,Google,Gemini 2.5 Flash,200,OK,5357.64,True,ok,3,9,7,3,2,3,2,29,内容碎片化严重，缺少连贯教学流程，无法评估
+Y1-T28,Google,Gemini 2.5 Flash,200,OK,4867.44,True,ok,3,9,5,4,1,2,2,26,候选教案缺失，未提供目标/流程/资源等关键内容
+Y1-T29,Google,Gemini 2.5 Flash,200,OK,4843.39,True,ok,5,7,3,2,2,1,2,22,文档结构损坏，内容大量丢失，教学目标未明确
+Y1-T30,Google,Gemini 2.5 Flash,200,OK,5314.56,True,ok,4,7,9,4,2,4,2,32,内容严重截断，缺少教学目标与流程，JSON结构损坏
+Y1-T31,Google,Gemini 2.5 Flash,200,OK,5789.08,True,ok,3,8,5,3,2,1,0,22,内容严重截断，缺少教学目标与流程，JSON结构损坏
+Y1-T32,Google,Gemini 2.5 Flash,200,OK,5263.46,True,ok,4,3,7,5,2,3,2,26,内容碎片化严重，缺少连贯教学流程，无法评估
+Y1-T33,Google,Gemini 2.5 Flash,200,OK,5554.83,True,ok,9,6,5,4,1,4,0,29,教案严重缺失，仅有片段内容，缺少评估与资源
+Y1-T34,Google,Gemini 2.5 Flash,200,OK,5374.35,True,ok,8,4,8,4,4,2,1,31,内容严重截断，缺少教学目标与流程，JSON结构损坏
+Y1-T35,Google,Gemini 2.5 Flash,200,OK,5734.07,True,ok,7,6,7,3,4,1,1,29,输出不完整，关键教学要素缺失，无法正常使用
+Y1-T36,Google,Gemini 2.5 Flash,200,OK,5482.75,True,ok,9,10,5,1,2,3,2,32,生成失败，未返回有效内容，需重新请求
+Y1-T1,DeepSeek,deepseek-reasoner,200,OK,139429.91,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T2,DeepSeek,deepseek-reasoner,200,OK,132883.99,True,ok,13,14,10,8,5,6,3,59,教案可用但不够完整，目标与流程清晰，评价资源待补
+Y1-T3,DeepSeek,deepseek-reasoner,200,OK,148667.72,False,judge_http_520,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T4,DeepSeek,deepseek-reasoner,200,OK,134746.32,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T5,DeepSeek,deepseek-reasoner,200,OK,129608.5,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T6,DeepSeek,deepseek-reasoner,200,OK,136660.4,True,ok,12,13,11,5,7,5,2,55,主体内容到位，支架策略存在，但文档完整性受影响
+Y1-T7,DeepSeek,deepseek-reasoner,200,OK,139533.5,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T8,DeepSeek,deepseek-reasoner,200,OK,135124.98,False,judge_http_520,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T9,DeepSeek,deepseek-reasoner,200,OK,136024.79,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T10,DeepSeek,deepseek-reasoner,200,OK,149045.86,True,ok,14,17,16,9,7,5,3,71,教学流程详细，互动设计丰富，支持策略针对性强
+Y1-T11,DeepSeek,deepseek-reasoner,200,OK,139151.52,False,judge_http_520,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T12,DeepSeek,deepseek-reasoner,200,OK,136723.93,True,ok,4,9,5,1,4,1,2,26,内容碎片化严重，缺少连贯教学流程，无法评估
+Y1-T13,DeepSeek,deepseek-reasoner,200,OK,150424.21,True,ok,6,4,5,1,4,1,2,23,内容碎片化严重，缺少连贯教学流程，无法评估
+Y1-T14,DeepSeek,deepseek-reasoner,200,OK,136324.99,False,judge_http_520,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T15,DeepSeek,deepseek-reasoner,200,OK,149017.07,True,ok,14,18,12,12,7,6,3,72,内容全面详实，年龄适配良好，教学支架充分
+Y1-T16,DeepSeek,deepseek-reasoner,200,OK,141898.9,False,judge_http_520,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T17,DeepSeek,deepseek-reasoner,200,OK,130094.05,True,ok,16,14,15,8,9,8,3,73,内容全面详实，年龄适配良好，教学支架充分
+Y1-T18,DeepSeek,deepseek-reasoner,200,OK,134884.19,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T19,DeepSeek,deepseek-reasoner,200,OK,151471.96,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T20,DeepSeek,deepseek-reasoner,200,OK,139723.14,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T21,DeepSeek,deepseek-reasoner,200,OK,143786.36,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T22,DeepSeek,deepseek-reasoner,200,OK,139292.01,True,ok,18,18,18,13,9,8,4,88,内容详尽且适龄，教学环节设计清晰，支持策略充足
+Y1-T23,DeepSeek,deepseek-reasoner,200,OK,140455.41,True,ok,3,10,4,4,2,4,2,29,JSON解析错误，格式不符合要求，内容不完整
+Y1-T24,DeepSeek,deepseek-reasoner,200,OK,125925.43,True,ok,8,15,12,6,7,4,2,54,教案可用但不够完整，目标与流程清晰，评价资源待补
+Y1-T25,DeepSeek,deepseek-reasoner,200,OK,134032.26,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T26,DeepSeek,deepseek-reasoner,200,OK,150744.11,True,ok,18,18,18,14,9,10,5,92,教学流程详细，互动设计丰富，支持策略针对性强
+Y1-T27,DeepSeek,deepseek-reasoner,200,OK,139965.85,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T28,DeepSeek,deepseek-reasoner,200,OK,145424.15,False,judge_http_520,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T29,DeepSeek,deepseek-reasoner,200,OK,135210.97,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T30,DeepSeek,deepseek-reasoner,200,OK,122932.41,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T31,DeepSeek,deepseek-reasoner,200,OK,135211.84,False,judge_http_520,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T32,DeepSeek,deepseek-reasoner,200,OK,140853.13,True,ok,9,3,7,4,1,2,2,28,教案严重缺失，仅有片段内容，缺少评估与资源
+Y1-T33,DeepSeek,deepseek-reasoner,200,OK,138339.28,True,ok,13,17,16,11,6,7,4,74,教案结构完整，低龄支持到位，活动设计丰富多样
+Y1-T34,DeepSeek,deepseek-reasoner,200,OK,132057.33,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T35,DeepSeek,deepseek-reasoner,200,OK,139837.76,True,ok,16,17,16,10,9,7,2,77,内容详尽且适龄，教学环节设计清晰，支持策略充足
+Y1-T36,DeepSeek,deepseek-reasoner,200,OK,137806.07,True,ok,16,19,17,15,9,10,5,91,内容全面详实，年龄适配良好，教学支架充分
+Y1-T1,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24076.12,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T2,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24204.04,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T3,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24159.26,True,ok,13,14,12,8,4,5,2,58,内容较完整但部分截断，教学目标清晰但流程可细化
+Y1-T4,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24135.46,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T5,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24261.75,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T6,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24251.58,True,ok,12,11,10,6,5,5,3,52,内容详实但结构有瑕疵，教学策略可行但差异化不够
+Y1-T7,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24083.86,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T8,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24063.15,True,ok,10,10,9,7,7,5,3,51,教案可用但不够完整，目标与流程清晰，评价资源待补
+Y1-T9,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24210.08,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T10,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24286.32,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T11,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24280.83,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T12,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24234.88,False,judge_http_520,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T13,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24205.28,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T14,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24218.82,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T15,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24308.52,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T16,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24039.22,False,judge_http_520,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T17,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24115.4,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T18,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24027.16,False,judge_http_520,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T19,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24492.0,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T20,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24218.05,True,ok,12,11,8,5,6,4,3,49,生成失败，未返回有效内容，需重新请求
+Y1-T21,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,23984.02,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T22,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24050.86,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T23,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24126.23,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T24,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24320.67,False,judge_http_520,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T25,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24330.97,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T26,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24305.83,False,judge_http_520,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T27,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24158.99,True,ok,8,13,9,6,4,4,2,46,文档结构损坏，内容大量丢失，教学目标未明确
+Y1-T28,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24359.39,True,ok,9,11,8,6,4,6,2,46,JSON解析错误，格式不符合要求，内容不完整
+Y1-T29,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24173.69,False,judge_parse_error,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T30,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24140.23,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T31,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24268.38,False,judge_parse_error,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T32,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24091.63,False,judge_http_520,10,10,10,7,5,5,2,49,评审解析失败，评分采用默认值
+Y1-T33,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24101.4,False,judge_http_520,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T34,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24134.17,False,judge_http_520,10,10,10,7,5,5,2,49,judge parse fallback
+Y1-T35,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24331.01,False,judge_parse_error,10,10,10,7,5,5,2,49,JSON评审输出解析异常，使用保底分数
+Y1-T36,Alibaba Cloud / Qwen,qwen3.5-plus,200,OK,24178.5,True,ok,10,14,9,7,6,4,3,53,主体内容到位，支架策略存在，但文档完整性受影响

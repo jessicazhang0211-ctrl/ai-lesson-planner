@@ -304,6 +304,11 @@ body{
   border-radius:8px;
   padding:0 10px;
 }
+.answer-hint{
+  margin-top: 6px;
+  font-size: 12px;
+  color: #6b7280;
+}
 .answer-text{
   width:100%;
   min-height:96px;

@@ -235,7 +235,9 @@ function toEnglishGrade(raw) {
 		"小学四年级": "Year 4",
 		"小学五年级": "Year 5",
 		"小学六年级": "Year 6",
-		"初一": "Year 7"
+		"初一": "Year 7",
+		"初二": "Year 8",
+		"初三": "Year 9"
 	};
 	return map[raw] || raw;
 }
@@ -316,29 +318,66 @@ function formatLessonPreview(obj, item) {
 	if (info) lines.push(info);
 	lines.push("");
 
-	const objectives = Array.isArray(obj.learning_objectives) ? obj.learning_objectives : [];
+	const objectives = Array.isArray(obj.learning_objectives)
+		? obj.learning_objectives
+		: (Array.isArray(obj.objectives) ? obj.objectives : []);
 	if (objectives.length) {
 		lines.push(isEn ? "Objectives" : "教学目标");
 		objectives.forEach((x, i) => lines.push(`${i + 1}. ${x}`));
 		lines.push("");
 	}
 
-	const seq = Array.isArray(obj.teaching_sequence) ? obj.teaching_sequence : [];
+	const seq = Array.isArray(obj.teaching_sequence)
+		? obj.teaching_sequence
+		: (Array.isArray(obj.steps) ? obj.steps : []);
 	if (seq.length) {
 		lines.push(isEn ? "Teaching Process" : "教学过程");
 		seq.forEach((step, i) => {
-			const phase = step.phase || (isEn ? `Step ${i + 1}` : `环节${i + 1}`);
+			const phase = step.phase || step.title || (isEn ? `Step ${i + 1}` : `环节${i + 1}`);
 			const mins = step.duration_minutes ? (isEn ? ` (${step.duration_minutes} min)` : `（${step.duration_minutes}分钟）`) : "";
 			lines.push(`${i + 1}. ${phase}${mins}`);
+			if (step.content) lines.push(`   - ${step.content}`);
 			(step.teacher_actions || []).forEach(x => lines.push(`   - ${isEn ? "Teacher" : "教师"}: ${x}`));
 			(step.student_activities || []).forEach(x => lines.push(`   - ${isEn ? "Students" : "学生"}: ${x}`));
+			(step.assessment_opportunities || []).forEach(x => lines.push(`   - ${isEn ? "Assessment" : "评价"}: ${x}`));
 		});
 		lines.push("");
 	}
 
-	if (obj.homework && obj.homework.main_task) {
+	if (obj.key_points || obj.difficult_points) {
+		lines.push(isEn ? "Key / Difficult Points" : "重难点");
+		if (obj.key_points) lines.push(`- ${isEn ? "Key" : "重点"}: ${obj.key_points}`);
+		if (obj.difficult_points) lines.push(`- ${isEn ? "Difficult" : "难点"}: ${obj.difficult_points}`);
+		lines.push("");
+	}
+
+	if (Array.isArray(obj.exercises) && obj.exercises.length) {
+		lines.push(isEn ? "Exercises" : "练习设计");
+		obj.exercises.forEach((ex, i) => {
+			lines.push(`${i + 1}. ${ex.question || ex.stem || ""}`.trim());
+			if (ex.answer) lines.push(`   - ${isEn ? "Answer" : "答案"}: ${ex.answer}`);
+		});
+		lines.push("");
+	}
+
+	if (obj.homework && (obj.homework.main_task || obj.homework.written_reflection || obj.homework.extension)) {
 		lines.push(isEn ? "Homework" : "作业");
-		lines.push(`- ${obj.homework.main_task}`);
+		if (obj.homework.main_task) lines.push(`- ${obj.homework.main_task}`);
+		if (obj.homework.written_reflection) lines.push(`- ${obj.homework.written_reflection}`);
+		if (obj.homework.extension) lines.push(`- ${obj.homework.extension}`);
+		lines.push("");
+	}
+
+	const resources = Array.isArray(obj.resources_summary) ? obj.resources_summary : [];
+	if (resources.length) {
+		lines.push(isEn ? "Resources" : "教学资源");
+		resources.forEach((x, i) => lines.push(`${i + 1}. ${x}`));
+		lines.push("");
+	}
+
+	const rawText = String(obj.content || obj.lesson_plan || "").trim();
+	if (!lines.join("\n").trim() && rawText) {
+		return rawText;
 	}
 
 	return lines.join("\n").trim();

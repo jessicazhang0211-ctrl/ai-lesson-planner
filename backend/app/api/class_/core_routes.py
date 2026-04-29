@@ -60,6 +60,48 @@ def _set_cached_teacher_advice(uid, signature, advice, lang):
     }
 
 
+def _extract_exercise_total_score(exercise: Exercise) -> int:
+    if not exercise or not exercise.content_json:
+        return 0
+    try:
+        structured = json.loads(exercise.content_json)
+    except Exception:
+        return 0
+    questions = structured.get("questions") if isinstance(structured.get("questions"), list) else []
+    total = 0
+    for q in questions:
+        if not isinstance(q, dict):
+            continue
+        try:
+            total += int(q.get("score") or 0)
+        except Exception:
+            continue
+    return max(total, 0)
+
+
+def _normalize_score_to_percent(score_value, max_score_value):
+    if score_value is None:
+        return None
+    try:
+        score = float(score_value)
+    except Exception:
+        return None
+
+    try:
+        max_score = float(max_score_value or 0)
+    except Exception:
+        max_score = 0.0
+
+    if max_score > 0:
+        pct = (score / max_score) * 100.0
+        return max(0.0, min(100.0, pct))
+
+    # Fallback for legacy data where score may already be a percentage.
+    if 0 <= score <= 100:
+        return score
+    return None
+
+
 def _fallback_teacher_advice(weak_topics, submit_rate, accuracy_avg, lang="zh"):
     if lang == "en":
         advice = []
@@ -229,6 +271,18 @@ def teacher_overview():
     pub_map = {p.id: p for p in pubs}
     pub_ids = [p.id for p in pubs]
 
+    exercise_ids = list({p.resource_id for p in pubs if p.resource_id})
+    exercise_map = {}
+    exercise_total_map = {}
+    if exercise_ids:
+        exercise_rows = Exercise.query.filter(Exercise.id.in_(exercise_ids)).all()
+        exercise_map = {e.id: e.title for e in exercise_rows}
+        exercise_total_map = {e.id: _extract_exercise_total_score(e) for e in exercise_rows}
+
+    publish_total_map = {}
+    for p in pubs:
+        publish_total_map[p.id] = int(exercise_total_map.get(p.resource_id) or 0)
+
     assignments = ResourceAssignment.query.filter(ResourceAssignment.publish_id.in_(pub_ids)).all() if pub_ids else []
     assignments_by_class = {}
     for a in assignments:
@@ -247,7 +301,11 @@ def teacher_overview():
     total_students = len(students)
     active_students = len({a.student_id for a in week_completed})
     submit_rate = int(round((len(week_completed) / len(week_assignments)) * 100)) if week_assignments else 0
-    week_scores = [a.score for a in week_completed if a.score is not None]
+    week_scores = [
+        _normalize_score_to_percent(a.score, publish_total_map.get(a.publish_id))
+        for a in week_completed
+    ]
+    week_scores = [x for x in week_scores if x is not None]
     accuracy_avg = int(round(sum(week_scores) / len(week_scores))) if week_scores else 0
 
     # monthly trend (last 30 days)
@@ -258,7 +316,11 @@ def teacher_overview():
         day_items = [a for a in assignments if (a.completed_at or a.created_at) and day <= (a.completed_at or a.created_at) < day_end]
         day_completed = [a for a in day_items if a.status == "completed"]
         day_submit = int(round((len(day_completed) / len(day_items)) * 100)) if day_items else 0
-        day_scores = [a.score for a in day_completed if a.score is not None]
+        day_scores = [
+            _normalize_score_to_percent(a.score, publish_total_map.get(a.publish_id))
+            for a in day_completed
+        ]
+        day_scores = [x for x in day_scores if x is not None]
         day_acc = int(round(sum(day_scores) / len(day_scores))) if day_scores else 0
         monthly.append({
             "day": day.strftime("%m-%d"),
@@ -274,7 +336,11 @@ def teacher_overview():
         day_items = [a for a in assignments if (a.completed_at or a.created_at) and day <= (a.completed_at or a.created_at) < day_end]
         day_completed = [a for a in day_items if a.status == "completed"]
         day_submit = int(round((len(day_completed) / len(day_items)) * 100)) if day_items else 0
-        day_scores = [a.score for a in day_completed if a.score is not None]
+        day_scores = [
+            _normalize_score_to_percent(a.score, publish_total_map.get(a.publish_id))
+            for a in day_completed
+        ]
+        day_scores = [x for x in day_scores if x is not None]
         day_acc = int(round(sum(day_scores) / len(day_scores))) if day_scores else 0
         weekly.append({
             "day": day.strftime("%m-%d"),
@@ -290,18 +356,20 @@ def teacher_overview():
         item["total"] += 1
         if a.status == "completed":
             item["completed"] += 1
-        if a.score is not None:
-            item["scores"].append(a.score)
+        pct = _normalize_score_to_percent(a.score, publish_total_map.get(a.publish_id))
+        if pct is not None:
+            item["scores"].append(pct)
 
     # latest scores (overall)
     latest_score_map = {}
     for a in assignments:
-        if a.score is None:
+        pct = _normalize_score_to_percent(a.score, publish_total_map.get(a.publish_id))
+        if pct is None:
             continue
         t = a.completed_at or a.created_at
         if not t:
             continue
-        latest_score_map.setdefault(a.student_id, []).append({"score": a.score, "time": t})
+        latest_score_map.setdefault(a.student_id, []).append({"score": pct, "time": t})
 
     # risk list (last 7 days)
     risk_map = {}
@@ -311,10 +379,11 @@ def teacher_overview():
         item["total"] += 1
         if a.status == "completed":
             item["completed"] += 1
-        if a.score is not None:
-            item["scores"].append(a.score)
+        pct = _normalize_score_to_percent(a.score, publish_total_map.get(a.publish_id))
+        if pct is not None:
+            item["scores"].append(pct)
             item["latest_scores"].append({
-                "score": a.score,
+                "score": pct,
                 "time": a.completed_at or a.created_at
             })
 
@@ -391,7 +460,11 @@ def teacher_overview():
         cls_assignments = assignments_by_class.get(c.id, [])
         cls_completed = [a for a in cls_assignments if a.status == "completed"]
         submitted_students = len({a.student_id for a in cls_completed})
-        cls_scores = [a.score for a in cls_completed if a.score is not None]
+        cls_scores = [
+            _normalize_score_to_percent(a.score, publish_total_map.get(a.publish_id))
+            for a in cls_completed
+        ]
+        cls_scores = [x for x in cls_scores if x is not None]
         cls_accuracy = int(round(sum(cls_scores) / len(cls_scores))) if cls_scores else 0
         cls_risk = len([r for r in risks if r["className"] == c.name])
         class_rows.append({
@@ -405,11 +478,6 @@ def teacher_overview():
         })
 
     # weak topics for teacher advice (aggregate from last 7 days assignments by exercise title)
-    exercise_ids = list({p.resource_id for p in pubs if p.resource_id})
-    exercise_map = {}
-    if exercise_ids:
-        exercise_rows = Exercise.query.filter(Exercise.id.in_(exercise_ids)).all()
-        exercise_map = {e.id: e.title for e in exercise_rows}
 
     weak_topic_map = {}
     for a in week_assignments:
@@ -428,8 +496,9 @@ def teacher_overview():
         item["class_names"].add(class_name_map.get(pub.class_id, ""))
         if a.status == "completed":
             item["completed"] += 1
-        if a.score is not None:
-            item["scores"].append(a.score)
+        pct = _normalize_score_to_percent(a.score, publish_total_map.get(a.publish_id))
+        if pct is not None:
+            item["scores"].append(pct)
 
     weak_topics = []
     for _, item in weak_topic_map.items():

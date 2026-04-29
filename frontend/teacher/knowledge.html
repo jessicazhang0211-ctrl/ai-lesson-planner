@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Knowledge Base · AI Lesson Planner</title>
+  <link rel="stylesheet" href="./css/teacher.css" />
+  <link rel="stylesheet" href="./css/knowledge.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left" onclick="goHome()">
+    <img src="../assets/logo.png" class="logo" alt="logo" />
+    <span class="system-name" id="appName">AI Lesson Planner</span>
+  </div>
+
+  <div class="topbar-right" onclick="toggleUserMenu()">
+    <span class="username">User</span>
+    <img src="../assets/avatar.png" class="avatar" alt="avatar" />
+    <div class="user-menu" id="userMenu">
+      <div class="menu-item" data-i18n="settings" onclick="goSettings()">Settings</div>
+      <div class="menu-item logout" data-i18n="logout" onclick="logout()">Sign out</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
+    <nav class="menu">
+      <a class="menu-item" href="./index.html" data-i18n="dashboard">Dashboard</a>
+      <a class="menu-item" href="./lesson.html" data-i18n="lesson">Lesson Plan</a>
+      <a class="menu-item" href="./ppt.html" data-i18n="ppt">PPT Generator</a>
+      <a class="menu-item" href="./exercise.html" data-i18n="exercise">Exercise Design</a>
+      <a class="menu-item" href="./resource.html" data-i18n="resource">Resource Manager</a>
+      <a class="menu-item" href="./review.html" data-i18n="review">Assignment Review</a>
+      <a class="menu-item active" href="./knowledge.html" data-i18n="knowledge">知识库</a>
+      <a class="menu-item" href="./validation.html" data-i18n="validation">Validation Logs</a>
+      <a class="menu-item" href="./class_management.html" data-i18n="class">Class Management</a>
+      <a class="menu-item" href="./settings.html" data-i18n="settings">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <div class="kb-head">
+      <div>
+        <h1 class="kb-title" data-kb-i18n="title">知识库可视化</h1>
+        <div class="kb-sub" data-kb-i18n="subtitle">按课题查看历史作业分析的时间线与误区热度。</div>
+      </div>
+      <div class="kb-actions">
+        <label class="btn ghost import-btn" for="kbImportFile" data-kb-i18n="importFile">导入文件</label>
+        <input id="kbImportFile" type="file" accept=".txt,.md,.json,.csv" hidden />
+        <button class="btn ghost" id="btnRefresh" data-kb-i18n="refresh">刷新</button>
+      </div>
+    </div>
+
+    <section class="card kb-import">
+      <div class="card-title" data-kb-i18n="importTitle">导入自定义知识库</div>
+      <div class="card-sub" data-kb-i18n="importSub">支持 txt/md/json/csv。导入后会在 AI 生成教案与习题前自动注入。</div>
+      <div class="kb-import-grid">
+        <div class="kb-filter grow">
+          <label data-kb-i18n="topicLabel">课题</label>
+          <input id="importTopic" type="text" />
+        </div>
+        <div class="kb-filter grow">
+          <label data-kb-i18n="tagsLabel">标签</label>
+          <input id="importTags" type="text" />
+        </div>
+      </div>
+      <div class="kb-filter kb-manual">
+        <label data-kb-i18n="manualContent">手动录入内容</label>
+        <textarea id="importContent" rows="4"></textarea>
+      </div>
+      <div class="kb-import-actions">
+        <button class="btn primary" id="btnImportManual" data-kb-i18n="saveKnowledge">保存到知识库</button>
+        <button class="btn ghost" id="btnDownloadCsvTemplate" data-kb-i18n="templateCsv">下载 CSV 模板</button>
+        <button class="btn ghost" id="btnDownloadJsonTemplate" data-kb-i18n="templateJson">下载 JSON 模板</button>
+        <div id="importStatus" class="import-status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="card kb-filters">
+      <div class="kb-filter">
+        <label data-kb-i18n="classLabel">班级</label>
+        <select id="filterClass"></select>
+      </div>
+      <div class="kb-filter grow">
+        <label data-kb-i18n="topicLabel">课题</label>
+        <input id="filterTopicSearch" list="topicDatalist" type="text" />
+        <datalist id="topicDatalist"></datalist>
+      </div>
+      <div class="kb-filter stat">
+        <label data-kb-i18n="recordLabel">样本数</label>
+        <div id="recordCount" class="record-count">0</div>
+      </div>
+    </section>
+
+    <section class="kb-grid">
+      <div class="card">
+        <div class="card-title" data-kb-i18n="heatTitle">误区热度</div>
+        <div class="card-sub" data-kb-i18n="heatSub">出现次数越高，越应优先纠偏。</div>
+        <div id="heatList" class="heat-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" data-kb-i18n="wrongTitle">高频错题</div>
+        <div class="card-sub" data-kb-i18n="wrongSub">按课题聚合的高频错题，用于复习课精准纠偏。</div>
+        <div id="wrongList" class="wrong-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" data-kb-i18n="timelineTitle">作业分析时间线</div>
+        <div class="card-sub" data-kb-i18n="timelineSub">按时间展示该课题下每次批改的学情结论。</div>
+        <div id="timeline" class="timeline"></div>
+      </div>
+
+      <div class="card kb-custom-card">
+        <div class="card-title" data-kb-i18n="customKbTitle">已导入知识库</div>
+        <div class="card-sub" data-kb-i18n="customKbSub">这些条目会在 AI 调用前注入到提示词上下文。</div>
+        <div id="customKbList" class="custom-kb-list"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="../js/i18n.js"></script>
+<script src="./js/teacher.js"></script>
+<script src="./js/knowledge.js"></script>
+</body>
+</html>

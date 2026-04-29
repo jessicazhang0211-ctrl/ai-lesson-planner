@@ -2,7 +2,9 @@ const exerciseDict = {
   zh: {
     title:"习题设计", sub:"选择题型与难度，生成可直接发给学生的练习题。",
     config:"配置", grade:"年级", subject:"学科", topic:"知识点/主题",
+    lessonFile:"导入教案文件（可选）", lessonFileHint:"可上传教案文件，系统会提取其中重难点用于习题生成。",
     types:"题型", tSingle:"单选", tFill:"填空", tShort:"简答",
+    lessonRef:"选择已生成教案", lessonRefHint:"可选择教案生成里已生成的教案，按其中重难点参考出题。", lessonRefEmpty:"不选择教案", lessonRefRefresh:"刷新教案列表", lessonRefLoading:"教案加载中...",
     difficulty:"难度", easy:"简单", medium:"中等", hard:"较难",
     count:"题量", includeAnswer:"包含答案解析", yes:"是", no:"否",
     generate:"生成习题", clear:"清空", hint:"目前为模板生成 + 数据库存档，后续可接入 AI 模型提升题目质量。",
@@ -10,7 +12,7 @@ const exerciseDict = {
     emptyTitle:"还没有内容", emptySub:"填写左侧信息并点击“生成习题”。",
     required:"请至少填写知识点/主题", copied:"已复制到剪贴板",
     history:"最近生成", refresh:"刷新", loading:"生成中...", loadFail:"加载失败", saved:"已保存", saveFail:"保存失败",
-    genFail:"生成失败：请检查后端是否启动 / 路由是否注册 / login_user 是否包含 id",
+    genFail:"生成失败：请检查后端是否启动、路由是否注册，或登录状态是否有效",
     emptyHistory:"(空)",
     withAnalysis:"含解析",
     noAnalysis:"无解析",
@@ -19,12 +21,16 @@ const exerciseDict = {
     analysisLabel:"解析",
     scoreLabel:"分值",
     pdfFontError:"PDF 字体加载失败，中文会乱码。请用本地静态服务器打开前端后重试。\n例如：cd frontend && python -m http.server 8000",
-    defaultExerciseTitle:"习题"
+    defaultExerciseTitle:"习题",
+    variants:"生成同构变式",
+    variantFail:"变式生成失败"
   },
   en: {
     title:"Exercise Builder", sub:"Choose types & difficulty and generate ready-to-use exercises.",
     config:"Config", grade:"Grade", subject:"Subject", topic:"Topic/Skill",
+    lessonFile:"Lesson file (optional)", lessonFileHint:"Upload a lesson file to extract key/difficult points for question generation.",
     types:"Types", tSingle:"Single choice", tFill:"Fill in", tShort:"Short answer",
+    lessonRef:"Choose generated lesson", lessonRefHint:"Select a generated lesson and use its key/difficult points as reference.", lessonRefEmpty:"No lesson selected", lessonRefRefresh:"Refresh lessons", lessonRefLoading:"Loading lessons...",
     difficulty:"Difficulty", easy:"Easy", medium:"Medium", hard:"Hard",
     count:"Count", includeAnswer:"Include answers", yes:"Yes", no:"No",
     generate:"Generate", clear:"Clear", hint:"Template generator + saved to DB. You can plug in AI later.",
@@ -32,7 +38,7 @@ const exerciseDict = {
     emptyTitle:"No content yet", emptySub:"Fill the form and click “Generate”.",
     required:"Please fill in the topic/skill", copied:"Copied",
     history:"Recent", refresh:"Refresh", loading:"Generating...", loadFail:"Load failed", saved:"Saved", saveFail:"Save failed",
-    genFail:"Failed: check backend / route registration / login_user has id",
+    genFail:"Failed: check backend, route registration, or login session",
     emptyHistory:"(empty)",
     withAnalysis:"With explanations",
     noAnalysis:"No explanations",
@@ -41,7 +47,9 @@ const exerciseDict = {
     analysisLabel:"Explanation",
     scoreLabel:"Score",
     pdfFontError:"PDF font loading failed. CJK text may be garbled. Please open frontend via a local HTTP server and try again.\nExample: cd frontend && python -m http.server 8000",
-    defaultExerciseTitle:"Exercise"
+    defaultExerciseTitle:"Exercise",
+    variants:"Generate Variants",
+    variantFail:"Variant generation failed"
   }
 };
 
@@ -63,9 +71,29 @@ function getFontCandidates(url) {
 }
 
 const API_BASE = "http://127.0.0.1:5000";
+const LESSON_TEXT_MAX_CHARS = 12000;
+const lessonHistoryMap = new Map();
 
 function getToken(){
   return localStorage.getItem('auth_token') || '';
+}
+
+async function apiLessonHistory(){
+  const token = ensureAuthOrRedirect();
+  if (!token) throw new Error("missing token");
+
+  const res = await fetch(`${API_BASE}/api/lesson/history`, {
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  });
+  const data = await res.json().catch(()=> ({}));
+  if(!res.ok || data.code !== 0) {
+    const msg = data.message || `HTTP ${res.status} lesson history failed`;
+    if (res.status === 401 || redirectToLoginOnAuthError(msg)) throw new Error(msg);
+    throw new Error(msg);
+  }
+  return data.data;
 }
 
 function parseJwtPayload(token){
@@ -117,7 +145,12 @@ function toEnglishGrade(raw) {
     "小学一年级": "Year 1",
     "小学二年级": "Year 2",
     "小学三年级": "Year 3",
-    "初一": "Year 7"
+    "小学四年级": "Year 4",
+    "小学五年级": "Year 5",
+    "小学六年级": "Year 6",
+    "初一": "Year 7",
+    "初二": "Year 8",
+    "初三": "Year 9"
   };
   return map[raw] || raw;
 }
@@ -176,8 +209,8 @@ function applyExerciseLang(){
   const locale = getLocale();
   const gradeSel = document.getElementById("grade");
   if (gradeSel) {
-    const zh = ["小学一年级", "小学二年级", "小学三年级", "初一"];
-    const en = ["Year 1", "Year 2", "Year 3", "Year 7"];
+    const zh = ["小学一年级", "小学二年级", "小学三年级", "小学四年级", "小学五年级", "小学六年级", "初一", "初二", "初三"];
+    const en = ["Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6", "Year 7", "Year 8", "Year 9"];
     Array.from(gradeSel.options).forEach((opt, idx) => {
       if (idx < zh.length) opt.textContent = locale === "en" ? en[idx] : zh[idx];
     });
@@ -378,17 +411,35 @@ function downloadWord(filename, text) {
   URL.revokeObjectURL(url);
 }
 
-async function apiGenerate(payload){
+async function apiGenerate(payload, lessonFile){
   const token = ensureAuthOrRedirect();
   if (!token) throw new Error("missing token");
 
+  const useMultipart = lessonFile instanceof File;
+  const headers = {
+    "Authorization": `Bearer ${token}`
+  };
+  let body;
+  if (useMultipart) {
+    const form = new FormData();
+    Object.entries(payload || {}).forEach(([k, v]) => {
+      if (Array.isArray(v) || (v && typeof v === "object")) {
+        form.append(k, JSON.stringify(v));
+      } else {
+        form.append(k, v == null ? "" : String(v));
+      }
+    });
+    form.append("lesson_file", lessonFile);
+    body = form;
+  } else {
+    headers["Content-Type"] = "application/json";
+    body = JSON.stringify(payload);
+  }
+
   const res = await fetch(`${API_BASE}/api/exercise/generate`,{
     method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      "Authorization": `Bearer ${token}`
-    },
-    body: JSON.stringify(payload)
+    headers,
+    body
   });
   const data = await res.json().catch(()=> ({}));
   if(!res.ok || data.code !== 0) {
@@ -397,6 +448,26 @@ async function apiGenerate(payload){
     throw new Error(msg);
   }
   return data.data; // {set_id, content, exercise_id}
+}
+
+async function apiVariants(motherQuestion, count = 3){
+  const token = ensureAuthOrRedirect();
+  if (!token) throw new Error("missing token");
+  const res = await fetch(`${API_BASE}/api/exercise/variants`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify({ mother_question: motherQuestion, count: Number(count) || 3 })
+  });
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok || data.code !== 0) {
+    const msg = data.message || `HTTP ${res.status} variants failed`;
+    if (res.status === 401 || redirectToLoginOnAuthError(msg)) throw new Error(msg);
+    throw new Error(msg);
+  }
+  return data.data;
 }
 
 async function apiUpdateExercise(exerciseId, content, meta){
@@ -477,6 +548,7 @@ function renderHistory(list){
       const id = Number(el.getAttribute("data-id")) || null;
       currentExerciseId = id;
       const item = list.find(i => Number(i.id) === id) || {};
+      lastStructuredExercise = tryParseJson(content);
       setOutput(formatExerciseContent(content, item));
       localStorage.setItem("last_exercise", getOutputText());
       renderHistory(list);
@@ -495,22 +567,77 @@ function payloadFromForm(){
     types: checkedTypes(),
     includeAnswer: val("includeAnswer")
   };
+  const selectedLessonText = getSelectedLessonText();
+  if (selectedLessonText) {
+    payload.lesson_text = selectedLessonText;
+  }
   return normalizeExercisePayloadForLocale(payload);
 }
 
 let currentExerciseId = null;
+let lastStructuredExercise = null;
+
+function renderLessonSelect(list){
+  const sel = document.getElementById("lessonSelect");
+  if (!sel) return;
+
+  const current = sel.value || "";
+  lessonHistoryMap.clear();
+  const options = [`<option value="">${t("lessonRefEmpty")}</option>`];
+  const rows = Array.isArray(list) ? list : [];
+  rows.forEach((item) => {
+    const id = String(item.id || "");
+    if (!id) return;
+    lessonHistoryMap.set(id, item);
+    const when = String(item.created_at || "").slice(0, 16).replace("T", " ");
+    const topic = item.topic || item.title || "-";
+    const rawLabel = `${topic}${when ? ` (${when})` : ""}`;
+    const label = rawLabel.length > 42 ? `${rawLabel.slice(0, 39)}...` : rawLabel;
+    options.push(`<option value="${id}">${label}</option>`);
+  });
+  sel.innerHTML = options.join("");
+
+  if (current && lessonHistoryMap.has(current)) {
+    sel.value = current;
+  } else {
+    sel.value = "";
+  }
+}
+
+function getSelectedLessonText(){
+  const sel = document.getElementById("lessonSelect");
+  if (!sel || !sel.value) return "";
+  const row = lessonHistoryMap.get(String(sel.value));
+  const content = (row && row.content) ? String(row.content) : "";
+  return content.slice(0, LESSON_TEXT_MAX_CHARS);
+}
+
+async function refreshLessonSelect(){
+  const sel = document.getElementById("lessonSelect");
+  if (sel) {
+    sel.innerHTML = `<option value="">${t("lessonRefLoading")}</option>`;
+  }
+  try {
+    const list = await apiLessonHistory();
+    renderLessonSelect(list);
+  } catch {
+    renderLessonSelect([]);
+  }
+}
 
 function bindEvents(){
   document.getElementById("genBtn").addEventListener("click", async (e)=>{
     e.preventDefault();
     const p = payloadFromForm();
+    const lessonFile = document.getElementById("lessonFile")?.files?.[0] || null;
     if(!p.topic){
       alert(t("required"));
       return;
     }
     setOutput(t("loading"));
     try{
-      const r = await apiGenerate(p);
+      const r = await apiGenerate(p, lessonFile);
+      lastStructuredExercise = tryParseJson(r.content);
       const formatted = formatExerciseContent(r.content, p);
       setOutput(formatted);
       localStorage.setItem("last_exercise", formatted);
@@ -518,15 +645,36 @@ function bindEvents(){
       await refreshHistory();
     }catch(err){
       console.error(err);
-      alert(t("genFail"));
+      const msg = (err && err.message) ? err.message : t("genFail");
+      alert(msg || t("genFail"));
       setOutput("");
+    }
+  });
+
+  document.getElementById("refreshLessons")?.addEventListener("click", async (e) => {
+    e.preventDefault();
+    await refreshLessonSelect();
+  });
+
+  document.getElementById("lessonSelect")?.addEventListener("change", () => {
+    const sel = document.getElementById("lessonSelect");
+    if (!sel || !sel.value) return;
+    const row = lessonHistoryMap.get(String(sel.value));
+    const topicInput = document.getElementById("topic");
+    if (topicInput && row) {
+      topicInput.value = (row.topic || row.title || "").trim();
     }
   });
 
   document.getElementById("clearBtn").addEventListener("click",(e)=>{
     e.preventDefault();
     document.getElementById("topic").value = "";
+    const lessonFileInput = document.getElementById("lessonFile");
+    if (lessonFileInput) lessonFileInput.value = "";
+    const lessonSelect = document.getElementById("lessonSelect");
+    if (lessonSelect) lessonSelect.value = "";
     setOutput("");
+    lastStructuredExercise = null;
     localStorage.removeItem("last_exercise");
   });
 
@@ -574,6 +722,33 @@ function bindEvents(){
     e.preventDefault();
     await refreshHistory();
   });
+
+  document.getElementById("variantBtn")?.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const structured = lastStructuredExercise;
+    const first = structured?.questions?.[0];
+    if (!first) {
+      alert(t("variantFail"));
+      return;
+    }
+    const mother = {
+      stem: first.stem || "",
+      answer: Array.isArray(first.answer) ? first.answer.join(",") : String(first.answer || "")
+    };
+    try {
+      const data = await apiVariants(mother, 3);
+      const lines = (getOutputText() || "").split("\n");
+      lines.push("");
+      lines.push(getLocale() === "en" ? "Isomorphic Variants:" : "同构变式：");
+      (data.variants || []).forEach((v, idx) => {
+        lines.push(`${idx + 1}. ${v.stem || ""}`);
+        if (v.answer) lines.push(`   ${t("answerLabel")}: ${v.answer}`);
+      });
+      setOutput(lines.join("\n").trim());
+    } catch {
+      alert(t("variantFail"));
+    }
+  });
 }
 
 async function refreshHistory(options = {}){
@@ -584,10 +759,12 @@ async function refreshHistory(options = {}){
       if (Array.isArray(list) && list.length > 0) {
         const latest = list[0];
         currentExerciseId = Number(latest.id) || null;
+        lastStructuredExercise = tryParseJson(latest.content || latest.description || "");
         setOutput(formatExerciseContent(latest.content || latest.description || "", latest));
         localStorage.setItem("last_exercise", getOutputText());
       } else {
         currentExerciseId = null;
+        lastStructuredExercise = null;
         setOutput("");
         localStorage.removeItem("last_exercise");
       }
@@ -612,6 +789,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   setOutput("");
 
   bindEvents();
+  await refreshLessonSelect();
   await refreshHistory({ autoOpenLatest: true });
 
   const out = document.getElementById("output");

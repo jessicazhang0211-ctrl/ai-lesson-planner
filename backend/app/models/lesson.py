@@ -9,6 +9,9 @@ class Lesson(db.Model):
     description = db.Column(db.Text, nullable=True)
     created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, nullable=True)
+    version = db.Column(db.Integer, nullable=False, default=1)
+    root_lesson_id = db.Column(db.Integer, nullable=True, index=True)
+    parent_lesson_id = db.Column(db.Integer, nullable=True, index=True)
 
     def to_dict(self):
         return {
@@ -16,5 +19,8 @@ class Lesson(db.Model):
             'title': self.title,
             'content': self.description,
             'created_by': self.created_by,
-            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else ''
+            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else '',
+            'version': int(self.version or 1),
+            'root_lesson_id': self.root_lesson_id,
+            'parent_lesson_id': self.parent_lesson_id,
         }

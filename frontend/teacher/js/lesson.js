@@ -34,8 +34,22 @@ const lessonDict = {
     lessonUnit: "节",
     minuteUnit: "分钟",
     teacherLabel: "执教者",
+    includeReview: "复习模式：注入历史学情反馈",
+    includeReviewHint: "勾选后，生成时会参考同课题已批改作业分析。",
+    reviewLessonTag: "复习",
     pdfFontError: "PDF 字体加载失败，中文会乱码。请用本地静态服务器打开前端后重试。\n例如：cd frontend && python -m http.server 8000",
     defaultPlanTitle: "教案"
+    ,
+    reviewNeeded: "需复核",
+    versionHistory: "版本历史",
+    diffView: "查看差异",
+    diffModeUnified: "统一视图",
+    diffModeSplit: "并排视图",
+    diffFilterPlaceholder: "按关键词筛选差异",
+    rollback: "回滚",
+    rollbackOk: "已回滚到目标版本",
+    rollbackFail: "回滚失败",
+    diffEmpty: "暂无差异内容"
   },
   en: {
     lessonTitle: "Lesson Planner",
@@ -72,8 +86,22 @@ const lessonDict = {
     lessonUnit: " lessons",
     minuteUnit: " mins",
     teacherLabel: "Teacher",
+    includeReview: "Review mode: include historical learning analytics",
+    includeReviewHint: "When checked, generation will use graded assignment analyses from same topic.",
+    reviewLessonTag: "Review",
     pdfFontError: "PDF font loading failed. CJK text may be garbled. Please open frontend via a local HTTP server and try again.\nExample: cd frontend && python -m http.server 8000",
     defaultPlanTitle: "Lesson Plan"
+    ,
+    reviewNeeded: "Needs Review",
+    versionHistory: "Version History",
+    diffView: "View Diff",
+    diffModeUnified: "Unified",
+    diffModeSplit: "Split",
+    diffFilterPlaceholder: "Filter diff by keyword",
+    rollback: "Rollback",
+    rollbackOk: "Rolled back to target version",
+    rollbackFail: "Rollback failed",
+    diffEmpty: "No diff content"
   }
 };
 
@@ -100,12 +128,21 @@ function getLocale() {
 
 function toEnglishGrade(raw) {
   const map = {
-    "小学一年级": "Year 1",
-    "小学二年级": "Year 2",
-    "小学三年级": "Year 3",
-    "小学四年级": "Year 4",
-    "小学五年级": "Year 5",
-    "小学六年级": "Year 6"
+    "1年级": "Grade 1",
+    "2年级": "Grade 2",
+    "3年级": "Grade 3",
+    "4年级": "Grade 4",
+    "5年级": "Grade 5",
+    "6年级": "Grade 6",
+    "初一": "Junior 1",
+    "初二": "Junior 2",
+    "初三": "Junior 3",
+    "小学一年级": "Grade 1",
+    "小学二年级": "Grade 2",
+    "小学三年级": "Grade 3",
+    "小学四年级": "Grade 4",
+    "小学五年级": "Grade 5",
+    "小学六年级": "Grade 6"
   };
   return map[raw] || raw;
 }
@@ -147,10 +184,15 @@ function applyLessonLang() {
     if (t[key]) el.textContent = t[key];
   });
 
+  document.querySelectorAll("[data-i18n-page-placeholder]").forEach(el => {
+    const key = el.getAttribute("data-i18n-page-placeholder");
+    if (t[key]) el.setAttribute("placeholder", t[key]);
+  });
+
   const gradeSel = document.getElementById("grade");
   if (gradeSel) {
-    const zhGrades = ["小学一年级", "小学二年级", "小学三年级", "小学四年级", "小学五年级", "小学六年级"];
-    const enGrades = ["Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"];
+    const zhGrades = ["小学一年级", "小学二年级", "小学三年级", "小学四年级", "小学五年级", "小学六年级", "初一", "初二", "初三"];
+    const enGrades = ["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Junior 1", "Junior 2", "Junior 3"];
     Array.from(gradeSel.options).forEach((opt, idx) => {
       if (idx < zhGrades.length) opt.textContent = lang === "en" ? enGrades[idx] : zhGrades[idx];
     });
@@ -188,6 +230,11 @@ function applyLessonLang() {
 function val(id) {
   const el = document.getElementById(id);
   return el ? el.value.trim() : "";
+}
+
+function checked(id) {
+  const el = document.getElementById(id);
+  return !!(el && el.checked);
 }
 
 function templatePlan(input) {
@@ -265,6 +312,24 @@ function setOutput(text) {
   empty.style.display = text ? "none" : "flex";
 }
 
+function setReviewBadge(needReview, reasons = []) {
+  const badge = document.getElementById("reviewBadge");
+  if (!badge) return;
+  const locale = getLocale();
+  if (!needReview) {
+    badge.style.display = "none";
+    badge.title = "";
+    return;
+  }
+  badge.style.display = "inline-flex";
+  badge.textContent = lessonDict[locale].reviewNeeded;
+  if (Array.isArray(reasons) && reasons.length > 0) {
+    badge.title = reasons.join("; ");
+  } else {
+    badge.title = "";
+  }
+}
+
 function escapeHtml(text) {
   return String(text || "")
     .replace(/&/g, "&amp;")
@@ -317,10 +382,27 @@ function formatLessonJsonToDocText(obj) {
   const locale = getLocale();
   const isEn = locale === "en";
   const lines = [];
-  const title = obj.lesson_title || obj.topic || lessonDict[getLocale()].defaultPlanTitle;
+  const title = obj.lesson_title || obj.title || obj.topic || lessonDict[getLocale()].defaultPlanTitle;
   lines.push(String(title));
   lines.push(`${lessonDict[getLocale()].teacherLabel}: ${isEn ? "[Your Name]" : "[您的姓名]"}`);
   lines.push("");
+
+  const objectivesList = Array.isArray(obj.learning_objectives)
+    ? obj.learning_objectives
+    : (Array.isArray(obj.objectives) ? obj.objectives : []);
+  const sequenceList = Array.isArray(obj.teaching_sequence)
+    ? obj.teaching_sequence
+    : (Array.isArray(obj.steps)
+      ? obj.steps.map((s, idx) => ({
+          phase: (s && s.title) ? s.title : (isEn ? `Step ${idx + 1}` : `环节${idx + 1}`),
+          teacher_actions: (s && s.content) ? [String(s.content)] : [],
+          student_activities: [],
+          assessment_opportunities: [],
+          purpose: "",
+          duration_minutes: "",
+        }))
+      : []);
+  const exerciseList = Array.isArray(obj.exercises) ? obj.exercises : [];
 
   lines.push(isEn ? "I. Basic Information" : "一、 基本信息");
   [
@@ -335,8 +417,8 @@ function formatLessonJsonToDocText(obj) {
   lines.push("");
 
   lines.push(isEn ? "II. Teaching Objectives" : "二、 教学目标");
-  (obj.learning_objectives || []).forEach((x, i) => lines.push(`${i + 1}. ${x}`));
-  if (!Array.isArray(obj.learning_objectives) || obj.learning_objectives.length === 0) {
+  objectivesList.forEach((x, i) => lines.push(`${i + 1}. ${x}`));
+  if (objectivesList.length === 0) {
     lines.push(isEn ? "- N/A" : "- 无");
   }
   lines.push("");
@@ -357,7 +439,7 @@ function formatLessonJsonToDocText(obj) {
   lines.push("");
 
   lines.push(isEn ? "IV. Teaching Process" : "四、 教学过程");
-  const seq = Array.isArray(obj.teaching_sequence) ? obj.teaching_sequence : [];
+  const seq = sequenceList;
   if (seq.length) {
     seq.forEach((step, idx) => {
       const phase = step.phase || (isEn ? `Step ${idx + 1}` : `环节${idx + 1}`);
@@ -392,7 +474,16 @@ function formatLessonJsonToDocText(obj) {
     formatKvLine(isEn ? "Written reflection" : "书面反思", hw.written_reflection),
     formatKvLine(isEn ? "Extension task" : "拓展任务", hw.extension)
   ].filter(Boolean).forEach(x => lines.push(x));
-  if (!Object.keys(hw).length) lines.push(isEn ? "- N/A" : "- 无");
+  if (exerciseList.length) {
+    exerciseList.forEach((ex, i) => {
+      const q = (ex && ex.question) ? String(ex.question) : "";
+      const a = (ex && ex.answer) ? String(ex.answer) : "";
+      if (!q && !a) return;
+      lines.push(`${i + 1}. ${q || (isEn ? "Question" : "题目")}`);
+      if (a) lines.push(`   - ${isEn ? "Answer" : "参考答案"}: ${a}`);
+    });
+  }
+  if (!Object.keys(hw).length && exerciseList.length === 0) lines.push(isEn ? "- N/A" : "- 无");
   lines.push("");
 
   lines.push(isEn ? "VII. Teaching Resources" : "七、 教学资源展示");
@@ -419,16 +510,68 @@ function formatLessonJsonToDocText(obj) {
 }
 
 function setOutputFromAny(rawText, rawJsonObj) {
+  const toDisplayText = () => {
+    if (rawJsonObj && typeof rawJsonObj === "object") {
+      return formatLessonJsonToDocText(rawJsonObj);
+    }
+    const parsed = tryParseJsonObject(rawText);
+    if (parsed) {
+      return formatLessonJsonToDocText(parsed);
+    }
+    return rawText || "";
+  };
+
+  setOutput(toDisplayText());
+}
+
+function getDisplayTextFromAny(rawText, rawJsonObj) {
   if (rawJsonObj && typeof rawJsonObj === "object") {
-    setOutput(formatLessonJsonToDocText(rawJsonObj));
-    return;
+    return formatLessonJsonToDocText(rawJsonObj);
   }
   const parsed = tryParseJsonObject(rawText);
   if (parsed) {
-    setOutput(formatLessonJsonToDocText(parsed));
-    return;
+    return formatLessonJsonToDocText(parsed);
   }
-  setOutput(rawText || "");
+  return rawText || "";
+}
+
+function buildProgressiveLessonStages(lessonCount) {
+  const locale = getLocale();
+  const total = Math.max(1, Number(lessonCount) || 1);
+  if (total <= 1) return [locale === "en" ? "Single Lesson" : "单课时"];
+
+  const zhPhases = ["概念导入", "基础理解", "方法建构", "例题训练", "巩固提升", "综合应用", "查漏补缺", "复盘评估", "拓展提升"];
+  const enPhases = ["Concept Intro", "Basic Understanding", "Method Building", "Worked Examples", "Consolidation", "Integrated Practice", "Gap Fix", "Review", "Extension"];
+
+  const out = [];
+  for (let i = 0; i < total; i += 1) {
+    const part = (locale === "en" ? enPhases[i] : zhPhases[i]) || (locale === "en" ? `Part ${i + 1}` : `第${i + 1}部分`);
+    out.push(part);
+  }
+  return out;
+}
+
+async function requestLessonGeneration(input) {
+  const token = getToken();
+  if (!token) throw new Error("missing token");
+  const res = await fetch(`${API_BASE}/api/lesson/generate`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify({ ...input, lang: getLocale() })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (isAuthInvalidResponse(res, data)) {
+    handleAuthExpired();
+    return { authExpired: true };
+  }
+  return {
+    ok: Boolean(res.ok && data.code === 0),
+    detail: data.message || lessonDict[getLocale()].unknownError,
+    payload: data.data || null
+  };
 }
 
 function getOutputText() {
@@ -499,6 +642,234 @@ async function apiUpdateLesson(lessonId, content, meta) {
   }
   if (!res.ok || data.code !== 0) throw new Error(data.message || "save failed");
   return data.data;
+}
+
+async function apiLessonVersions(lessonId) {
+  const token = getToken();
+  if (!token) throw new Error("missing token");
+  const res = await fetch(`${API_BASE}/api/lesson/${lessonId}/versions`, {
+    headers: { "Authorization": `Bearer ${token}` }
+  });
+  const data = await res.json().catch(()=>({}));
+  if (isAuthInvalidResponse(res, data)) {
+    handleAuthExpired();
+    throw new Error("auth expired");
+  }
+  if (!res.ok || data.code !== 0) throw new Error(data.message || "versions failed");
+  return data.data || {};
+}
+
+async function apiRollbackLesson(lessonId, targetVersion) {
+  const token = getToken();
+  if (!token) throw new Error("missing token");
+  const res = await fetch(`${API_BASE}/api/lesson/${lessonId}/rollback`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify({ target_version: Number(targetVersion) })
+  });
+  const data = await res.json().catch(()=>({}));
+  if (isAuthInvalidResponse(res, data)) {
+    handleAuthExpired();
+    throw new Error("auth expired");
+  }
+  if (!res.ok || data.code !== 0) throw new Error(data.message || "rollback failed");
+  return data.data;
+}
+
+async function apiLessonVersionDetail(lessonId, logId) {
+  const token = getToken();
+  if (!token) throw new Error("missing token");
+  const res = await fetch(`${API_BASE}/api/lesson/${lessonId}/versions/${logId}`, {
+    headers: { "Authorization": `Bearer ${token}` }
+  });
+  const data = await res.json().catch(()=>({}));
+  if (isAuthInvalidResponse(res, data)) {
+    handleAuthExpired();
+    throw new Error("auth expired");
+  }
+  if (!res.ok || data.code !== 0) throw new Error(data.message || "version detail failed");
+  return data.data || {};
+}
+
+let currentDiffDetail = null;
+
+function _filteredLines(lines, keyword) {
+  const arr = Array.isArray(lines) ? lines : [];
+  const kw = String(keyword || "").trim().toLowerCase();
+  if (!kw) return arr;
+  return arr.filter((x) => String(x || "").toLowerCase().includes(kw));
+}
+
+function _escape(s) {
+  return escapeHtml(String(s || ""));
+}
+
+function _renderUnified(detail, keyword) {
+  const linesEl = document.getElementById("diffLines");
+  if (!linesEl) return;
+  const raw = detail?.diff?.line_diff || [];
+  const lines = _filteredLines(raw, keyword);
+  if (!lines.length) {
+    linesEl.innerHTML = `<div class="diff-line meta">${lessonDict[getLocale()].diffEmpty}</div>`;
+    return;
+  }
+  linesEl.innerHTML = lines.map((ln) => {
+    const s = String(ln || "");
+    let cls = "meta";
+    if (s.startsWith("+") && !s.startsWith("+++")) cls = "add";
+    else if (s.startsWith("-") && !s.startsWith("---")) cls = "del";
+    return `<div class="diff-line ${cls}">${_escape(s)}</div>`;
+  }).join("");
+}
+
+function _renderSplit(detail, keyword) {
+  const beforeEl = document.getElementById("diffBefore");
+  const afterEl = document.getElementById("diffAfter");
+  if (!beforeEl || !afterEl) return;
+
+  const beforeLines = _filteredLines(String(detail?.before_content || "").split(/\r?\n/), keyword);
+  const afterLines = _filteredLines(String(detail?.after_content || "").split(/\r?\n/), keyword);
+
+  beforeEl.innerHTML = beforeLines.length
+    ? beforeLines.map((x) => `<div class="diff-line del">${_escape(x)}</div>`).join("")
+    : `<div class="diff-line meta">${lessonDict[getLocale()].diffEmpty}</div>`;
+  afterEl.innerHTML = afterLines.length
+    ? afterLines.map((x) => `<div class="diff-line add">${_escape(x)}</div>`).join("")
+    : `<div class="diff-line meta">${lessonDict[getLocale()].diffEmpty}</div>`;
+}
+
+function _setDiffMode(mode) {
+  const unifiedBtn = document.getElementById("diffUnifiedBtn");
+  const splitBtn = document.getElementById("diffSplitBtn");
+  const linesEl = document.getElementById("diffLines");
+  const splitEl = document.getElementById("diffSplit");
+  const useSplit = mode === "split";
+
+  unifiedBtn?.classList.toggle("active", !useSplit);
+  splitBtn?.classList.toggle("active", useSplit);
+  if (linesEl) linesEl.style.display = useSplit ? "none" : "block";
+  if (splitEl) splitEl.style.display = useSplit ? "grid" : "none";
+}
+
+function refreshDiffRender() {
+  const detail = currentDiffDetail;
+  const box = document.getElementById("diffBox");
+  const metaEl = document.getElementById("diffMeta");
+  const filterEl = document.getElementById("diffFilterInput");
+  const unifiedBtn = document.getElementById("diffUnifiedBtn");
+  const splitBtn = document.getElementById("diffSplitBtn");
+  if (!box || !metaEl) return;
+
+  if (!detail) {
+    box.style.display = "none";
+    return;
+  }
+
+  box.style.display = "block";
+  metaEl.textContent = `v${detail.version_from} -> v${detail.version_to} · ${detail.created_at || ""}`;
+  const keyword = filterEl?.value || "";
+  const mode = splitBtn?.classList.contains("active") ? "split" : "unified";
+  _setDiffMode(mode);
+  if (mode === "split") _renderSplit(detail, keyword);
+  else _renderUnified(detail, keyword);
+
+  if (unifiedBtn && !unifiedBtn.dataset.bound) {
+    unifiedBtn.dataset.bound = "1";
+    unifiedBtn.addEventListener("click", () => {
+      _setDiffMode("unified");
+      refreshDiffRender();
+    });
+  }
+  if (splitBtn && !splitBtn.dataset.bound) {
+    splitBtn.dataset.bound = "1";
+    splitBtn.addEventListener("click", () => {
+      _setDiffMode("split");
+      refreshDiffRender();
+    });
+  }
+  if (filterEl && !filterEl.dataset.bound) {
+    filterEl.dataset.bound = "1";
+    filterEl.addEventListener("input", () => refreshDiffRender());
+  }
+}
+
+function renderDiffView(detail) {
+  currentDiffDetail = detail || null;
+  refreshDiffRender();
+}
+
+function renderVersions(versionItems) {
+  const box = document.getElementById("versionList");
+  if (!box) return;
+  const list = Array.isArray(versionItems) ? versionItems : [];
+  if (!list.length) {
+    box.innerHTML = `<div style="color:#8a8f98;font-size:12px;">${lessonDict[getLocale()].emptyHistory}</div>`;
+    return;
+  }
+  box.innerHTML = list.map((v) => {
+    const ts = (v.created_at || "").replace("T", " ");
+    return `
+      <div class="version-item" data-v="${v.version_to}" data-log-id="${v.id}">
+        <div class="version-meta">v${v.version_from} -> v${v.version_to} · ${ts}</div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn-diff" type="button">${lessonDict[getLocale()].diffView}</button>
+          <button class="btn-rollback" type="button">${lessonDict[getLocale()].rollback}</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  box.querySelectorAll(".version-item .btn-diff").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      if (!currentLessonId) return;
+      const item = btn.closest(".version-item");
+      const logId = Number(item?.getAttribute("data-log-id") || 0);
+      if (!logId) return;
+      try {
+        const detail = await apiLessonVersionDetail(currentLessonId, logId);
+        renderDiffView(detail);
+      } catch {
+        renderDiffView(null);
+      }
+    });
+  });
+
+  box.querySelectorAll(".version-item .btn-rollback").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      if (!currentLessonId) return;
+      const item = btn.closest(".version-item");
+      const v = Number(item?.getAttribute("data-v") || 0);
+      if (!v) return;
+      try {
+        await apiRollbackLesson(currentLessonId, v);
+        alert(lessonDict[getLocale()].rollbackOk);
+        await refreshHistory({ autoOpenLatest: true });
+        await loadVersionsForCurrent();
+      } catch {
+        alert(lessonDict[getLocale()].rollbackFail);
+      }
+    });
+  });
+}
+
+async function loadVersionsForCurrent() {
+  if (!currentLessonId) {
+    renderVersions([]);
+    renderDiffView(null);
+    return;
+  }
+  try {
+    const data = await apiLessonVersions(currentLessonId);
+    renderVersions(data.versions || []);
+  } catch {
+    renderVersions([]);
+    renderDiffView(null);
+  }
 }
 
 function showLoading(){
@@ -792,6 +1163,7 @@ function bindLessonEvents() {
       objectives: val("objectives"),
       key_points: val("keyPoints"),
       activities: val("activities"),
+      include_review_feedback: checked("includeReview"),
       lesson_count: Number(val("lessonCount") || 1)
     });
 
@@ -803,35 +1175,76 @@ function bindLessonEvents() {
     // 发送到后端 AI 生成
     try {
       showLoading();
-      const token = getToken();
-      if(!token) throw new Error('missing token');
-      const res = await fetch(`${API_BASE}/api/lesson/generate`,{
-        method: 'POST',
-        headers: {
-          'Content-Type':'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ ...input, lang: getLocale() })
-      });
-      const data = await res.json().catch(()=> ({}));
-      if (isAuthInvalidResponse(res, data)) {
-        handleAuthExpired();
+      const lessonCount = Math.max(1, Number(input.lesson_count) || 1);
+      if (lessonCount === 1) {
+        const result = await requestLessonGeneration(input);
+        if (result.authExpired) return;
+        if (result.ok && result.payload) {
+          setOutputFromAny(result.payload.lesson_plan, result.payload.lesson_plan_json || null);
+          const reviewNeeded = Boolean(result.payload.need_review || (result.payload.lesson_plan_json && result.payload.lesson_plan_json._meta && result.payload.lesson_plan_json._meta.status === "need_review"));
+          const reviewReasons = result.payload.review_reasons || (result.payload.lesson_plan_json && result.payload.lesson_plan_json._meta ? result.payload.lesson_plan_json._meta.review_reasons : []);
+          setReviewBadge(reviewNeeded, reviewReasons);
+          localStorage.setItem("last_lesson_plan", getOutputText());
+          currentLessonId = result.payload.lesson_id || null;
+          await refreshHistory();
+          await loadVersionsForCurrent();
+        } else {
+          alert(`${lessonDict[getLocale()].generateFail}: ${result.detail || lessonDict[getLocale()].unknownError}`);
+          setOutput("");
+          setReviewBadge(false);
+        }
         return;
       }
-      if(res.ok && data.code===0){
-        setOutputFromAny(data.data.lesson_plan, data.data.lesson_plan_json || null);
-        localStorage.setItem('last_lesson_plan', getOutputText());
-        currentLessonId = data.data.lesson_id || null;
-        await refreshHistory();
-      }else{
-        const locale = getLocale();
-        const detail = locale === "en" ? lessonDict[locale].unknownError : (data.message || lessonDict[locale].unknownError);
-        alert(`${lessonDict[locale].generateFail}: ${detail}`);
-        setOutput('');
+
+      const stageFocusList = buildProgressiveLessonStages(lessonCount);
+      const titlePrefix = getLocale() === "en" ? "Lesson" : "第";
+      const titleSuffix = getLocale() === "en" ? "" : "节";
+      const sectionDivider = "\n\n========================\n\n";
+      const mergedSections = [];
+      let hasNeedReview = false;
+      const mergedReasons = [];
+      let lastLessonId = null;
+
+      for (let i = 0; i < stageFocusList.length; i += 1) {
+        const stageFocus = stageFocusList[i];
+        const subInput = {
+          ...input,
+          topic: input.topic,
+          lesson_count: 1,
+          source_topic: input.topic,
+          session_index: i + 1,
+          session_total: lessonCount,
+          session_focus: stageFocus,
+        };
+        const result = await requestLessonGeneration(subInput);
+        if (result.authExpired) return;
+        if (!result.ok || !result.payload) {
+          throw new Error(result.detail || lessonDict[getLocale()].unknownError);
+        }
+
+        const sectionText = getDisplayTextFromAny(result.payload.lesson_plan, result.payload.lesson_plan_json || null);
+        const stageTitle = getLocale() === "en"
+          ? `${titlePrefix} ${i + 1}: ${input.topic} (${stageFocus})`
+          : `${titlePrefix}${i + 1}${titleSuffix}：${input.topic}（${stageFocus}）`;
+        mergedSections.push(`${stageTitle}\n\n${sectionText}`);
+        lastLessonId = result.payload.lesson_id || lastLessonId;
+
+        const reviewNeeded = Boolean(result.payload.need_review || (result.payload.lesson_plan_json && result.payload.lesson_plan_json._meta && result.payload.lesson_plan_json._meta.status === "need_review"));
+        if (reviewNeeded) hasNeedReview = true;
+        const reasons = result.payload.review_reasons || (result.payload.lesson_plan_json && result.payload.lesson_plan_json._meta ? result.payload.lesson_plan_json._meta.review_reasons : []);
+        if (Array.isArray(reasons)) reasons.forEach((x) => mergedReasons.push(String(x || "").trim()));
       }
+
+      setOutput(mergedSections.join(sectionDivider));
+      setReviewBadge(hasNeedReview, Array.from(new Set(mergedReasons.filter(Boolean))));
+      localStorage.setItem("last_lesson_plan", getOutputText());
+      currentLessonId = lastLessonId;
+      await refreshHistory();
+      await loadVersionsForCurrent();
     }catch(err){
       alert(`${lessonDict[getLocale()].networkError}: ${err.message}`);
       setOutput('');
+      setReviewBadge(false);
     }
   });
 
@@ -847,6 +1260,7 @@ function bindLessonEvents() {
       if (el) el.value = "";
     });
     setOutput("");
+    setReviewBadge(false);
     localStorage.removeItem("last_lesson_plan");
   });
 
@@ -877,9 +1291,15 @@ function bindLessonEvents() {
       localStorage.setItem('last_lesson_plan', content);
       alert(lessonDict[getLocale()].saved);
       await refreshHistory();
+      await loadVersionsForCurrent();
     } catch {
       alert(lessonDict[getLocale()].saveFail);
     }
+  });
+
+  document.getElementById("refreshVersionsBtn")?.addEventListener("click", async (e) => {
+    e.preventDefault();
+    await loadVersionsForCurrent();
   });
 
   document.getElementById("downloadPdfBtn").addEventListener("click", async (e) => {
@@ -898,9 +1318,17 @@ function initLesson() {
 
   // 历史为空时不回退本地缓存，避免显示过期内容。
   setOutput("");
+  setReviewBadge(false);
 
   // 初始自动拉取最近生成列表，并默认展示最近一条
   refreshHistory({ autoOpenLatest: true });
+
+  window.addEventListener("storage", (e) => {
+    if (e.key === "locale") {
+      applyLessonLang();
+      refreshDiffRender();
+    }
+  });
 }
 
 function renderHistory(list){
@@ -909,16 +1337,24 @@ function renderHistory(list){
   if(!list || list.length===0){ box.innerHTML=`<div style="color:#8a8f98;font-size:12px;">${lessonDict[getLocale()].emptyHistory}</div>`; return }
   box.innerHTML = list.map(item=>{
     const topic = item.topic || item.title || '-';
-    const lessonCount = item.lesson_count ? `${item.lesson_count}${lessonDict[getLocale()].lessonUnit}` : '';
+    const sessionIndex = Number(item.session_index || 0);
+    const sessionTotal = Number(item.session_total || 0);
+    const lessonCount = sessionTotal > 1
+      ? `${sessionIndex > 0 ? sessionIndex : 1}/${sessionTotal}`
+      : (item.lesson_count ? `${item.lesson_count}${lessonDict[getLocale()].lessonUnit}` : '');
     const meta = [displayGradeForLocale(item.grade), displaySubjectForLocale(item.subject), item.duration?`${item.duration}${lessonDict[getLocale()].minuteUnit}`:'', lessonCount].filter(Boolean).join(' · ');
+    const reviewTag = item.need_review ? `<div class="hitem-review"><span class="review-badge">${lessonDict[getLocale()].reviewNeeded}</span></div>` : "";
+    const reviewCorner = item.include_review_feedback ? `<span class="hitem-corner-review">${lessonDict[getLocale()].reviewLessonTag}</span>` : "";
     const active = currentLessonId === Number(item.id) ? 'active' : '';
     return `
-      <div class="hitem ${active}" data-id="${item.id}" data-content="${encodeURIComponent(item.content||'')}">
+      <div class="hitem ${active}" data-id="${item.id}" data-need-review="${item.need_review ? '1' : '0'}" data-content="${encodeURIComponent(item.content||'')}">
+        ${reviewCorner}
         <div class="hitem-top">
           <div class="hitem-title">${topic}</div>
           <div class="hitem-meta">${(item.created_at||'').slice(0,19).replace('T',' ')}</div>
         </div>
         <div class="hitem-sub">${meta}</div>
+        ${reviewTag}
       </div>
     `;
   }).join('');
@@ -926,8 +1362,11 @@ function renderHistory(list){
     el.addEventListener('click', ()=>{
       const c = decodeURIComponent(el.getAttribute('data-content')||'');
       currentLessonId = Number(el.getAttribute('data-id')) || null;
+      const needReview = el.getAttribute('data-need-review') === '1';
       setOutputFromAny(c, null);
+      setReviewBadge(needReview);
       localStorage.setItem('last_lesson_plan', getOutputText());
+      loadVersionsForCurrent();
       renderHistory(list);
     });
   });
@@ -956,11 +1395,15 @@ async function refreshHistory(options = {}){
       const latest = list[0];
       currentLessonId = Number(latest.id) || null;
       setOutputFromAny(latest.content || "", null);
+      setReviewBadge(Boolean(latest.need_review), latest.review_reasons || []);
       localStorage.setItem('last_lesson_plan', getOutputText());
+      loadVersionsForCurrent();
     } else {
       currentLessonId = null;
       setOutput("");
+      setReviewBadge(false);
       localStorage.removeItem('last_lesson_plan');
+      renderVersions([]);
     }
   }
   renderHistory(list);

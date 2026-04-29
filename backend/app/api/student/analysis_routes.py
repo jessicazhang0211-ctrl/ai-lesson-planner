@@ -1,5 +1,10 @@
 from .shared import *
 from .shared import _rule_based_analysis, _ai_analysis, _normalize_lang, _localize_analysis
+from app.services.student_diagnosis_service import (
+    classify_error_type,
+    build_profile_metrics,
+    build_teaching_advice,
+)
 
 
 def _build_analysis_marker(assignments, submissions):
@@ -144,6 +149,50 @@ def overview():
         if total_cnt:
             wrong_rate_map[k] = wrong_cnt / total_cnt
 
+    # Structured student diagnosis records for profile persistence.
+    diagnosis_records = []
+    if pub_ids:
+        submissions_diag = (
+            ExerciseSubmission.query
+            .filter(ExerciseSubmission.publish_id.in_(pub_ids), ExerciseSubmission.student_id == profile.student_id)
+            .order_by(ExerciseSubmission.updated_at.desc())
+            .limit(30)
+            .all()
+        )
+        for s in submissions_diag:
+            if not s.auto_result:
+                continue
+            pub = pub_map.get(s.publish_id)
+            if not pub:
+                continue
+            ex = exercises.get(pub.resource_id)
+            if not ex or not ex.content_json:
+                continue
+            try:
+                structured = json.loads(ex.content_json)
+                auto_result = json.loads(s.auto_result)
+                answers = json.loads(s.answers) if s.answers else {}
+            except Exception:
+                continue
+
+            for q in structured.get("questions", []):
+                qid = q.get("id")
+                if not qid:
+                    continue
+                is_correct = auto_result.get(qid) == "correct"
+                expected = q.get("answer")
+                student_ans = answers.get(qid)
+                error_type = ""
+                if not is_correct:
+                    error_type = classify_error_type(q, student_ans, expected)
+                diagnosis_records.append(
+                    {
+                        "knowledge": q.get("topic") or q.get("knowledge") or q.get("type") or "综合",
+                        "is_correct": is_correct,
+                        "error_type": error_type,
+                    }
+                )
+
     latest_completed_at = None
     if completed_events:
         latest_completed_at = max(
@@ -209,10 +258,28 @@ def overview():
         profile.analysis_json = json.dumps(stored_analysis, ensure_ascii=False)
         profile.analysis_updated_at = datetime.datetime.now()
         profile.analysis_latest_completed_at = latest_signal_at
+
+        # Save structured profile diagnosis and class-level teaching advice.
+        profile_metrics = build_profile_metrics(diagnosis_records)
+        profile.knowledge_stats_json = json.dumps(profile_metrics.get("knowledge_stats", {}), ensure_ascii=False)
+        profile.error_type_stats_json = json.dumps(profile_metrics.get("error_type_stats", {}), ensure_ascii=False)
+        profile.recommendation_text = build_teaching_advice(profile_metrics.get("error_type_stats", {}))
+
         db.session.add(profile)
         db.session.commit()
 
     localized_analysis = _localize_analysis(analysis, lang)
+
+    knowledge_stats = {}
+    error_type_stats = {}
+    try:
+        knowledge_stats = json.loads(profile.knowledge_stats_json) if profile.knowledge_stats_json else {}
+    except Exception:
+        knowledge_stats = {}
+    try:
+        error_type_stats = json.loads(profile.error_type_stats_json) if profile.error_type_stats_json else {}
+    except Exception:
+        error_type_stats = {}
 
     return ok({
         "todo": max(total - completed, 0),
@@ -223,6 +290,11 @@ def overview():
         "avg_score_all": avg_score_all,
         "avg_score_week": avg_score_week,
         "trend": trend_items,
-        "analysis": localized_analysis
+        "analysis": localized_analysis,
+        "student_profile": {
+            "knowledge_stats": knowledge_stats,
+            "error_type_stats": error_type_stats,
+            "recommendation": profile.recommendation_text or "",
+        },
     })
 

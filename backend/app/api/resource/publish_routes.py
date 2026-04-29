@@ -15,6 +15,20 @@ from app.utils.response import err, ok
 from .blueprint import bp
 
 
+def _extract_lesson_meta(lesson: Lesson) -> dict:
+    if not lesson or not isinstance(lesson.description, str):
+        return {}
+    desc = lesson.description or ""
+    if not desc.startswith("__META__"):
+        return {}
+    try:
+        meta_str, _ = desc.split("__\n", 1)
+        meta = json.loads(meta_str.replace("__META__", ""))
+        return meta if isinstance(meta, dict) else {}
+    except Exception:
+        return {}
+
+
 @bp.route("/publish", methods=["POST", "OPTIONS"])
 @token_required
 def publish_resource():
@@ -39,6 +53,25 @@ def publish_resource():
     created_by = int(getattr(g, "current_user_id", 0) or 0)
     if not created_by:
         return err("missing user", http_status=401)
+
+    if resource_type == "lesson":
+        lesson = Lesson.query.get(int(resource_id))
+        if not lesson or int(lesson.created_by) != created_by:
+            return err("lesson not found", http_status=404)
+
+        lesson_meta = _extract_lesson_meta(lesson)
+        review_required = bool(lesson_meta.get("teacher_review_required"))
+        review_approved = bool(lesson_meta.get("teacher_review_approved"))
+        need_review = bool(lesson_meta.get("need_review") or lesson_meta.get("status") == "need_review")
+
+        if review_required and not review_approved:
+            return err("lesson requires teacher review approval before publish", http_status=409)
+        if need_review and not review_approved:
+            return err("lesson is marked need_review; please review/save before publish", http_status=409)
+    else:
+        exercise = Exercise.query.get(int(resource_id))
+        if not exercise or int(exercise.created_by) != created_by:
+            return err("exercise not found", http_status=404)
 
     record = ResourcePublish(
         resource_type=resource_type,

@@ -12,7 +12,7 @@
   .grid{ grid-template-columns: 1fr; }
 }
 
-.form-row{ display:grid; gap:6px; margin-top:10px; }
+.form-row{ display:grid; gap:6px; margin-top:10px; min-width:0; }
 .form-row label{ font-size:13px; color:#646464; }
 
 .form-row input, .form-row select{
@@ -22,6 +22,10 @@
   padding:0 10px;
   outline:none;
   background:#fff;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  box-sizing:border-box;
 }
 .form-row input:focus, .form-row select:focus{
   border-color:#056de8;
@@ -59,6 +63,12 @@
 .ghost-link:hover{ text-decoration:underline; }
 
 .hint{ margin-top:10px; font-size:12px; color:#8a8f98; }
+
+#lessonSelect{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
 
 .preview{ min-height: 620px; position:relative; }
 .preview-head{ display:flex; justify-content:space-between; align-items:center; }

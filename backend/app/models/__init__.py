@@ -6,3 +6,9 @@ from .resource_publish import ResourcePublish
 from .resource_assignment import ResourceAssignment
 from .student_profile import StudentProfile
 from .exercise_submission import ExerciseSubmission
+from .lesson_workflow import LessonWorkflow
+from .generation_log import GenerationLog
+from .lesson_edit_log import LessonEditLog
+from .assignment_analysis import AssignmentAnalysis
+from .validation_log import ValidationLog
+from .knowledge_base_item import KnowledgeBaseItem

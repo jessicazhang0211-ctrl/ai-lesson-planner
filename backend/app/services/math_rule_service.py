@@ -118,6 +118,156 @@ def _parse_answer(answer: Any):
     return None
 
 
+def _extract_numbers(text: str) -> List[float]:
+    matches = re.findall(r"-?\d+(?:\.\d+)?", text or "")
+    return [float(x) for x in matches]
+
+
+def _is_close(a: float, b: float, tol: float = 1e-6) -> bool:
+    return abs(float(a) - float(b)) <= tol
+
+
+def _parse_numeric_answer(answer: Any) -> float:
+    if isinstance(answer, (int, float)):
+        return float(answer)
+    if isinstance(answer, str):
+        nums = _extract_numbers(answer)
+        if nums:
+            return float(nums[-1])
+    return None
+
+
+def _verify_arithmetic_layer(question: str, answer: Any) -> Tuple[bool, str]:
+    expr = _parse_sympy_expr(question)
+    ans_expr = _parse_answer(answer)
+    if expr is None or ans_expr is None:
+        return False, "算术层无法解析题目或答案"
+    try:
+        sympy, _ = _load_sympy_modules()
+        delta = sympy.simplify(expr - ans_expr)
+        if delta == 0:
+            return True, ""
+        return False, f"算术层不一致: 计算结果={expr}, 给定答案={answer}"
+    except Exception as e:
+        return False, f"算术层校验异常: {e}"
+
+
+def _verify_equation_layer(question: str, answer: Any) -> Tuple[bool, str]:
+    if "=" not in (question or ""):
+        return False, "方程层未检测到等号"
+    q = (question or "").replace("^", "**").replace("×", "*").replace("÷", "/")
+    try:
+        sympy, _ = _load_sympy_modules()
+        x = sympy.symbols("x")
+        left_raw, right_raw = [p.strip() for p in q.split("=", 1)]
+        left = sympy.sympify(left_raw)
+        right = sympy.sympify(right_raw)
+        sols = sympy.solve(left - right, x)
+        if not sols:
+            return False, "方程层无可用解"
+        ans_num = _parse_numeric_answer(answer)
+        if ans_num is None:
+            return False, "方程层无法解析答案数值"
+        ok = any(_is_close(float(sympy.N(s)), ans_num) for s in sols)
+        if ok:
+            return True, ""
+        return False, f"方程层不一致: 方程解={sols}, 给定答案={answer}"
+    except Exception as e:
+        return False, f"方程层校验异常: {e}"
+
+
+def _verify_geometry_layer(question: str, answer: Any) -> Tuple[bool, str]:
+    text = (question or "")
+    ans_text = str(answer or "")
+    nums = _extract_numbers(text)
+
+    if any(k in text for k in ["三角形", "triangle", "边长", "sides"]) and len(nums) >= 3:
+        a, b, c = nums[0], nums[1], nums[2]
+        valid = (a + b > c) and (a + c > b) and (b + c > a)
+        if any(k in ans_text for k in ["能", "可以", "yes", "true", "可构成"]):
+            if valid:
+                return True, ""
+            return False, "几何层不一致: 三角形不等式不成立"
+        if any(k in ans_text for k in ["不能", "不可以", "no", "false", "不可构成"]):
+            if not valid:
+                return True, ""
+            return False, "几何层不一致: 三角形不等式成立但答案为否"
+        return False, "几何层无法判断答案语义"
+
+    if any(k in text for k in ["角", "angles", "内角和"]) and len(nums) >= 3:
+        s = nums[0] + nums[1] + nums[2]
+        ans_num = _parse_numeric_answer(answer)
+        if ans_num is None:
+            return False, "几何层无法解析角度答案"
+        if _is_close(s, ans_num):
+            return True, ""
+        return False, f"几何层不一致: 角度和={s}, 给定答案={answer}"
+
+    return False, "几何层未识别可验证题型"
+
+
+def _verify_statistics_layer(question: str, answer: Any) -> Tuple[bool, str]:
+    text = (question or "")
+    nums = _extract_numbers(text)
+    if not nums:
+        return False, "统计层未提取到样本数据"
+
+    ans_num = _parse_numeric_answer(answer)
+    if ans_num is None:
+        return False, "统计层无法解析答案数值"
+
+    text_lower = text.lower()
+    if any(k in text for k in ["均值", "平均数"]) or "mean" in text_lower:
+        mean = sum(nums) / len(nums)
+        if _is_close(mean, ans_num):
+            return True, ""
+        return False, f"统计层不一致: 均值={mean}, 给定答案={answer}"
+
+    if any(k in text for k in ["方差", "variance"]):
+        mean = sum(nums) / len(nums)
+        var = sum((x - mean) ** 2 for x in nums) / len(nums)
+        if _is_close(var, ans_num):
+            return True, ""
+        return False, f"统计层不一致: 方差={var}, 给定答案={answer}"
+
+    return False, "统计层未识别可验证题型"
+
+
+def _verify_example_item(question: str, answer: Any, method: str) -> Tuple[bool, str]:
+    method_text = (method or "").lower()
+    q = question or ""
+    q_lower = q.lower()
+
+    # Layer 1: arithmetic
+    if method_text in ["sympy计算", "arithmetic", "算术"] or re.search(r"^[\d\s+\-*/().^×÷]+$", q.strip()):
+        ok, msg = _verify_arithmetic_layer(q, answer)
+        return ok, f"[算术层] {msg}" if not ok else (True, "")
+
+    # Layer 2: equation
+    if "=" in q and ("x" in q_lower or "方程" in q):
+        ok, msg = _verify_equation_layer(q, answer)
+        return ok, f"[方程层] {msg}" if not ok else (True, "")
+
+    # Layer 3: geometry
+    if any(k in q for k in ["三角形", "几何", "角", "边长", "triangle", "angle", "sides"]):
+        ok, msg = _verify_geometry_layer(q, answer)
+        return ok, f"[几何层] {msg}" if not ok else (True, "")
+
+    # Layer 4: statistics
+    if any(k in q for k in ["平均", "均值", "方差", "统计", "mean", "variance"]):
+        ok, msg = _verify_statistics_layer(q, answer)
+        return ok, f"[统计层] {msg}" if not ok else (True, "")
+
+    # Fallback: try arithmetic first, then equation.
+    ok, msg = _verify_arithmetic_layer(q, answer)
+    if ok:
+        return True, ""
+    ok2, msg2 = _verify_equation_layer(q, answer)
+    if ok2:
+        return True, ""
+    return False, f"[自动分层] {msg}; {msg2}"
+
+
 def verify_math_content(json_output: Dict[str, Any], allowed_prerequisites: List[str] = None) -> Tuple[bool, List[str]]:
     errors: List[str] = []
     try:
@@ -174,18 +324,10 @@ def verify_math_content(json_output: Dict[str, Any], allowed_prerequisites: List
             if not method:
                 errors.append(f"example_chain[{idx}].verification_method 不能为空")
 
-            if method == "sympy计算":
-                q_expr = _parse_sympy_expr(q if isinstance(q, str) else "")
-                a_expr = _parse_answer(a)
-                if q_expr is None or a_expr is None:
-                    errors.append(f"example_chain[{idx}] 无法被 sympy 解析")
-                    continue
-                try:
-                    delta = sympy.simplify(q_expr - a_expr)
-                    if delta != 0:
-                        errors.append(f"example_chain[{idx}] 答案错误: 计算结果={q_expr}, 给定答案={a}")
-                except Exception as e:
-                    errors.append(f"example_chain[{idx}] sympy 校验失败: {e}")
+            # Per-item layered consistency verification.
+            ok, reason = _verify_example_item(q if isinstance(q, str) else "", a, method)
+            if not ok:
+                errors.append(f"example_chain[{idx}] {reason}")
 
     return len(errors) == 0, errors
 

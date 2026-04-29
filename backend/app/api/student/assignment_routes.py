@@ -1,5 +1,5 @@
 from .shared import *
-from .shared import _load_ids
+from .shared import _load_ids, _resolve_exercise_structured
 from flask import current_app
 
 
@@ -93,13 +93,9 @@ def get_exercise(publish_id: int):
         return err("not allowed", http_status=403)
 
     exercise = Exercise.query.get(pub.resource_id)
-    if not exercise or not exercise.content_json:
+    data = _resolve_exercise_structured(exercise)
+    if not exercise or not data:
         return err("exercise format not supported", http_status=400)
-
-    try:
-        data = json.loads(exercise.content_json)
-    except Exception:
-        return err("invalid exercise format", http_status=400)
 
     submission = ExerciseSubmission.query.filter_by(publish_id=pub.id, student_id=profile.student_id).first()
     assignment = ResourceAssignment.query.filter_by(publish_id=pub.id, student_id=profile.student_id).first()

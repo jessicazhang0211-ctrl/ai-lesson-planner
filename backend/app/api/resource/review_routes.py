@@ -9,7 +9,9 @@ from app.models.exercise import Exercise
 from app.models.exercise_submission import ExerciseSubmission
 from app.models.resource_assignment import ResourceAssignment
 from app.models.resource_publish import ResourcePublish
+from app.models.assignment_analysis import AssignmentAnalysis
 from app.services.ai_service import ai_service
+from app.api.student.shared import _resolve_exercise_structured
 from app.utils.auth import token_required
 from app.utils.response import err, ok
 
@@ -109,6 +111,124 @@ def _build_local_review_summary(exercise, structured, submission, lang="zh"):
     return "\n".join(lines)
 
 
+def _build_submission_analysis(exercise, structured, submission, pub):
+    questions = structured.get("questions") if isinstance(structured.get("questions"), list) else []
+    answers = _safe_json_loads(submission.answers, {})
+    auto_result = _safe_json_loads(submission.auto_result, {})
+    teacher_detail = _safe_json_loads(submission.teacher_detail, {})
+
+    total_questions = len(questions)
+    answered_questions = 0
+    wrong_by_type = {}
+    total_by_type = {}
+    misconception_counter = {}
+    wrong_questions = []
+
+    for q in questions:
+        qid = q.get("id")
+        if not qid:
+            continue
+        qtype = str(q.get("type") or "unknown").lower()
+        total_by_type[qtype] = total_by_type.get(qtype, 0) + 1
+
+        ans = answers.get(qid)
+        if ans not in (None, "", [], {}):
+            answered_questions += 1
+
+        is_wrong = False
+        if qtype in ("short", "essay"):
+            detail = teacher_detail.get(qid) if isinstance(teacher_detail.get(qid), dict) else {}
+            if detail:
+                try:
+                    got = int(detail.get("score") or 0)
+                    full = int(q.get("score") or 0)
+                    is_wrong = got < full
+                except Exception:
+                    is_wrong = False
+        else:
+            is_wrong = auto_result.get(qid) == "wrong"
+
+        if is_wrong:
+            wrong_by_type[qtype] = wrong_by_type.get(qtype, 0) + 1
+            stem = str(q.get("stem") or "").strip()
+            if stem:
+                key = stem
+                misconception_counter[key] = misconception_counter.get(key, 0) + 1
+            wrong_questions.append(
+                {
+                    "id": qid,
+                    "type": qtype,
+                    "stem": stem,
+                    "answer": q.get("answer"),
+                    "analysis": q.get("analysis") or "",
+                    "score": q.get("score"),
+                }
+            )
+
+    weak_types = []
+    for qtype, total in total_by_type.items():
+        wrong = wrong_by_type.get(qtype, 0)
+        if total > 0:
+            weak_types.append((qtype, round((wrong / total) * 100, 1), total))
+    weak_types.sort(key=lambda x: x[1], reverse=True)
+
+    completion_rate = round((answered_questions / total_questions) * 100, 1) if total_questions else 0
+    common_misconceptions = [
+        x[0] for x in sorted(misconception_counter.items(), key=lambda x: x[1], reverse=True)[:3]
+    ]
+    weak_question_types = [f"{x[0]}({x[1]}%)" for x in weak_types[:3]]
+
+    score = int(submission.total_score or 0)
+    max_score = 0
+    for q in questions:
+        try:
+            max_score += int(q.get("score") or 0)
+        except Exception:
+            continue
+
+    return {
+        "submission_id": submission.id,
+        "publish_id": submission.publish_id,
+        "class_id": pub.class_id,
+        "exercise_id": pub.resource_id,
+        "title": exercise.title or "",
+        "topic": exercise.title or "",
+        "score": score,
+        "max_score": max_score,
+        "completion_rate": completion_rate,
+        "weak_question_types": weak_question_types,
+        "common_misconceptions": common_misconceptions,
+        "wrong_questions": wrong_questions[:10],
+        "status": submission.status,
+        "teacher_comment": submission.teacher_comment or "",
+        "updated_at": submission.updated_at.strftime("%Y-%m-%d %H:%M:%S") if submission.updated_at else "",
+    }
+
+
+def _upsert_assignment_analysis(created_by, submission, pub, exercise, structured):
+    analysis_obj = _build_submission_analysis(exercise, structured, submission, pub)
+    local_summary = _build_local_review_summary(exercise, structured, submission, lang="zh")
+
+    row = AssignmentAnalysis.query.filter_by(submission_id=submission.id).first()
+    if row is None:
+        row = AssignmentAnalysis(submission_id=submission.id)
+        db.session.add(row)
+
+    row.created_by = int(created_by)
+    row.class_id = pub.class_id
+    row.publish_id = submission.publish_id
+    row.exercise_id = pub.resource_id
+    row.topic = analysis_obj.get("topic") or ""
+    row.title = analysis_obj.get("title") or ""
+    row.score = analysis_obj.get("score")
+    row.max_score = analysis_obj.get("max_score")
+    row.completion_rate = analysis_obj.get("completion_rate")
+    row.weak_question_types_json = json.dumps(analysis_obj.get("weak_question_types") or [], ensure_ascii=False)
+    row.common_misconceptions_json = json.dumps(analysis_obj.get("common_misconceptions") or [], ensure_ascii=False)
+    row.analysis_json = json.dumps(analysis_obj, ensure_ascii=False)
+    row.summary_text = local_summary
+
+
 def _digest_text(raw):
     text = str(raw or "")
     return hashlib.md5(text.encode("utf-8")).hexdigest()
@@ -116,6 +236,7 @@ def _digest_text(raw):
 
 def _review_ai_marker(exercise, submission):
     updated = submission.updated_at.strftime("%Y-%m-%d %H:%M:%S") if submission.updated_at else ""
+    exercise_source = exercise.content_json or exercise.description or ""
     return "|".join(
         [
             f"u:{updated}",
@@ -126,7 +247,7 @@ def _review_ai_marker(exercise, submission):
             f"ac:{_digest_text(submission.answers)}",
             f"tc:{_digest_text(submission.teacher_comment)}",
             f"td:{_digest_text(submission.teacher_detail)}",
-            f"ex:{_digest_text(exercise.content_json)}",
+            f"ex:{_digest_text(exercise_source)}",
         ]
     )
 
@@ -212,13 +333,9 @@ def review_detail(submission_id: int):
         return err("not allowed", http_status=403)
 
     exercise = Exercise.query.get(pub.resource_id)
-    if not exercise or not exercise.content_json:
+    structured = _resolve_exercise_structured(exercise)
+    if not exercise or not structured:
         return err("exercise format not supported", http_status=400)
-
-    try:
-        structured = json.loads(exercise.content_json)
-    except Exception:
-        return err("invalid exercise format", http_status=400)
 
     answers = _safe_json_loads(submission.answers, {})
     teacher_detail = _safe_json_loads(submission.teacher_detail, {})
@@ -266,12 +383,9 @@ def review_ai_summary(submission_id: int):
         return err("not allowed", http_status=403)
 
     exercise = Exercise.query.get(pub.resource_id)
-    if not exercise or not exercise.content_json:
+    structured = _resolve_exercise_structured(exercise)
+    if not exercise or not structured:
         return err("exercise format not supported", http_status=400)
-
-    structured = _safe_json_loads(exercise.content_json, {})
-    if not isinstance(structured, dict):
-        return err("invalid exercise format", http_status=400)
 
     marker = _review_ai_marker(exercise, submission)
     cache_key = f"{submission_id}:{lang}"
@@ -425,13 +539,9 @@ def review_score(submission_id: int):
     teacher_comment = data.get("teacher_comment") or ""
 
     exercise = Exercise.query.get(pub.resource_id)
-    if not exercise or not exercise.content_json:
+    structured = _resolve_exercise_structured(exercise)
+    if not exercise or not structured:
         return err("exercise format not supported", http_status=400)
-
-    try:
-        structured = json.loads(exercise.content_json)
-    except Exception:
-        return err("invalid exercise format", http_status=400)
 
     max_scores = {}
     subjective_ids = set()
@@ -467,7 +577,6 @@ def review_score(submission_id: int):
     submission.teacher_comment = teacher_comment
     submission.total_score = (submission.auto_score or 0) + teacher_score
     submission.status = "graded"
-    db.session.commit()
 
     assignment = ResourceAssignment.query.filter_by(
         publish_id=submission.publish_id,
@@ -476,6 +585,13 @@ def review_score(submission_id: int):
     if assignment:
         assignment.score = submission.total_score
         assignment.status = "completed"
-        db.session.commit()
+    _upsert_assignment_analysis(
+        created_by=user_id,
+        submission=submission,
+        pub=pub,
+        exercise=exercise,
+        structured=structured,
+    )
+    db.session.commit()
 
     return ok(submission.to_dict())

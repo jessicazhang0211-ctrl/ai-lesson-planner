@@ -148,8 +148,8 @@ function renderDetail() {
 
   body.innerHTML = showList.map((q, idx) => {
     const analysis = q.analysis ? `<div class="review-analysis">${t("analysis")}: ${q.analysis}</div>` : "";
-    const studentAns = q.student_answer != null ? `${q.student_answer}` : "";
-    const correctAns = q.answer != null ? `${q.answer}` : "";
+    const studentAns = formatReviewValue(q.student_answer);
+    const correctAns = formatReviewValue(q.answer);
     const teacherScore = q.teacher_score != null ? `<div class="review-meta">${t("teacherScore")}: ${q.teacher_score}</div>` : "";
     const result = getDisplayResult(q);
     const statusTag = result ? `<span class="q-status ${result}">${result === "correct" ? t("correct") : (result === "wrong" ? t("wrong") : (result === "partial" ? t("partial") : t("pending")) )}</span>` : "";
@@ -157,12 +157,18 @@ function renderDetail() {
       <div class="review-item">
         <div class="question-title">${idx + 1}. ${q.stem || ""} ${statusTag}</div>
         <div class="review-meta">${t("yourAnswer")}: ${studentAns || "--"}</div>
-        ${result !== "correct" ? `<div class="review-meta">${t("correctAnswer")}: ${correctAns || "--"}</div>` : ""}
+        <div class="review-meta">${t("correctAnswer")}: ${correctAns || "--"}</div>
         ${teacherScore}
-        ${result !== "correct" ? analysis : ""}
+        ${analysis}
       </div>
     `;
   }).join("");
+}
+
+function formatReviewValue(value) {
+  if (Array.isArray(value)) return value.join(", ");
+  if (value == null) return "";
+  return String(value);
 }
 
 function getDisplayResult(q) {

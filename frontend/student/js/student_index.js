@@ -21,6 +21,7 @@ const studentHomeDict = {
     weakSpotLabel: "薄弱知识点",
     studyStateLabel: "学习状态",
     studyTipLabel: "建议",
+    errorDistLabel: "错因分布",
     empty: "(空)",
     start: "开始",
     exercise: "练习",
@@ -49,6 +50,7 @@ const studentHomeDict = {
     weakSpotLabel: "Weak Knowledge Point",
     studyStateLabel: "Study Status",
     studyTipLabel: "Suggestion",
+    errorDistLabel: "Error Type Distribution",
     empty: "(empty)",
     start: "Start",
     exercise: "Exercise",
@@ -158,6 +160,36 @@ function setText(id, value) {
   if (el) el.textContent = value;
 }
 
+function renderErrorDistribution(stats) {
+  const box = document.getElementById("errorDistChart");
+  if (!box) return;
+  const map = (stats && typeof stats === "object") ? stats : {};
+  const keys = ["概念", "计算", "审题"];
+  const labels = getLocale() === "en"
+    ? { "概念": "Concept", "计算": "Computation", "审题": "Reading" }
+    : { "概念": "概念", "计算": "计算", "审题": "审题" };
+  const total = keys.reduce((s, k) => s + Number(map[k] || 0), 0);
+  if (!total) {
+    box.textContent = "--";
+    return;
+  }
+
+  box.innerHTML = keys.map((k) => {
+    const n = Number(map[k] || 0);
+    const pct = Math.round((n / total) * 100);
+    return `
+      <div style="margin:6px 0;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#666;">
+          <span>${labels[k]}</span><span>${pct}%</span>
+        </div>
+        <div style="height:8px;background:#eef0f3;border-radius:999px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:#056de8;"></div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
 async function loadHome() {
   try {
     const locale = getLocale();
@@ -185,8 +217,10 @@ async function loadHome() {
     setText("weakSpot", translateInsightValue(overview.analysis?.weak_spot || "--", "weak_spot") || "--");
     setText("studyState", translateInsightValue(overview.analysis?.study_state || "--", "study_state") || "--");
     setText("studyTip", translateInsightValue(overview.analysis?.study_tip || "--", "study_tip") || "--");
+    renderErrorDistribution(overview.student_profile?.error_type_stats || {});
   } catch {
     renderList("taskList", [], "task");
+    renderErrorDistribution({});
   }
 }
 

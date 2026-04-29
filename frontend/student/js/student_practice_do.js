@@ -37,7 +37,8 @@ const practiceDoDict = {
     saveSuccess: "保存成功",
     submitFailed: "提交失败",
     submitSuccess: "提交成功，已自动批改选择题和填空题",
-    graded: "已批改"
+    graded: "已批改",
+    multiFillHint: "多个空请按顺序输入，并用英文逗号分隔，例如：30,3"
   },
   en: {
     pageTitle: "Practice Assignment · Student",
@@ -68,7 +69,8 @@ const practiceDoDict = {
     saveSuccess: "Saved",
     submitFailed: "Submit failed",
     submitSuccess: "Submitted. Objective questions were graded automatically.",
-    graded: "graded"
+    graded: "graded",
+    multiFillHint: "For multiple blanks, answer in order and separate with commas, e.g. 30,3"
   }
 };
 const i18n = window.I18N || null;
@@ -104,6 +106,12 @@ function setTip(text) {
   const el = document.getElementById("exerciseTip");
   if (!el) return;
   el.textContent = text || "";
+}
+
+function formatReviewValue(value) {
+  if (Array.isArray(value)) return value.join(", ");
+  if (value == null) return "";
+  return String(value);
 }
 
 function renderExercise(questions, draftAnswers) {
@@ -154,18 +162,23 @@ function renderExercise(questions, draftAnswers) {
       `;
     } else if (type === "fill") {
       const v = typeof draft[qid] === "string" ? draft[qid] : "";
-      inputHtml = `<input type="text" name="${qid}" class="answer-input" value="${v}" ${locked ? "disabled" : ""} />`;
+      const hasMultipleBlanks = Array.isArray(q.answer)
+        ? q.answer.length > 1
+        : /[，,、;；|]/.test(String(q.answer || ""));
+      const placeholder = hasMultipleBlanks ? t("multiFillHint") : "";
+      const hintHtml = hasMultipleBlanks ? `<div class="answer-hint">${t("multiFillHint")}</div>` : "";
+      inputHtml = `<input type="text" name="${qid}" class="answer-input" value="${v}" placeholder="${placeholder}" ${locked ? "disabled" : ""} />${hintHtml}`;
     } else {
       const v = typeof draft[qid] === "string" ? draft[qid] : "";
       inputHtml = `<textarea name="${qid}" class="answer-text" ${locked ? "readonly" : ""}>${v}</textarea>`;
     }
-    const analysisHtml = (reviewMode && result !== "correct" && q.analysis) ? `<div class="review-analysis">${t("analysis")}: ${q.analysis}</div>` : "";
-    const answerHtml = (reviewMode && result !== "correct" && q.answer != null) ? `<div class="review-meta">${t("correctAnswer")}: ${q.answer}</div>` : "";
+    const analysisHtml = (reviewMode && q.analysis) ? `<div class="review-analysis">${t("analysis")}: ${q.analysis}</div>` : "";
+    const answerHtml = (reviewMode && q.answer != null) ? `<div class="review-meta">${t("correctAnswer")}: ${formatReviewValue(q.answer)}</div>` : "";
     const teacherScoreHtml = (reviewMode && q.teacher_score != null) ? `<div class="review-meta">${t("teacherScore")}: ${q.teacher_score}</div>` : "";
     return `
       <div class="question-item">
         <div class="question-title">${idx + 1}. ${q.stem || ""} ${statusTag}</div>
-        ${reviewMode ? `<div class="review-meta">${t("yourAnswer")}: ${draft[qid] ?? "--"}</div>` : ""}
+        ${reviewMode ? `<div class="review-meta">${t("yourAnswer")}: ${formatReviewValue(draft[qid]) || "--"}</div>` : ""}
         ${inputHtml}
         ${reviewMode ? answerHtml : ""}
         ${reviewMode ? teacherScoreHtml : ""}

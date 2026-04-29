@@ -67,7 +67,7 @@ def token_required(f):
 
         try:
             payload = decode_token(token)
-            g.current_user_id = int(payload.get("user_id", 0))
+            g.current_user_id = int(payload.get("user_id") or payload.get("id") or 0)
         except Exception as e:
             return err("invalid or expired token", http_status=401)
 
