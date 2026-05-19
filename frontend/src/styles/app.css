@@ -1,0 +1,23 @@
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+.react-legacy-page {
+  min-height: 100vh;
+}
+
+.react-legacy-error {
+  margin: 16px;
+  padding: 12px 14px;
+  border: 1px solid #efb7b7;
+  border-radius: 8px;
+  color: #bd2f2f;
+  background: #fff1f1;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}

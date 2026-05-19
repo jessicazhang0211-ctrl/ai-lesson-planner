@@ -21,6 +21,11 @@ AItest/.env
 # Test outputs
 AItest/results/
 
+# Node / frontend
+node_modules/
+**/node_modules/
+frontend/dist/
+
 # Secret-like files
 *.pem
 *.key

@@ -16,15 +16,7 @@ import json
 import datetime
 import re
 
-try:
-    import google.generativeai as genai
-except Exception:
-    genai = None
-
 from .blueprint import bp
-
-if genai and Config.GEMINI_API_KEY:
-    genai.configure(api_key=Config.GEMINI_API_KEY)
 
 
 def _load_ids(raw):
@@ -312,7 +304,7 @@ def _rule_based_analysis(avg_score_all, wrong_rate_map):
 
 
 def _ai_analysis(summary_text: str):
-    if not genai or not Config.GEMINI_API_KEY:
+    if not Config.GEMINI_API_KEY:
         return None
     if not summary_text:
         return None
@@ -387,7 +379,7 @@ def _localize_analysis(analysis: dict, lang: str):
     if not isinstance(analysis, dict):
         return analysis
 
-    if not genai or not Config.GEMINI_API_KEY:
+    if not Config.GEMINI_API_KEY:
         return _translate_analysis_rule_based(analysis) or analysis
 
     try:
